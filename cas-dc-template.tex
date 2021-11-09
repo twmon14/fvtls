@@ -78,7 +78,7 @@
 %       gplus=<gplus id>]
 
 % \author[<aff no>]{<author name>}[<options>]
-
+\author{}
 % Corresponding author indication
 % \cormark[<corr mark no>]
 
@@ -163,17 +163,9 @@ TLS 1.0 has been formally verified with CiMPG in CafeInMaude. The formal specifi
 
 % Main text
 \section{Introduction}\label{intro}
-A large number of security protocols have been proposed
-so as to protect data at the application and transport layers.
-They are extremely essential in the Internet era. The
-mostwidely deployed security protocol among them is most
-likely SSL (Secure Sockets Layer). Most of the WWW
-browsers adopt SSL. Their users send their personal information
-such as credit card numbers to purchase goods from
-electronic malls. It is then really important that the security
-protocol is truly secure. We have formally analyzed TLS[2]
-(Transport Layer Security), which is the latest version, or
-the successor of SSL, so as to confirm that it is secure.
+Internet security has become the important topic in recent years. The rapid development of e-commerce, individuals and organizations are relying on the Web and security services such as online banking, online shops that need to exchange the sensitive information such as credit card numbers, account numbers, etc. between two entities in non-secure network environment. With the increase service availability the number of risks increase both for users and providers. In order to ensure a secure communication between them, a large number of security protocols have been designed and developed to protect the data. Among them, Transport Layer Security protocol (TLS)\cite{dierk} is the most widely used security protocol. TLS is the successor of Secure
+Sockets Layer (SSL). 
+
 % Numbered list
 % Use the style of numbering in square brackets.
 % If nothing is used, default style will be taken.
@@ -235,7 +227,8 @@ the successor of SSL, so as to confirm that it is secure.
 % You should describe TLS 1.0, CafeInMaude, CiMPA, CiMPG, how to
 % formally specify TLS 1.0 and how to write proof scores.
 \section{Preliminaries}\label{pre}
-\section{How to formally specify TLS 1.0} \label{fs}
+
+\section{How to formpally specify TLS 1.0} \label{fs}
 \section{How to write proof scores}\label{proofscores}
 \section{Formal verification of TLS with CiMPG}\label{fvtls}
 \section{Related Work}\label{relatedwork}
@@ -249,16 +242,17 @@ the successor of SSL, so as to confirm that it is secure.
 \bibliographystyle{cas-model2-names}
 
 % Loading bibliography database
-\bibliography{}
+\bibliography{cas-refs}
 
 % Biography
 \bio{}
 % Here goes the biography details.
 \endbio
 
-\bio{pic1}
-% Here goes the biography details.
-\endbio
+% \bio{pic1}
+% % Here goes the biography details.
+% \endbio
 
 \end{document}
 
+% 
