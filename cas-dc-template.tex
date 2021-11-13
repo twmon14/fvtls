@@ -138,7 +138,7 @@
 
 % Here goes the abstract
 \begin{abstract}
-TLS 1.0 has been formally verified with CiMPG in CafeInMaude. The formal specification of TLS is modeled as transition systems in terms of equations in CafeOBJ/OTS method, and it has been verified that the system have properties by means of equational reasoning. The given initial proof scores in CafeOBJ are revised and added some additional proof fragments in some invariants if it is necessary such that the proof scores are complete and they could be successfully tackled by CiMPG. When the complete and correct proof scores are available, they are verified in CiMPG. Feeding the proof scores into CiMPG, CiMPG can generate proof scripts for CiMPA. However, it is not a good idea to feed all proof scores of all invariants in CiMPG as one file because CiMPG takes too much time to generate the proof scripts since the size of the proof score is quite large. Thus, each invariant has been tackled with CiMPG one by one.
+TLS protocol has been formally verified with CiMPG in CafeInMaude. The formal specification of TLS is modeled as transition systems in terms of equations in CafeOBJ/OTS method, and it has been verified that the system have properties by means of equational reasoning. The given initial proof scores in CafeOBJ are revised and added some additional proof fragments in some invariants if it is necessary such that the proof scores are complete and they could be successfully tackled by CiMPG. When the complete and correct proof scores are available, they are verified in CiMPG. Feeding the proof scores into CiMPG, CiMPG can generate proof scripts for CiMPA. However, it is not a good idea to feed all proof scores of all invariants in CiMPG as one file because CiMPG takes too much time to generate the proof scripts since the size of the proof score is quite large. Thus, each invariant has been tackled with CiMPG one by one.
 \end{abstract}
 
 % Use if graphical abstract is present
@@ -163,8 +163,109 @@ TLS 1.0 has been formally verified with CiMPG in CafeInMaude. The formal specifi
 
 % Main text
 \section{Introduction}\label{intro}
-Internet security has become the important topic in recent years. The rapid development of e-commerce, individuals and organizations are relying on the Web and security services such as online banking, online shops that need to exchange the sensitive information such as credit card numbers, account numbers, etc. between two entities in non-secure network environment. With the increase service availability the number of risks increase both for users and providers. In order to ensure a secure communication between them, a large number of security protocols have been designed and developed to protect the data. Among them, Transport Layer Security protocol (TLS)\cite{dierk} is the most widely used security protocol. TLS is the successor of Secure
-Sockets Layer (SSL). 
+Internet security has become the important topic in recent years. The rapid development of e-commerce, individuals and organizations are relying on the Web and security services such as online banking, online shops etc, that need to exchange the sensitive information such as credit card numbers, account numbers, etc. between two parties in non-secure network environment. With the increase service availability the number of risks increase both for users and providers. In order to ensure a secure communication between them, a large number of security protocols have been designed and developed to protect the data. Among them, Transport Layer Security protocol (TLS)\cite{dierk} is the most widely used security protocol. TLS is the successor of Secure Sockets Layer (SSL)\cite{1621007}. 
+% here
+
+TLS was mainly developed in order to give the customers
+confidence in their interactions when they access online services
+from their electronic devices. If two parties want to securely establish a common key over an insecure channel, they typically execute a key exchange protocol. Both TLS and SSL protocols confine a set of rules for the communication between client and server. They rely on public-key cryptography in order to ensure integrity of exchanged data. Although  these  authentication  protocols  have been carefully designed by security experts, it is not uncommon for security attacks  as  technology  continues  to  advance. Despite multiple prevention measurements, several vulnerabilities such as  
+Heartbleed\cite{10.1145/2663716.2663755} and DROWN\cite{197245} have been discovered. Therefore, ensuring the reliability of security protocols is really important and more effort is required to test the implementations of such security protocols.
+
+One possible technology is formal verification  with theorem  proving. Theorem proving has been used to prove that systems enjoy some desired properties by writing proof scores. Proof scores are written as programs in an algebraic specification language to conduct formal verification. This approach uses observational transition systems (OTSs) \cite{OgataF03fmoods} as state machines to formalize systems. A security protocol,together with the most generic intruder, is modeled as an OTS. Then, the OTSs are specified in equations with CafeOBJ\cite{DiaconescuF98amast}, a formal specification language. System properties are expressed as CafeOBJ terms. Formal verification is conducted by writing what is called ``proof scores'' \cite{OgataF03fmoods} in CafeOBJ and executing them with CafeOBJ. This approach to formal verification is flexible, however, the proof may contain some flaws since proof scores are subject to human errors. 
+
+CafeInMaude is the second implementation in Maude of CafeOBJ, where Maude~\cite{ClavelEtal2007maude} is a sibling language of CafeOBJ.
+CafeInMaude introduces CafeOBJ specifications into the Maude system.
+It comes with two extension tools CafeInMaude Proof Assistant (CiMPA) and CafeInMaude Proof Generator (CiMPG)~\cite{RiescoO18tosem}. CiMPA is a proof assistant that allows users to write proof scripts in order to prove invariant properties on their CafeOBJ specifications. Using CiMPA to develop the formal verification by writing proof scripts can help us to avoid the flaw made by human users. However, it is often the case that CiMPA is not flexible enough to conduct formal verification, especially when the size of proof score is huge. 
+
+CiMPG allows users to combine the flexibility of the proof score approach and the reliability of CiMPA by providing a minimal set of annotations for identifying proof scores and generating CiMPA scripts for these proof scores. Given slightly annotated proof scores, CiMPG generates proof scripts for CiMPA. Feeding the generated proof scripts into CiMPA, if CiMPA successfully discharges all goals, the proof scores are correct for the goals and the formal verification is successful. Although CiMPG can automatically generate proof scripts for CiMPA from annotated proof scores, it will take time to do so when the size of the input proof score is large.
+
+This paper presents the formal verification of TLS 1.0 with CiMPG. We use CiMPG to formally verify that: TLS enjoys five properties. All specifications and proofs presented in this paper are available at \url{https://github.com/twmon14/fvtls}.
+
+The rest of the paper is organized as follows. Section \ref{tls} mentions TLS, TLS handshake protocol and the abstract handshake protocol. Section \ref{fstls} presents the formal specification of TLS. Section \ref{fvtls} describes the formal verification of TLS with CiMPG. Some related work is mentioned in Section \ref{relatedwork}. Finally, we give our conclusions and some lines of future work in Section \ref{conclusion}.
+	
+\section{TLS}\label{tls}
+TLS\cite{dierk} provides privacy and data integrity between client/server communications. The protocol consists of four sub-protocols. They are TLS handshake protocol, the change cipher spec protocol, the alert protocol and TLS record protocol. 
+
+When two peers want to establish a communication, TLS handshake protocol is used to negotiate a cipher suite and security parameters between client and server. The change cipher spec protocol is used when each of two peers(client/server) want to notify the other that subsequent messages after handshake process will be protected under the newly negotiated cipher suite,  and security parameters. If either of them notices something wrong, one lets the other know about it with the alert protocol. TLS record protocol provides private and reliable communications between the two peers using the negotiated cipher suite and security parameters.
+
+If a cipher suite used is weaker than the available one to both peers or the security parameters shared by both peers are leaked by some reasons, then an adequate level of security cannot be obtained. Therefore, the security of TLS largely depends on a cipher suite and security parameter negotiated by client/ server in handshake process. It can be said that among four sub-protocols, TLS handshake protocol takes part in the most important role and the security of TLS relies on TLS handshake protocol. 
+
+\subsection{TLS handshake protocol}\label{handshake}
+Figure 1 shows the message exchanges between client and server in TLS handshake protocol. 
+
+To initiate a new run of the protocol, a server may send a HelloRequest message to a client or a client sends a ClientHello message to the server. On receipt of the HelloRequest message from server, the client replies to server with a ClientHello message. A ClientHello message contains the basic information such as a version number of TLS, a list of cipher suites that are available to the client, a random number generated by client, etc.
+
+The server then replies to the ClientHello message with a
+ServerHello message, which consists of a version number of TLS that is lower than the one suggested by the client and the highest supported by the server, a session ID, a cipher suite chosen from the list suggested by the client in the ClientHello message, a random number generated by server, etc. 
+
+If the server should be authenticated, the server sends  his/her certificate to the client. If the server Certificate message does not contain enough data to allow the client to exchange a parameter secret called a pre-master secret, the server sends a ServerKeyExchange message to the client. The server can optionally request a certificate from the client by sending a CertificateRequest message. The server sends a ServerHelloDone message to the client to indicate the end of the ServerHello.
+
+When the client receives ServerHelloDone message, the client checks the messages received. When it is necessary, the client sends his/her certificate to the server. If it is sent, then a ClientKeyExchange message is always sent by the client after the client Certificate message. Otherwise, the ClientKeyExchange message is the first message sent by the client after he/she receives a ServerHelloDone message. The ClientKeyExchange message
+contains a pre-master secret which is a random number generated by the client. Two key exchange methods (RSA and Diffie-Hellman) are specified to exchange a pre-master secret. 
+
+After ClientKeyExchange message, the client can optionally send a CertificateVerify message to explicitly provide a verification of the client certificate.
+The client notifies the server with the change cipher spec protocol that subsequent messages will be protected under the newly negotiated cipher suite and security parameters. The client then sends a Finished message to the server to verify that the handshake process
+is finished successfully. The Finished message is protected under the just negotiated cipher suite and security parameters.
+
+On receipt of the client Finished message, the server
+checks the message received. If the message is correct, the server notifies the client with the change cipher spec protocol that subsequent messages will be protected under the newly negotiated cipher suite and security parameters. The server then sends a server Finished message to the client to verify that the handshake process is successful.
+
+On receipt of the server Finished message, the client
+checks the message received. If the message is correct, the handshake process is done successfully between client and server and the client can exchange application data securely with server in the current session.
+
+A previously established session and a current session
+can be resumed and/or duplicated without doing the handshake process again. If a client wants to resume or duplicate a session, he/she sets the session ID in a new ClientHello message and sends it to a server. The ClientHello message is protected under the current cipher suite and security parameters. On receipt of the ClientHello message, if the server wants to resume or duplicate the session, he/she replies to the client with a new ServerHello message. The ServerHello message is protected under the current cipher suite and security parameters. 
+
+The server then signals the client to use the newly negotiated security parameters for the session. The same cipher suite is used. A server Finished message is then sent to the client by the server. On receipt of the server Finished message, the client checks the message received. If the message is correct, the client signals the server to use the newly negotiated security parameters for the session and a client Finished message is then sent to the server. On receipt of the client Finished message, the server checks the message. If the message is correct, the session is then resumed and/or duplicated and the client can exchange application data securely with server in that session.
+
+\section{Formal specification of TLS} \label{fstls}
+
+
+
+% \section{How to write proof scores}\label{proofscores}
+\section{Formal verification of TLS with CiMPG}\label{fvtls}
+
+\section{Related Work}\label{relatedwork}
+% The paper ~\cite{spin} used the model checking method to formally verify security protocols using Spin model checker. The paper exampled NSPK protocol and DS protocol. The experimental results showed that
+% the number of the protocol model states has been decreased
+% by a wide margin, and the efficiency of protocol verification has been improved properly. The security protocol models mainly include the protocol
+% instance model and the intruder model. It is described with Promela Model. The property of security protocols is described using LTL. An attack is found in each protocol. The difference between their method and our method is that we use OTS/CafeOBJ method to formalize the protocols as state machines. The Dolev-Yao intruder model is used in both methods. Furthermore, this paper only verified the authentication property of security protocols while we verified authentication and secrecy properties.
+
+% Mitchell, et al.[7] use the model checker Mur [3] to
+% check seven simple protocols derived from the SSL 3.0
+% handshake protocol. The primal reason why they have analyzed
+% the protocols is to identify the purpose of certain message
+% fields (version number, nonce, etc.) in some steps of
+% the protocol. The analysis starts with the simplest version of
+% the handshake protocol from which some fields are omitted,
+% and the fields are gradually added to the protocol. The first
+% six protocols have been found badly flawed and the model
+% checker has found many attacks. The model checker has
+% been used to check the final protocol with two clients, one
+% server, no more than two simultaneous open sessions per
+% server and no more than one resumption per session, and no
+% attacks have been discovered.
+
+% Paulson[11] analyzes the TLS handshake protocol with
+% his inductive method[10] that is supported by the proof assistant
+% Isabelle/HOL[8]. In the protocol analyzed by Paulson,
+% servers always sent their certificates to clients, the key exchange method considered is RSA, and clients optionally
+% send their certificates and ClientKeyExchange messages to
+% servers. In his model of the protocol, a malicious principal
+% called the spy, which corresponds to the intruder in our
+% model, is taken into account and it is supposed that any session
+% key, if used, may end up in the hands of the spy, which
+% is denoted by the rule Oops. One of the results of the analysis
+% is that session resumption turns out to be safe even if the
+% spy has obtained session keys from earlier sessions.
+
+% Palombo, et al. \cite{Palombo2015ACS} have formally analyzed several examples of a particular class of cryptographic protocols (NSPK, DS, TMN, and DH) using three alternative tools. They used SPIN to analyze explicit state models written in Promela; symbolic models in the pi-calculus were verified using Proverif, and finally, we proved lemmas that show protocol insecurity using the theorem prover Coq. They have presented that choosing the right tool always implies a trade-off. It is generally easier to model a system using SPIN’s state representation than using the pi-calculus or
+% logical inference rules. However, SPIN can only verify a bounded number of sessions and
+% message space. Proverif verifies an unbounded number of sessions and message space at the cost of potentially not terminating or reporting false attacks. On the other hand, Coq theories with security proofs are not bounded and can
+% represent an unrestricted symbolic attacker. They have shown that protocol insecurity can be
+% proved in Coq. On the other hand, proof that demonstrates that the properties hold may be harder to construct. In comparison with our research, we proved lemmas that show protocol security using proof assistant CiMPA and proof generator CiMPG.
+
+\section{Conclusion}\label{conclusion}
 
 % Numbered list
 % Use the style of numbering in square brackets.
@@ -222,17 +323,10 @@ Sockets Layer (SSL).
 %% The Appendices part is started with the command \appendix;
 %% appendix sections are then done as normal sections
 %% \appendix
+
 % There are several ideas/devices that should be used to make the formal
 % verification successful.
-% You should describe TLS 1.0, CafeInMaude, CiMPA, CiMPG, how to
-% formally specify TLS 1.0 and how to write proof scores.
-\section{Preliminaries}\label{pre}
 
-\section{How to formpally specify TLS 1.0} \label{fs}
-\section{How to write proof scores}\label{proofscores}
-\section{Formal verification of TLS with CiMPG}\label{fvtls}
-\section{Related Work}\label{relatedwork}
-\section{Conclusion}\label{conclusion}
 
 % To print the credit authorship contribution details
 \printcredits
