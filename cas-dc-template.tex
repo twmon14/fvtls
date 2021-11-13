@@ -171,7 +171,7 @@ confidence in their interactions when they access online services
 from their electronic devices. If two parties want to securely establish a common key over an insecure channel, they typically execute a key exchange protocol. Both TLS and SSL protocols confine a set of rules for the communication between client and server. They rely on public-key cryptography in order to ensure integrity of exchanged data. Although  these  authentication  protocols  have been carefully designed by security experts, it is not uncommon for security attacks  as  technology  continues  to  advance. Despite multiple prevention measurements, several vulnerabilities such as  
 Heartbleed\cite{10.1145/2663716.2663755} and DROWN\cite{197245} have been discovered. Therefore, ensuring the reliability of security protocols is really important and more effort is required to test the implementations of such security protocols.
 
-One possible technology is formal verification  with theorem  proving. Theorem proving has been used to prove that systems enjoy some desired properties by writing proof scores. Proof scores are written as programs in an algebraic specification language to conduct formal verification. This approach uses observational transition systems (OTSs) \cite{OgataF03fmoods} as state machines to formalize systems. A security protocol,together with the most generic intruder, is modeled as an OTS. Then, the OTSs are specified in equations with CafeOBJ\cite{DiaconescuF98amast}, a formal specification language. System properties are expressed as CafeOBJ terms. Formal verification is conducted by writing what is called ``proof scores'' \cite{OgataF03fmoods} in CafeOBJ and executing them with CafeOBJ. This approach to formal verification is flexible, however, the proof may contain some flaws since proof scores are subject to human errors. 
+One promising technology is formal verification  with theorem  proving. Theorem proving has been used to prove that systems enjoy some desired properties by writing proof scores. Proof scores are written as programs in an algebraic specification language to conduct formal verification. This approach uses observational transition systems (OTSs) \cite{OgataF03fmoods} as state machines to formalize systems. A security protocol,together with the most generic intruder, is modeled as an OTS. Then, the OTSs are specified in equations with CafeOBJ\cite{DiaconescuF98amast}, a formal specification language. System properties are expressed as CafeOBJ terms. Formal verification is conducted by writing what is called ``proof scores'' \cite{OgataF03fmoods} in CafeOBJ and executing them with CafeOBJ. This approach to formal verification is flexible, however, the proof may contain some flaws since proof scores are subject to human errors. 
 
 CafeInMaude is the second implementation in Maude of CafeOBJ, where Maude~\cite{ClavelEtal2007maude} is a sibling language of CafeOBJ.
 CafeInMaude introduces CafeOBJ specifications into the Maude system.
@@ -179,7 +179,9 @@ It comes with two extension tools CafeInMaude Proof Assistant (CiMPA) and CafeIn
 
 CiMPG allows users to combine the flexibility of the proof score approach and the reliability of CiMPA by providing a minimal set of annotations for identifying proof scores and generating CiMPA scripts for these proof scores. Given slightly annotated proof scores, CiMPG generates proof scripts for CiMPA. Feeding the generated proof scripts into CiMPA, if CiMPA successfully discharges all goals, the proof scores are correct for the goals and the formal verification is successful. Although CiMPG can automatically generate proof scripts for CiMPA from annotated proof scores, it will take time to do so when the size of the input proof score is large.
 
-This paper presents the formal verification of TLS 1.0 with CiMPG. We use CiMPG to formally verify that: TLS enjoys five properties. All specifications and proofs presented in this paper are available at \url{https://github.com/twmon14/fvtls}.
+We have formally verified academic protocols
+such as NSLPK authentication protocol \cite{twmon}. TLS protocol is much more complicated than academic protocols. Although it has been formally analyzed and verified that TLS enjoys some desired properties in \cite{1437139} with OTS/CafeOBJ method, we are the first to formally verify that TLS enjoys some desired properties with CiMPG as  well as CiMPA. 
+All specifications and proofs presented in this paper are available at \url{https://github.com/twmon14/fvtls}.
 
 The rest of the paper is organized as follows. Section \ref{tls} mentions TLS, TLS handshake protocol and the abstract handshake protocol. Section \ref{fstls} presents the formal specification of TLS. Section \ref{fvtls} describes the formal verification of TLS with CiMPG. Some related work is mentioned in Section \ref{relatedwork}. Finally, we give our conclusions and some lines of future work in Section \ref{conclusion}.
 	
@@ -214,16 +216,85 @@ On receipt of the server Finished message, the client
 checks the message received. If the message is correct, the handshake process is done successfully between client and server and the client can exchange application data securely with server in the current session.
 
 A previously established session and a current session
-can be resumed and/or duplicated without doing the handshake process again. If a client wants to resume or duplicate a session, he/she sets the session ID in a new ClientHello message and sends it to a server. The ClientHello message is protected under the current cipher suite and security parameters. On receipt of the ClientHello message, if the server wants to resume or duplicate the session, he/she replies to the client with a new ServerHello message. The ServerHello message is protected under the current cipher suite and security parameters. 
+can be resumed and/or duplicated without exchanging all handshake messages. If a client wants to resume or duplicate a session, he/she sets the session ID in a new ClientHello message and sends it to a server. The ClientHello message is protected under the current cipher suite and security parameters. On receipt of the ClientHello message, if the server wants to resume or duplicate the session, he/she replies to the client with a new ServerHello message. The ServerHello message is protected under the current cipher suite and security parameters. 
 
 The server then signals the client to use the newly negotiated security parameters for the session. The same cipher suite is used. A server Finished message is then sent to the client by the server. On receipt of the server Finished message, the client checks the message received. If the message is correct, the client signals the server to use the newly negotiated security parameters for the session and a client Finished message is then sent to the server. On receipt of the client Finished message, the server checks the message. If the message is correct, the session is then resumed and/or duplicated and the client can exchange application data securely with server in that session.
 
-\section{Formal specification of TLS} \label{fstls}
+\subsection{The Abstract Handshake Protocol}\label{abstracthandshake}
+Figure 2 shows the abstract version of TLS handshake protocol. In the protocol, A denotes a client and B a server respectively. In the figure, the first six exchanged messages are the full handshake process in which a cipher suite and security parameters are negotiated between client and server. The remaining ones are for the resumption of a previously established session or the duplication of a current session.
+
+Cryptographic functions used in the protocol are H(.)
+(a one-way hash function), $\varepsilon_K(.)$ (an encryption function with symmetric or asymmetric key $K$) and $S_X(.)$(a digital signature function with principal $X$’s private key). The other primitives used in the protocol are Rand$_X$ (a random number generated by principal $X$), ListOfChoices (a list of cipher suites), Choice (a cipher suite), SID (a session ID), PMS (a pre-master secret), CA (certificate authority) and K$_X$ (principal $X$'s public key).
+
+Composite data occurring in the protocol are as follows:
+Cert$_X$ : $X$, K$_X$, $S_{CA}$($X$, K$_X$) \newline
+ClientKey : H(A, PMS, Rand$_A$, Rand$_B$) \newline
+ClientKey : H(B, PMS, Rand$_A$, Rand$_B$) \newline
+ClientFinish : H("client", $A$, $B$, SID, ListOfChoices, Choice, Rand$_A$, Rand$_B$, PMS)\newline
+ServerFinish : H("server", $A$, $B$, SID, ListOfChoices, Choice, Rand$_A$, Rand$_B$, PMS)\newline
+ClientFinish2 : H("client", $A$, $B$, SID, Choice, Rand$_A$, Rand$_B$, PMS)\newline
+ServerFinish2 : H("server", $A$, $B$, SID, Choice, Rand$_A$, Rand$_B$, PMS)\newline
+
+We suppose the following in the abstract handshake protocol: a server always sends his/her certificate to a client when a full handshake process is performed; a server sends neither SeverKeyExchange nor CertificateRequest messages; server Certificate message also plays the role of ServerHelloDone messages; a client sends neither Certificate nor CertificateVerify messages; ChangeCipherSpec messages are implicit; there exists only one trusted certificate authority; the method used for exchanging pre-master secrets is RSA only; the content of Finished messages is not the hash of the security parameters and handshake messages exchanged, but that of two random numbers and a pre-master secret, etc.
+% 		\end{verbatim}
+% 	\end{small}
+
+\section{Formal Specification of TLS} \label{fstls}
+Suppose that there exist not only multiple trustable
+principals but also multiple malicious (untrustable) principals, and the cryptosystem used is perfect. Trustable
+principals exactly follow the protocol, while malicious ones may do something against the protocol as well. The combination and cooperation of malicious principals is modeled as the most general intruder Dolev-Yao\cite{dolev}. 
+An intruder can glean as much information as possible from messages flowing in the network and create fake messages based on the gleaned information, provided that the intruder cannot break the perfect cryptosystem.
+
+We specify 10 operators (data construtors) to define 10 kinds of messages. The data constructors used in TLS are declared as follows:
+\begin{small}
+		\begin{verbatim}
+  op ch  : Prin    Prin   Prin  Rand ListOfChoices -> Msg
+  op sh  : Prin    Prin   Prin  Rand Sid Choice    -> Msg
+  op ct  : Prin    Prin   Prin  Cert               -> Msg
+  op kx  : Prin    Prin   Prin  EncPms             -> Msg
+  op cf  : Prin    Prin   Prin  EncCFin            -> Msg
+  op sf  : Prin    Prin   Prin  EncSFin            -> Msg
+  op ch2 : Prin    Prin   Prin  Rand Sid           -> Msg
+  op sh2 : Prin    Prin   Prin  Rand Sid Choice    -> Msg
+  op cf2 : Prin    Prin   Prin  EncCFin2           -> Msg
+  op sf2 : Prin    Prin   Prin  EncSFin2           -> Msg
+		\end{verbatim}
+	\end{small}
+where \verb!Msg! is the sort denoting messages. 
+
+The other sorts and the corresponding data
+constructors that constitute the messages are declared as follows:
+\begin{itemize}
+  \item \verb!Principal! denotes principals. There are two special principals; one is the \verb!intruder! denoted by intruder and the other the certificate authority denoted by \verb!ca!. We suppose that \verb!intruder! does not equal \verb!ca!. 
+  \item \verb!Rand! denotes random numbers generated by principals.
+\item \verb!ListOfChoices! denotes lists of cipher suites.
+  \item \verb!Choice! denotes cipher suites. 
+  \item \verb!Sid! denotes session IDs. 
+  \item \verb!PubKey! denotes public keys. The principal $a$’s public key is denoted by \verb!k!($a$).
+\item \verb!Sig! denotes digital signatures of pairs of a principal and a public key. The digital signature of the pair of principal $b$ and public key $k$ signed by $ca$ is denoted by \verb!sig($ca$, $b$, $k$)!.
+\item \verb!Cert! denotes certificates of public keys. Given principal $a$, public key $k$ and signature $g$, the certificate that $k$ is $a$’s,
+which is certified by $g$, is denoted by \verb!cert!($a$, $k$, $g$).
+\item \verb!Secret! denotes secret values that make pre-master secret globally unique and unguessable. 
+\item \verb!Pms! denotes premaster secrets. Given two principals $a,b$ and a secret value $s$, a pre-master secret generated by client $a$ for server $b$ is denoted by \verb!pms!($a$, $b$, $s$).
+\end{itemize}
+
+Operator \verb|_\in_| is the membership predicate of lists.
+
+For data constructor \verb!x! (where \verb!x = ch!, \verb!sh!, \verb!ct!, \verb!kx!, \verb!cf!, \verb!sf!, \verb!ch2,! \verb!sh2!, \verb!sf2!, \verb!cf2!), predicate \verb!x!? is defined, which checks if a given message is \verb!x! message. Given a term denoting a message, projection operators such as \verb!crt!, \verb!src! and \verb!dst! return the first, second and third arguments of the term, respectively.The first, second and  third  arguments  of  each  message are  the  actual creator,  the  seeming  sender  and  the  receiver  of the  corresponding message. The first argument is meta-information that is only available to the outside observer and the principal that has sent the corresponding message, and that cannot be forged by the intruder; while the remaining arguments may be forged by the intruder. The projection operators \verb!rand, list, choice, sid, cert, epms, ecfin, esfin, ecfin2! and \verb!esfin2! return other arguments, respectively.
+
+Suppose that there exists a message in the network. It is true that the principal denoted by the first
+argument has sent the message. If the first argument is the
+intruder and the second one is not, then the message has been
+faked by the intruder. For example, a principal $a$ receives a message denoted by \verb!ct!($b$',$b$,$a$,$cert$). 
+Since messages are supposed to be never deleted from the network, if there exists a message denoted by
+\verb!ct!($b$,$b$,$a$,$cert$) the network, we can conclude that the message received by $a$ really originates from $b$.
+Therefore, this formalization of messages makes it possible to describe a property such as one that a message received by a principal really originates from the seeming sender (second argument) of the message. 
 
 
 
-% \section{How to write proof scores}\label{proofscores}
-\section{Formal verification of TLS with CiMPG}\label{fvtls}
+\section{Formal Verification of TLS with CiMPG}\label{fvtls}
+
+
 
 \section{Related Work}\label{relatedwork}
 % The paper ~\cite{spin} used the model checking method to formally verify security protocols using Spin model checker. The paper exampled NSPK protocol and DS protocol. The experimental results showed that
