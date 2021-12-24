@@ -537,7 +537,7 @@ close
 \end{small}
 CiMPG could generate the correct proof scripts for CiMPA this time. Although writing proof scores is flexible to conduct formal verification, the verification may contain some flaws because proof scores are subject to human errors. Human users can overlook some cases during the proof because several case splittings are in general possible for each goal. While conducting formal verification with CiMPG can guarantee the reliability even though it is quite strict to tackle. From this example, we learn the less that we do not need to introduce the equations unnecessarily even though CafeInMaude returns true for this proof passage. 
 
-Let us consider the following proof passage of inv6:
+Let us consider the following proof passage corresponding to case sfin2 of inv6:
 \begin{small}
 \begin{verbatim}
 open INV .
@@ -607,14 +607,14 @@ eq b = c .
 we can prove that all of a, b and c are equal only by rewriting. CafeOBJ, Maude and CafeInMaude do not use any completion techniques. Even if CafeOBJ and CafeInMaude return true for each open-close fragment of a proof
 score, CiMPG may not correctly handle this kind of situation. This is because of the different behaviors of CafeOBJ and CafeInMaude. Rewriting is a sound implementation of equational reasoning but not a perfect implementation of equational reasoning. Therefore, we need to take care of this kind of situation when writing proof scores whose results depend on implementation, such as CafeOBJ, CafeInMaude and CiMPG.
 
-In this section, we describe the cases that we encountered during revising proof scores and how we revise them based on CiMPG generated result. Let take a look at the following two equations from the induction case for \verb!sfin! in \verb!7! as follows:
+In this section, we describe the cases that we encountered during revising proof scores and how we revise them based on CiMPG generated result. Taking a look at the following two equations corresponding to the induction case \verb!sfin! in \verb!7! as follows:
 \begin{small}
 \begin{verbatim}
 eq pms(a,b,s) = pms(epms(m4)) .
 eq a = dst(m2) .
 \end{verbatim}
 \end{small}
-The first equation says that the left hand side rewrites the right hand side. The second equation says that \verb!a! rewrites \verb!dst(m2)!. When we declare the second equation , it does not rewrite \verb!a! into \verb!dst(m2)! in the first equation. Hence, \verb!eq pms(a,b,s) = pms(epms(m4))! does not make sense. Instead, the equation should be: \verb!eq pms(dst(m2),b,s) = pms(epms(m4)) .! There are many cases in which we need to revise the proof scores by changing the order of the equations if necessary.
+the first equation says that the left hand side rewrites the right hand side. The second equation says that \verb!a! rewrites \verb!dst(m2)!. When we declare the second equation , it does not rewrite \verb!a! into \verb!dst(m2)! in the first equation. Hence, \verb!eq pms(a,b,s) = pms(epms(m4))! does not make sense. Instead, the equation should be: \verb!eq pms(dst(m2),b,s) = pms(epms(m4)) .! There are many cases in which we need to revise the proof scores by changing the order of the equations if necessary.
 
 The formal verification can be conducted by writing  proof  scripts  with  CiMPA. However, writing proof scripts manually is not a good idea for this protocol because the size of the proof scores is large and it is subject to human errors. On the other hand, CiMPG takes time to generate the proof script when the size of the proof score is large. In this case study, we tackle each property with
 CiMPG one by one since the size of the proof score of each property is quit complex and large. By conducting one invariant by one, we can understand the problems and revise the proof scores in appropriate way. 
@@ -665,6 +665,14 @@ The proof scores of inv17 is divided into each induction case with the base case
 % proved in Coq. On the other hand, proof that demonstrates that the properties hold may be harder to construct. In comparison with our research, we proved lemmas that show protocol security using proof assistant CiMPA and proof generator CiMPG.
 
 \section{Conclusion}\label{conclusion}
+We have described how to revise the proof scores of TLS v1.0 in the OTS/CafeOBJ method to succeed the formal verification of the protocol with CiMPG. CiMPG often takes time to generate proof scripts when the size of input
+proof scores is big. We found an effective solution for this issue by dividing the proof scores into smaller sub-case.
+
+
+
+
+
+
 
 % Numbered list
 % Use the style of numbering in square brackets.
