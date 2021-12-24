@@ -47,10 +47,10 @@
 \def\textpagefraction{.001}
 
 % Short title
-\shorttitle{<short title of the paper for running head>}    
+\shorttitle{Formal verification of TLS with CiMPG}    
 
 % Short author
-\shortauthors{<short author list for running head>}  
+\shortauthors{Thet Wai Mon, Duong Dinh Tran and Kazuhiro Ogata}  
 
 % Main title of the paper
 \title [mode = title]{Formal verification of TLS with CiMPG}  
@@ -78,7 +78,7 @@
 %       gplus=<gplus id>]
 
 % \author[<aff no>]{<author name>}[<options>]
-\author{}
+\author[1]{Thet Wai Mon}
 % Corresponding author indication
 % \cormark[<corr mark no>]
 
@@ -86,46 +86,53 @@
 % \fnmark[<footnote mark no>]
 
 % Email id of the first author
-\ead{<email address>}
+\ead{thetwaimon@jaist.ac.jp}
 
 % URL of the first author
-\ead[url]{<URL>}
+% \ead[url]{<URL>}
 
 % Credit authorship
 % eg: \credit{Conceptualization of this study, Methodology, Software}
 \credit{<Credit authorship details>}
 
 % Address/affiliation
-\affiliation[<aff no>]{organization={},
-            addressline={}, 
-            city={},
-%          citysep={}, % Uncomment if no comma needed between city and postcode
-            postcode={}, 
-            state={},
-            country={}}
+\affiliation[1]{organization={School of Information Science, Japan Advanced Institute of Science and Technology (JAIST)},
+            addressline={1-1 Asahidai }, 
+            city={Nomi},
+            postcode={923-1292}, 
+            state={Ishikawa},
+            country={Japan}}
 
-% \author[<aff no>]{<author name>}[<options>]
+\author[1]{Duong Dinh Tran}
 
 % Footnote of the second author
 % \fnmark[2]
 
 % Email id of the second author
-\ead{}
+\ead{duongtd@jaist.ac.jp}
 
 % URL of the second author
-\ead[url]{}
+% \ead[url]{}
 
 % Credit authorship
 \credit{}
 
+\author[1]{Kazuhiro Ogata}
+
+% Footnote of the second author
+% \fnmark[2]
+
+% Email id of the second author
+\ead{ogata@jaist.ac.jp}
+
 % Address/affiliation
-\affiliation[<aff no>]{organization={},
-            addressline={}, 
-            city={},
-%          citysep={}, % Uncomment if no comma needed between city and postcode
-            postcode={}, 
-            state={},
-            country={}}
+% \affiliation[<aff no>]{organization={},
+%             addressline={}, 
+%             city={},
+% %          citysep={}, % Uncomment if no comma needed between city and postcode
+%             postcode={}, 
+%             state={},
+%             country={}}
 
 % Corresponding author text
 \cortext[1]{Corresponding author}
@@ -575,7 +582,7 @@ open INV .
 close
 \end{verbatim}
 \end{small}
-The proof passage corresponds to a (sub-) case obtained by splitting the induction case for \verb!sfin2!. CafeInMaude returns \verb!true! for the proof passage, however CiMPG c
+The proof passage corresponds to a (sub-) case obtained by splitting the induction case for \verb!sfin2!. CafeInMaude returns \verb!true! for the proof passage, however CiMPG can not generate the correct proof script
 
 
 
