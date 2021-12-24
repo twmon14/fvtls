@@ -170,30 +170,30 @@ TLS protocol has been formally verified with CiMPG in CafeInMaude. The formal sp
 
 % Main text
 \section{Introduction}\label{intro}
-Internet security has become the important topic in recent years. The rapid development of e-commerce, individuals and organizations are relying on the Web and security services such as online banking, online shops etc, that need to exchange the sensitive information such as credit card numbers, account numbers, etc. between two parties in non-secure network environment. With the increase service availability the number of risks increase both for users and providers. In order to ensure a secure communication between them, a large number of security protocols have been designed and developed to protect the data. Among them, Transport Layer Security protocol (TLS) \cite{dierk} is the most widely used security protocol. TLS is the successor of Secure Sockets Layer (SSL) \cite{1621007}. 
+Internet security has become the important topic in recent years. The rapid development of e-commerce, individuals and organizations are relying on the Web and security services such as online banking, online shops etc, that need to exchange the sensitive information such as credit card numbers, account numbers, etc. between two parties in non-secure network environment. With the increase service availability the number of risks increase both for users and providers. In order to ensure a secure communication between them, a large number of security protocols have been designed and developed to protect the data. Among them, Transport Layer Security protocol (TLS) [\cite{dierk}] is the most widely used security protocol. TLS is the successor of Secure Sockets Layer (SSL) [\cite{1621007}]. 
 % here
 
 TLS was mainly developed in order to give the customers
 confidence in their interactions when they access online services
 from their electronic devices. If two parties want to securely establish a common key over an insecure channel, they typically execute a key exchange protocol. Both TLS and SSL protocols confine a set of rules for the communication between client and server. They rely on public-key cryptography in order to ensure integrity of exchanged data. Although  these  authentication  protocols  have been carefully designed by security experts, it is not uncommon for security attacks  as  technology  continues  to  advance. Despite multiple prevention measurements, several vulnerabilities such as  
-Heartbleed \cite{10.1145/2663716.2663755} and DROWN \cite{197245} have been discovered. Therefore, ensuring the reliability of security protocols is really important and more effort is required to test the implementations of such security protocols.
+Heartbleed [\cite{10.1145/2663716.2663755}] and DROWN [\cite{197245}] have been discovered. Therefore, ensuring the reliability of security protocols is really important and more effort is required to test the implementations of such security protocols.
 
-One promising technology is formal verification  with theorem  proving. Theorem proving has been used to prove that systems enjoy some desired properties by writing proof scores. Proof scores are written as programs in an algebraic specification language to conduct formal verification. This approach uses observational transition systems (OTSs) \cite{OgataF03fmoods} as state machines to formalize systems. A security protocol,together with the most generic intruder, is modeled as an OTS. Then, the OTSs are specified in equations with CafeOBJ \cite{DiaconescuF98amast}, a formal specification language. CafeOBJ implements equational logic by rewriting. System properties are expressed as CafeOBJ terms. Formal verification is conducted by writing what is called ``proof scores'' \cite{OgataF03fmoods} in CafeOBJ and executing them with CafeOBJ. This approach to formal verification is flexible, however, the proof may contain some flaws since proof scores are subject to human errors. 
+One promising technology is formal verification  with theorem  proving. Theorem proving has been used to prove that systems enjoy some desired properties by writing proof scores. Proof scores are written as programs in an algebraic specification language to conduct formal verification. This approach uses observational transition systems (OTSs) [\cite{OgataF03fmoods}] as state machines to formalize systems. A security protocol,together with the most generic intruder, is modeled as an OTS. Then, the OTSs are specified in equations with CafeOBJ [\cite{DiaconescuF98amast}], a formal specification language. CafeOBJ implements equational logic by rewriting. System properties are expressed as CafeOBJ terms. Formal verification is conducted by writing what is called ``proof scores'' [\cite{OgataF03fmoods}] in CafeOBJ and executing them with CafeOBJ. This approach to formal verification is flexible, however, the proof may contain some flaws since proof scores are subject to human errors. 
 
-CafeInMaude is the second implementation in Maude of CafeOBJ, where Maude \cite{ClavelEtal2007maude} is a sibling language of CafeOBJ.
+CafeInMaude is the second implementation in Maude of CafeOBJ, where Maude [\cite{ClavelEtal2007maude}] is a sibling language of CafeOBJ.
 CafeInMaude introduces CafeOBJ specifications into the Maude system.
-It comes with two extension tools CafeInMaude Proof Assistant (CiMPA) and CafeInMaude Proof Generator (CiMPG) \cite{RiescoO18tosem}. CiMPA is a proof assistant that allows users to write proof scripts in order to prove invariant properties on their CafeOBJ specifications. Using CiMPA to develop the formal verification by writing proof scripts can help us to avoid the flaw made by human users. However, it is often the case that CiMPA is not flexible enough to conduct formal verification, especially when the size of proof score is huge. 
+It comes with two extension tools CafeInMaude Proof Assistant (CiMPA) and CafeInMaude Proof Generator (CiMPG) [\cite{RiescoO18tosem}]. CiMPA is a proof assistant that allows users to write proof scripts in order to prove invariant properties on their CafeOBJ specifications. Using CiMPA to develop the formal verification by writing proof scripts can help us to avoid the flaw made by human users. However, it is often the case that CiMPA is not flexible enough to conduct formal verification, especially when the size of proof score is huge. 
 
 CiMPG allows users to combine the flexibility of the proof score approach and the reliability of CiMPA by providing a minimal set of annotations for identifying proof scores and generating CiMPA scripts for these proof scores. Given slightly annotated proof scores, CiMPG generates proof scripts for CiMPA. Feeding the generated proof scripts into CiMPA, if CiMPA successfully discharges all goals, the proof scores are correct for the goals and the formal verification is successful. Although CiMPG can automatically generate proof scripts for CiMPA from annotated proof scores, it will take time to do so when the size of the input proof score is large.
 
 We have formally verified academic protocols
-such as NSLPK authentication protocol \cite{twmon}. TLS protocol is much more complicated than academic protocols. Although it has been formally analyzed and verified that TLS enjoys some desired properties in \cite{1437139} with OTS/CafeOBJ method, we are the first to formally verify that TLS enjoys some desired properties with CiMPG as  well as CiMPA. 
+such as NSLPK authentication protocol [\cite{twmon}]. TLS protocol is much more complicated than academic protocols. Although it has been formally analyzed and verified that TLS enjoys some desired properties in [\cite{1437139}] with OTS/CafeOBJ method, we are the first to formally verify that TLS enjoys some desired properties with CiMPG as  well as CiMPA. 
 All specifications and proofs presented in this paper are available at \url{https://github.com/twmon14/xxxx}.
 
 The rest of the paper is organized as follows. Section \ref{tls} mentions TLS, TLS handshake protocol and the abstract handshake protocol. Section \ref{fstls} presents the formal specification of TLS. Section \ref{fvtls} describes the formal verification of TLS with CiMPG. Some related work is mentioned in Section \ref{relatedwork}. Finally, we give our conclusions and some lines of future work in Section \ref{conclusion}.
 	
 \section{TLS}\label{tls}
-TLS\cite{dierk} provides privacy and data integrity between client/server communications. The protocol consists of four sub-protocols. They are TLS handshake protocol, the change cipher spec protocol, the alert protocol and TLS record protocol. 
+TLS [\cite{dierk}] provides privacy and data integrity between client/server communications. The protocol consists of four sub-protocols. They are TLS handshake protocol, the change cipher spec protocol, the alert protocol and TLS record protocol. 
 
 When two peers want to establish a communication, TLS handshake protocol is used to negotiate a cipher suite and security parameters between client and server. The change cipher spec protocol is used when each of two peers(client/server) want to notify the other that subsequent messages after handshake process will be protected under the newly negotiated cipher suite,  and security parameters. If either of them notices something wrong, one lets the other know about it with the alert protocol. TLS record protocol provides private and reliable communications between the two peers using the negotiated cipher suite and security parameters.
 
@@ -249,7 +249,7 @@ We suppose the following in the abstract handshake protocol: a server always sen
 \section{Formal Specification of TLS} \label{fstls}
 Suppose that there exist not only multiple trustable
 principals but also multiple malicious (untrustable) principals, and the cryptosystem used is perfect. Trustable
-principals exactly follow the protocol, while malicious ones may do something against the protocol as well. The combination and cooperation of malicious principals is modeled as the most general intruder Dolev-Yao\cite{dolev}. 
+principals exactly follow the protocol, while malicious ones may do something against the protocol as well. The combination and cooperation of malicious principals is modeled as the most general intruder Dolev-Yao [\cite{dolev}]. 
 An intruder can glean as much information as possible from messages flowing in the network and create fake messages based on the gleaned information, provided that the intruder cannot break the perfect cryptosystem.
 
 We specify 10 operators (data construtors) to define 10 kinds of messages. The data constructors used in TLS are declared as follows:
@@ -428,10 +428,11 @@ op fakeSfin22  : Protocol Prin Prin Sid Choice Rand Rand Pms ->
 Protocol {constr} 
 \end{verbatim}
 \end{small}	
-Each operator is defined with equations.
+Each operator is defined with equations. In the original specification of TLS, the state space is denoted by hidden sort and the action and observation operators with respect to hidden sorts are declared by starting with \verb !bop!. 
+We slightly revise the original specification of the state space denoting visible sort and the action and observation operators are declared with respect to visible sorts by starting with \verb !op! as behavioral specifications are not supported in CafeInMaude.
 
 \section{Formal Verification of TLS with CiMPG}\label{fvtls}
-The five properties for the protocol \cite{1437139} are formalized as CafeOBJ terms. To formally verify the five properties, 13 more properties are required. Let us define the properties as inv$x$ where x = 1 to 18. inv1, inv3, inv5, inv17 and inv18 are the five properties of the protocol. The first property is formalized as follows: 
+The five properties for the protocol [\cite{1437139}] are formalized as CafeOBJ terms. To formally verify the five properties, 13 more properties are required. Let us define the properties as inv$x$ where x = 1 to 18. inv1, inv3, inv5, inv17 and inv18 are the five properties of the protocol. The first property is formalized as follows: 
 \begin{small}
 \begin{verbatim}
 eq inv1(P,PMS) = (PMS \in cpms(nw(P)) implies 
@@ -440,7 +441,7 @@ eq inv1(P,PMS) = (PMS \in cpms(nw(P)) implies
 \end{small}
 The equation says that if a pre-master secret is available to the intruder, the pre-master secret has been generated by the intruder or a client has generated it for a session with the intruder. This implies that the intruder cannot obtain any pre-master secrets for sessions in which the intruder is not involved. Other properties can be understood likewise.
 
-Among 18 properties, five of the properties specifically inv12, inv13, inv16, inv17 and inv18 have been proved by case analyses with other properties, and the remaining ones by induction on the number of transitions applied in the original proof scores. Our purpose is to formally verify the properties with CiMPG. However,  to  make  it  possible  for  CiMPG  to  generate  the proof scripts correctly, the existing proof scores need to be modified so that they can be run successfully in CafeInMaude environment. While we revise the given initial proof scores, there are many cases in which we need to conduct the case splitting by introducing equations and/or use other properties as lemma to strengthen the inductive hypothesis many times. Besides, we revise/write the proof scores for five properties by induction on the number of transitions applying some tips on writing proof scores in the CafeOBJ method \cite{Ogata2006}.
+Among 18 properties, five of the properties specifically inv12, inv13, inv16, inv17 and inv18 have been proved by case analyses with other properties, and the remaining ones by induction on the number of transitions applied in the original proof scores. Our purpose is to formally verify the properties with CiMPG. However,  to  make  it  possible  for  CiMPG  to  generate  the proof scripts correctly, the existing proof scores need to be modified so that they can be run successfully in CafeInMaude environment. While we revise the given initial proof scores, there are many cases in which we need to conduct the case splitting by introducing equations and/or use other properties as lemma to strengthen the inductive hypothesis many times. Besides, we revise/write the proof scores for five properties by induction on the number of transitions applying some tips on writing proof scores in the CafeOBJ method [\cite{Ogata2006}].
 
 If all proof scores are reduced to true when executed then the corresponding theorems are proved. If they are not directly reduced to true, so case splitting is required. After case splittings, they can be reduced to true. If all proof scores are complete, now we are ready to use CiMPG to formally verified the properties. To use CiMPG, we slightly need to annotate the proof scores. Let us use one example of proof score open-close fragment that is annotated to use CiMPG. The following proof fragment is one case of inv13
 \begin{small}
@@ -567,30 +568,50 @@ open INV .
   eq choice(ss(p,dst(m2),p2,sid(m2))) = choice(m2) .
   eq ecfin2(m3) = ecfin2(k(dst(m2),pms(ss(p,dst(m2),p2,
   sid(m2))),rand(m1),rand(m2)),cfin2(dst(m2),p2,sid(m2),
-  choice(m2),rand(m1),rand(m2),pms(ss(p,dst(m2),p2,sid(m2))))) .
+   choice(m2),rand(m1),rand(m2),pms(ss(p,dst(m2),p2,sid(m2))))) .
   eq r1 = rand(m1) .
   eq a = dst(m2) .
   eq i = sid(m2) .
   eq c = choice(m2) .
   eq b = p2 .
   eq r2 = rand(m2) .
-  eq (pms(ss(p,dst(m2),p2,sid(m2))) = pms(a,b,s)) = false .
-  eq pms(ss(p,dst(m2),p2,sid(m2))) = pms(dst(m2),p2,s) .
-  eq dst(m2) = intruder .
+  eq (pms(ss(p,dst(m2),p2,sid(m2))) = pms(a,b,s)) = false . -- (23)
+  eq pms(ss(p,dst(m2),p2,sid(m2))) = pms(dst(m2),p2,s) . -- (24)
+  eq dst(m2) = intruder . -- (25)
   red inv6(p,a,b,r1,r2,c,i,s) implies
   inv6(sfin2(p,p2,m1,m2,m3),a,b,r1,r2,c,i,s) .
 close
 \end{verbatim}
 \end{small}
-The proof passage corresponds to a (sub-) case obtained by splitting the induction case for \verb!sfin2!. CafeInMaude returns \verb!true! for the proof passage, however CiMPG can not generate the correct proof script
+The proof passage corresponds to a (sub-) case obtained by splitting the induction case for \verb!sfin2!. CafeInMaude returns \verb!true! for the proof passage, however CiMPG can not generate the correct proof script for the equation 
+\verb!eq pms(ss(p,dst(m2),p2, sid(m2))) = pms(a,b,s) .!
+since we have the equation \verb!eq a = dst(m2) .! and \verb!a! rewrites to \verb!dst(m2)!, not vice versa. Hence, the equation should be \verb!eq pms(ss(p,dst(m2),p2, sid(m2))) = pms(dst(m2),p2,s) .! Then we revise the proof fragment using (24) by removing two equations (23) and (25).
 
-
+Let us consider an another concrete example of the following two equations:
+\begin{small}
+\begin{verbatim}
+eq a = b .
+eq a = c .
+\end{verbatim}
+\end{small}
+From the two equations, a, b and c are equal in equational logic point of view, however, \verb!a! rewrites to either \verb!b! or \verb!c! with rewriting.
+CafeOBJ may rewrite \verb!a! to \verb!b!, while CafeInMaude may rewrite \verb!a! to \verb!c!. The behaviors of CafeOBJ and CafeInMaude are different if some
+equations, such as a = b, are used in a module and some equations, such as a = c, are used in an open-close fragment that uses the module. Thus it is impossible to prove that all of a, b and c are equal only by rewriting when the specification (or term rewriting systems) is non-confluent.
+If we revise the two equations as follows:
+\begin{small}
+\begin{verbatim}
+eq a = b .
+eq b = c .
+\end{verbatim}
+\end{small}
+we can prove that all of a, b and c are equal only by rewriting. CafeOBJ, Maude and CafeInMaude do not use any completion techniques. Even if CafeOBJ and CafeInMaude return true for each open-close fragment of a proof
+score, CiMPG may not correctly handle this kind of situation.
+This is because of the different behaviors of CafeOBJ and CafeInMaude. Rewriting is a sound implementation of equational reasoning but not a perfect implementation of equational reasoning. Therefore, we need to take care of this kind of situation when writing proof scores whose results depend on implementation, such as CafeOBJ, CafeInMaude
+and CiMPG.
 
 
 % an example which shows the order of the equation is important in revising proof scores to succeed formal verification.
 	
-% to revise proof scores because some case
-% splittings cannot be handled by CiMPG, 
 % should be divided into smaller open-close fragments because the proof
 % scores is too big to be tackled by CiMPG in a reasonable amount of
 % time.
