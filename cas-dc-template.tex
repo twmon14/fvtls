@@ -18,7 +18,7 @@
 %% double column output.
 
 \documentclass[a4paper,fleqn]{cas-dc}
-
+\usepackage{tabularx}
 % If the frontmatter runs over more than one page
 % use the longmktitle option.
 
@@ -42,6 +42,7 @@
 %\newproof{pot}{Proof of Theorem \ref{thm}}
 
 \begin{document}
+
 \let\WriteBookmarks\relax
 \def\floatpagepagefraction{1}
 \def\textpagefraction{.001}
@@ -574,17 +575,60 @@ open INV .
   eq c = choice(m2) .
   eq b = p2 .
   eq r2 = rand(m2) .
-  eq (pms(ss(p,dst(m2),p2,sid(m2))) = pms(a,b,s)) = false . -- (23)
-  eq pms(ss(p,dst(m2),p2,sid(m2))) = pms(dst(m2),p2,s) . -- (24)
-  eq dst(m2) = intruder . -- (25)
+  eq (pms(ss(p,dst(m2),p2,sid(m2))) = pms(a,b,s)) = false .
+  eq pms(ss(p,dst(m2),p2,sid(m2))) = pms(dst(m2),p2,s) .
+  eq dst(m2) = intruder .
   red inv6(p,a,b,r1,r2,c,i,s) implies
   inv6(sfin2(p,p2,m1,m2,m3),a,b,r1,r2,c,i,s) .
 close
 \end{verbatim}
 \end{small}
 The proof passage corresponds to a (sub-) case obtained by splitting the induction case for \verb!sfin2!. CafeInMaude returns \verb!true! for the proof passage, however CiMPG can not generate the correct proof script for the equation 
-\verb!eq pms(ss(p,dst(m2),p2, sid(m2))) = pms(a,b,s) .!
-since we have the equation \verb!eq a = dst(m2) .! and \verb!a! rewrites to \verb!dst(m2)!, not vice versa. Hence, the equation should be \verb!eq pms(ss(p,dst(m2),p2, sid(m2))) = pms(dst(m2),p2,s) .! Then we revise the proof fragment using (24) by removing two equations (23) and (25).
+\verb!eq pms(ss(p,dst(m2),! \verb!p2, sid(m2))) = pms(a,b,s) .!
+since we have the equation \verb!eq a = dst(m2) .! and \verb!a! rewrites to \verb!dst(m2)!, not vice versa. Hence, the equation should be \verb!eq pms(ss(p,dst(m2),! \verb!p2, sid(m2))) = pms(dst(m2),p2,s) .! Then we revise the proof fragment as follows:
+\begin{small}
+\begin{verbatim}
+open INV .
+  op p : -> Protocol .
+  ops a b : -> Prin .
+  ops r1 r2 : -> Rand .
+  op c : -> Choice .
+  op i : -> Sid .
+  op s : -> Secret .
+-- arbitrary objects
+  op p2 : -> Prin .
+  ops m1 m2 m3 : -> Msg .
+-- assumptions
+  eq m1 \in nw(p) = true .
+  eq m2 \in nw(p) = true .
+  eq m3 \in nw(p) = true .
+  eq ch2?(m1) = true .
+  eq sh2?(m2) = true .
+  eq cf2?(m3) = true .
+  eq crt(m2) = p2 .
+  eq src(m2) = p2 .
+  eq src(m1) = dst(m2) .
+  eq dst(m1) = p2 .
+  eq src(m3) = dst(m2) .
+  eq dst(m3) = p2 .
+  eq sid(m1) = sid(m2) .
+  eq (ss(p,dst(m2),p2,sid(m2)) = none) = false .
+  eq choice(ss(p,dst(m2),p2,sid(m2))) = choice(m2) .
+  eq ecfin2(m3) = ecfin2(k(dst(m2),pms(ss(p,dst(m2),p2,
+  sid(m2))),rand(m1),rand(m2)),cfin2(dst(m2),p2,sid(m2),
+   choice(m2),rand(m1),rand(m2),pms(ss(p,dst(m2),p2,sid(m2))))) .
+  eq r1 = rand(m1) .
+  eq a = dst(m2) .
+  eq i = sid(m2) .
+  eq c = choice(m2) .
+  eq b = p2 .
+  eq r2 = rand(m2) .
+  eq pms(ss(p,dst(m2),p2,sid(m2))) = pms(dst(m2),p2,s) .
+  red inv6(p,a,b,r1,r2,c,i,s) implies
+  inv6(sfin2(p,p2,m1,m2,m3),a,b,r1,r2,c,i,s) .
+close
+\end{verbatim}
+\end{small}
 
 Let us consider an another concrete example of the following two equations:
 \begin{small}
@@ -620,8 +664,44 @@ CiMPG one by one since the size of the proof score of each property is quit comp
 
 We use three devices (two MacBook Air that carry 1.6 GHz Intel Core i5 processor, 16 GB memory and one MacBook Pro that carries 2.3 GHz Quad-Core Intel Core i7 processor, 32 GB memory) to run the programs in parallel so as to complete the formal verification faster. CiMPG takes 8~9 hours to generate the proof scripts for each invariant in both devices, however it takes 52 hours and 17 minutes for inv17 using MacBook Pro. Since the size of the proof scores of inv17 is quite large (it has 297 open–close proof fragments involving more than 8000 lines of code). We come up with an idea to divide the proof scores into smaller  open-close fragments when the proof scores is too big to be tackled by CiMPG in a reasonable amount of time.
 
-The proof scores of inv17 is divided into each induction case with the base case and feed into CiMPG using the same environment. Then, we measure the time for each induction case. CiMPG takes 28 hours and 3 minutes in total for all induction cases. The result is obvious that CiMPG reduces the running time. Therefore, this is a good idea to divide the proof scores into smaller cases and running into CiMPG, however, we need to create 27 files to run each induction case separately. 
-
+The proof scores of inv17 is divided into each induction case with the base case and feed into CiMPG using the same environment. Then, we measure the time for each induction case as shown in the table. CiMPG takes 28 hours and 3 minutes in total for all induction cases. The result is obvious that CiMPG reduces the running time compared to running all induction cases in one time. Therefore, this is a good idea to divide the proof scores into smaller cases and running into CiMPG, however, we need to create 27 files to run each induction case separately.
+\begin{tabularx}{0.48\textwidth} { 
+  | >{\raggedright\arraybackslash}X 
+  | >{\centering\arraybackslash}X
+  | >{\centering\arraybackslash}X
+  | >{\centering\arraybackslash}X| }
+ \hline
+ inductive case & runtime (min) & inductive case & runtime (min) \\
+ \hline
+ cert & 2 & fakeKexch1 & 1 \\
+ \hline
+ cfin & 15 & fakeKexch2 & 1 \\
+ \hline
+ cfin2 & 4 & fakeSfin1 & 6 \\
+ \hline
+ chello & 1 & fakeSfin2 & 3 \\
+ \hline
+ chello2 & 0 & fakeSfin21 & 1\\
+ \hline
+ compl & 54 & fakeSfin22 & 0 \\
+ \hline
+ compl2 & 20 & fakeShello & 12 \\
+ \hline
+ fakeCert & 22 & fakeShello2 & 0 \\
+ \hline
+ fakeCfin1 & 0 & kexch & 7 \\
+ \hline
+ fakeCfin2 & 1 & sfin & 821 \\
+ \hline
+ fakeCfin21 & 0 & sfin2 & 7 \\
+ \hline
+ fakeCfin22 & 1 & shello & 723 \\
+ \hline
+ fakeChello & 0 & shello2 & 1 \\
+ \hline
+ fakeChello2 & 0 & \textbf{all cases} & 1693\\
+ \hline
+\end{tabularx}
 
 \section{Related Work}\label{relatedwork}
 From a CafeOBJ specification and an invariant property,
@@ -766,12 +846,12 @@ proof scores is big. We found an effective solution for this issue by dividing t
 % \caption{}\label{tbl1}
 % \begin{tabular*}{\tblwidth}{@{}LL@{}}
 % \toprule
-%   &  \\ % Table header row
+%   \\ % Table header row
 % \midrule
-%  & \\
-%  & \\
-%  & \\
-%  & \\
+% \\
+% \\
+% \\
+% \\
 % \bottomrule
 % \end{tabular*}
 % \end{table}
