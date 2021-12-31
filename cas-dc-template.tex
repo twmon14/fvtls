@@ -189,7 +189,7 @@ CiMPG allows users to combine the flexibility of the proof score approach and th
 
 We have formally verified academic protocols
 such as NSLPK authentication protocol [\cite{twmon}]. TLS protocol is much more complicated than academic protocols. Although it has been formally analyzed and verified that TLS enjoys some desired properties in [\cite{1437139}] with OTS/CafeOBJ method, we are the first to formally verify that TLS enjoys some desired properties with CiMPG as  well as CiMPA. 
-All specifications and proofs presented in this paper are available at \url{https://github.com/twmon14/xxxx}.
+All specifications and proofs presented in this paper are available at \url{https://github.com/twmon14/fvtlscimpg}.
 
 The rest of the paper is organized as follows. Section \ref{tls} mentions TLS, TLS handshake protocol and the abstract handshake protocol. Section \ref{fstls} presents the formal specification of TLS. Section \ref{fvtls} describes the formal verification of TLS with CiMPG. Some related work is mentioned in Section \ref{relatedwork}. Finally, we give our conclusions and some lines of future work in Section \ref{conclusion}.
 	
@@ -217,11 +217,10 @@ If a cipher suite used is weaker than the available one to both peers or the sec
     CertificateVerify^* & \xrightarrow & \\ 
     \verb![ChangeCipherSpec]! & \rightarrow & \\ 
     Finished & \xrightarrow & \\ 
-    & \xleftarrow & [ChangeCipherSpec] \\  
+    & \xleftarrow & \verb![ChangeCipherSpec]! \\  
     & \xleftarrow & Finished \\ 
     Application Data & \leftrightarrow & Application Data \\ 
     \end{tabular}
-    % \setlength{\parindent}{4em}
     \caption{TLS handshake protocol}
     \label{tab:tb1}
 \end{table}
@@ -710,7 +709,7 @@ CiMPG one by one since the size of the proof score of each property is quit comp
 
 We use three devices (two MacBook Air that carry 1.6 GHz Intel Core i5 processor, 16 GB memory and one MacBook Pro that carries 2.3 GHz Quad-Core Intel Core i7 processor, 32 GB memory) to run the programs in parallel so as to complete the formal verification faster. CiMPG takes 8~9 hours to generate the proof scripts for each invariant in both devices, however it takes 52 hours and 17 minutes for inv17 using MacBook Pro. Since the size of the proof scores of inv17 is quite large (it has 297 open–close proof fragments involving more than 8000 lines of code). We come up with an idea to divide the proof scores into smaller  open-close fragments when the proof scores is too big to be tackled by CiMPG in a reasonable amount of time.
 
-The proof scores of inv17 is divided into each induction case with the base case and feed into CiMPG using the same environment. Then, we measure the time for each induction case as shown in the table \ref{tab:tb3}. CiMPG takes 28 hours and 3 minutes in total for all induction cases. The result is obvious that CiMPG reduces the running time compared to running all induction cases in one time. Therefore, this is a good idea to divide the proof scores into smaller cases and running into CiMPG, however, we need to create 27 files to run each induction case separately.\\
+The proof scores of inv17 is divided into each induction case with the base case and feed into CiMPG using the same environment. Then, we measure the time for each induction case as shown in the table \ref{tab:tb3}. CiMPG takes 16 hours and 23 minutes in total for all induction cases. The result is obvious that CiMPG reduces the running time compared to running all induction cases in one time. Therefore, this is a good idea to divide the proof scores into smaller cases and running into CiMPG, however, we need to create 27 files to run each induction case separately.\\
 \newline
 \begin{table}[]
 \begin{tabularx}{0.48\textwidth} { 
@@ -743,11 +742,11 @@ The proof scores of inv17 is divided into each induction case with the base case
  \hline
  fakeCfin21 & 0 & sfin2 & 7 \\
  \hline
- fakeCfin22 & 1 & shello & 723 \\
+ fakeCfin22 & 1 & shello & 3 \\
  \hline
  fakeChello & 0 & shello2 & 1 \\
  \hline
- fakeChello2 & 0 & \textbf{all cases} & 1693\\
+ fakeChello2 & 0 & \textbf{all cases} & 983\\
  \hline
 \end{tabularx}
 \caption{Runtime of each case for inv17}
