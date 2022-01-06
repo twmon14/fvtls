@@ -147,7 +147,7 @@
 
 % Here goes the abstract
 \begin{abstract}
-TLS protocol has been formally verified with CiMPG in CafeInMaude. The formal specification of TLS is modeled as transition systems in terms of equations in CafeOBJ/OTS method, and it has been verified that the system have properties by means of equational reasoning. The given initial proof scores in CafeOBJ are revised and added some additional proof fragments in some invariants if it is necessary such that the proof scores are complete and they could be successfully tackled by CiMPG. When the complete and correct proof scores are available, they are verified in CiMPG. Feeding the proof scores into CiMPG, CiMPG can generate proof scripts for CiMPA. However, it is not a good idea to feed all proof scores of all invariants in CiMPG as one file because CiMPG takes too much time to generate the proof scripts since the size of the proof score is quite large. Thus, each invariant has been tackled with CiMPG one by one.
+TLS protocol has been formally verified with CiMPG in CafeInMaude. The formal specification of TLS is modeled as transition systems in terms of equations in CafeOBJ/OTS method, and it has been verified that the system have properties by means of equational reasoning. The given initial proof scores in CafeOBJ are revised and added some additional proof fragments in some invariants if it is necessary such that the proof scores are complete and they could be successfully tackled by CiMPG. When the complete and correct proof scores are available, they are verified in CiMPG. Feeding the proof scores into CiMPG, CiMPG can generate proof scripts for CiMPA. Feeding the generated proof script into CiMPA, CiMPA discharges all goals, confirming that the proof scores are correct. However, it is not a good idea to feed all proof scores of all invariants as one file in CiMPG  because CiMPG takes too much time to generate the proof scripts since the size of the proof score is quite large. Thus, each invariant has been tackled with CiMPG one by one.
 \end{abstract}
 
 % Use if graphical abstract is present
@@ -178,13 +178,13 @@ confidence in their interactions when they access online services
 from their electronic devices. If two parties want to securely establish a common key over an insecure channel, they typically execute a key exchange protocol. Both TLS and SSL protocols confine a set of rules for the communication between client and server. They rely on public-key cryptography in order to ensure integrity of exchanged data. Although  these  authentication  protocols  have been carefully designed by security experts, it is not uncommon for security attacks  as  technology  continues  to  advance. Despite multiple prevention measurements, several vulnerabilities such as  
 Heartbleed [\cite{10.1145/2663716.2663755}] and DROWN [\cite{197245}] have been discovered. Therefore, ensuring the reliability of security protocols is really important and more effort is required to test the implementations of such security protocols.
 
-One promising technology is formal verification  with theorem  proving. Theorem proving has been used to prove that systems enjoy some desired properties by writing proof scores. Proof scores are written as programs in an algebraic specification language to conduct formal verification. This approach uses observational transition systems (OTSs) [\cite{OgataF03fmoods}] as state machines to formalize systems. A security protocol,together with the most generic intruder, is modeled as an OTS. Then, the OTSs are specified in equations with CafeOBJ [\cite{DiaconescuF98amast}], a formal specification language. CafeOBJ implements equational logic by rewriting. System properties are expressed as CafeOBJ terms. Formal verification is conducted by writing what is called ``proof scores'' [\cite{OgataF03fmoods}] in CafeOBJ and executing them with CafeOBJ. This approach to formal verification is flexible, however, the proof may contain some flaws since proof scores are subject to human errors. 
+One promising technology to do so is formal verification  with theorem  proving. Theorem proving has been used to prove that systems enjoy some desired properties by writing proof scores. Proof scores are written as programs in an algebraic specification language to conduct formal verification. This approach uses observational transition systems (OTSs) [\cite{OgataF03fmoods}] as state machines to formalize systems. A security protocol, together with the most generic intruder, is modeled as an OTS. Then, the OTSs are specified in equations with CafeOBJ [\cite{DiaconescuF98amast}], a formal specification language. CafeOBJ implements equational logic by rewriting. System properties are expressed as CafeOBJ terms. Formal verification is conducted by writing proof scores [\cite{OgataF03fmoods}] in CafeOBJ and executing them with CafeOBJ. This approach to formal verification is flexible, however, the proof may contain some flaws since proof scores are subject to human errors. 
 
 CafeInMaude is the second implementation in Maude of CafeOBJ, where Maude [\cite{ClavelEtal2007maude}] is a sibling language of CafeOBJ.
 CafeInMaude introduces CafeOBJ specifications into the Maude system.
-It comes with two extension tools CafeInMaude Proof Assistant (CiMPA) and CafeInMaude Proof Generator (CiMPG) [\cite{RiescoO18tosem}]. CiMPA is a proof assistant that allows users to write proof scripts in order to prove invariant properties on their CafeOBJ specifications. Using CiMPA to develop the formal verification by writing proof scripts can help us to avoid the flaw made by human users. However, it is often the case that CiMPA is not flexible enough to conduct formal verification, especially when the size of proof score is huge. 
+It comes with two extension tools CafeInMaude Proof Assistant (CiMPA) and CafeInMaude Proof Generator (CiMPG) [\cite{RiescoO18tosem}]. CiMPA is a proof assistant that allows users to write proof scripts in order to prove invariant properties on their CafeOBJ specifications. Using CiMPA to develop the formal verification by writing proof scripts can help us to avoid the flaw made by human users. However, it is often the case that CiMPA is not flexible enough to conduct formal verification, especially when the size of proof score is large. 
 
-CiMPG allows users to combine the flexibility of the proof score approach and the reliability of CiMPA by providing a minimal set of annotations for identifying proof scores and generating CiMPA scripts for these proof scores. Given slightly annotated proof scores, CiMPG generates proof scripts for CiMPA. Feeding the generated proof scripts into CiMPA, if CiMPA successfully discharges all goals, the proof scores are correct for the goals and the formal verification is successful. Although CiMPG can automatically generate proof scripts for CiMPA from annotated proof scores, it will take time to do so when the size of the input proof score is large.
+CiMPG allows users to combine the flexibility of the proof score approach and the reliability of CiMPA by providing a minimal set of annotations for identifying proof scores and generating CiMPA scripts from these proof scores. Given slightly annotated proof scores, CiMPG generates proof scripts for CiMPA. Feeding the generated proof scripts into CiMPA, if CiMPA successfully discharges all goals, the proof scores are correct for the goals and the formal verification is successful. Although CiMPG can automatically generate proof scripts for CiMPA from annotated proof scores, it will take time to do so when the size of the input proof score is large.
 
 We have formally verified academic protocols
 such as NSLPK authentication protocol [\cite{twmon}]. TLS protocol is much more complicated than academic protocols. Although it has been formally analyzed and verified that TLS enjoys some desired properties in [\cite{1437139}] with OTS/CafeOBJ method, we are the first to formally verify that TLS enjoys some desired properties with CiMPG as  well as CiMPA. 
@@ -195,7 +195,7 @@ The rest of the paper is organized as follows. Section \ref{tls} mentions TLS, T
 \section{TLS}\label{tls}
 TLS [\cite{dierk}] provides privacy and data integrity between client/server communications. The protocol consists of four sub-protocols. They are TLS handshake protocol, the change cipher spec protocol, the alert protocol and TLS record protocol. 
 
-When two peers want to establish a communication, TLS handshake protocol is used to negotiate a cipher suite and security parameters between client and server. The change cipher spec protocol is used when each of two peers(client/server) want to notify the other that subsequent messages after handshake process will be protected under the newly negotiated cipher suite,  and security parameters. If either of them notices something wrong, one lets the other know about it with the alert protocol. TLS record protocol provides private and reliable communications between the two peers using the negotiated cipher suite and security parameters.
+When two peers want to establish a communication, TLS handshake protocol is used to negotiate a cipher suite and security parameters between client and server. The change cipher spec protocol is used when each of two peers(client/server) want to notify the other that subsequent messages after handshake process will be protected under the newly negotiated cipher suite, and security parameters. If either of them notices something wrong, one lets the other know about it with the alert protocol. TLS record protocol provides private and reliable communications between the two peers using the negotiated cipher suite and security parameters.
 
 If a cipher suite used is weaker than the available one to both peers or the security parameters shared by both peers are leaked by some reasons, then an adequate level of security cannot be obtained. Therefore, the security of TLS largely depends on a cipher suite and security parameter negotiated by client/ server in handshake process. It can be said that among four sub-protocols, TLS handshake protocol takes part in the most important role and the security of TLS relies on TLS handshake protocol. 
 
@@ -254,17 +254,17 @@ The server then signals the client to use the newly negotiated security paramete
 \begin{table}[]
 \centering
     \begin{tabular}{ c c c }
-    ClientHello & $A \rightarrow B$  & $Rand_A, ListOfChoices$ \\ 
-    ServerHello & $B \rightarrow A$ & $Rand_B, SID, Choice$ \\  
-    Certificate & $B \rightarrow A$ & $Cert_B$ \\ 
-    KeyExchange & $A \rightarrow B$ & $\varepsilon_{K_B}(PMS)$ \\ 
-    ClientFinished & $A \rightarrow B$ & $\varepsilon_{ClientKey}(ClientFinish)$ \\
-   ServerFinished & $B \rightarrow A$ & $\varepsilon_{ServerKey}(ServerFinish)$ \\
+    ClientHello & $A \rightarrow B$  & Rand$_A$, ListOfChoices \\ 
+    ServerHello & $B \rightarrow A$ & Rand$_B$, SID, Choice \\  
+    Certificate & $B \rightarrow A$ & Cert$_B$ \\ 
+    KeyExchange & $A \rightarrow B$ & $\varepsilon_{K_B}$(PMS) \\ 
+    ClientFinished & $A \rightarrow B$ & $\varepsilon_{ClientKey}$(ClientFinish) \\
+   ServerFinished & $B \rightarrow A$ & $\varepsilon_{ServerKey}$(ServerFinish) \\
    \\
-   ClientHello2 & $A \rightarrow B$  & $Rand_A, SID$ \\
-   ServerHello2 & $B \rightarrow A$ & $Rand_B, SID, Choice$ \\
-   ServerFinished2 & $B \rightarrow A$ & $\varepsilon_{ServerKey}(ServerFinish2)$ \\
-   ClientFinished2 & $A \rightarrow B$ & $\varepsilon_{ClientKey}(ClientFinish2)$ \\
+   ClientHello2 & $A \rightarrow B$  & Rand$_A$, SID \\
+   ServerHello2 & $B \rightarrow A$ & Rand$_B$, SID, Choice \\
+   ServerFinished2 & $B \rightarrow A$ & $\varepsilon_{ServerKey}$(ServerFinish2) \\
+   ClientFinished2 & $A \rightarrow B$ & $\varepsilon_{ClientKey}$(ClientFinish2) \\
     \end{tabular}
     % \setlength{\parindent}{4em}
     \caption{An abstract handshake protocol}
@@ -272,19 +272,19 @@ The server then signals the client to use the newly negotiated security paramete
 \end{table}
 
 \subsection{The Abstract Handshake Protocol}\label{abstracthandshake}
-Table \ref{tab:tb2} shows the abstract version of TLS handshake protocol. In the protocol, A denotes a client and B a server respectively. In the figure, the first six exchanged messages are the full handshake process in which a cipher suite and security parameters are negotiated between client and server. The remaining ones are for the resumption of a previously established session or the duplication of a current session.
+Table \ref{tab:tb2} shows the abstract version of TLS handshake protocol. In the protocol, \textbf{A} denotes a client and \textbf{B} a server respectively. In the table, the first six exchanged messages are the full handshake process in which a cipher suite and security parameters are negotiated between the client and the server. The remaining ones are for the resumption of a previously established session or the duplication of a current session.
 
 Cryptographic functions used in the protocol are H(.)
-(a one-way hash function), $\varepsilon_K(.)$ (an encryption function with symmetric or asymmetric key $K$) and $S_X(.)$(a digital signature function with principal $X$’s private key). The other primitives used in the protocol are Rand$_X$ (a random number generated by principal $X$), ListOfChoices (a list of cipher suites), Choice (a cipher suite), SID (a session ID), PMS (a pre-master secret), CA (certificate authority) and K$_X$ (principal $X$'s public key).
+(a one-way hash function), $\varepsilon_K(.)$ (an encryption function with symmetric or asymmetric key K) and S$_X(.)$ (a digital signature function with principal X’s private key). The other primitives used in the protocol are Rand$_X$ (a random number generated by principal X), ListOfChoices (a list of cipher suites), Choice (a cipher suite), SID (a session ID), PMS (a pre-master secret), CA (certificate authority) and K$_X$ (principal X's public key).
 
 Composite data occurring in the protocol are as follows:
-Cert$_X$ : $X$, K$_X$, $S_{CA}$($X$, K$_X$) \newline
+Cert$_X$ : X, K$_X$, S$_{CA}$(X, K$_X$) \newline
 ClientKey : H(A, PMS, Rand$_A$, Rand$_B$) \newline
 ClientKey : H(B, PMS, Rand$_A$, Rand$_B$) \newline
-ClientFinish : H("client", $A$, $B$, SID, ListOfChoices, Choice, Rand$_A$, Rand$_B$, PMS)\newline
-ServerFinish : H("server", $A$, $B$, SID, ListOfChoices, Choice, Rand$_A$, Rand$_B$, PMS)\newline
-ClientFinish2 : H("client", $A$, $B$, SID, Choice, Rand$_A$, Rand$_B$, PMS)\newline
-ServerFinish2 : H("server", $A$, $B$, SID, Choice, Rand$_A$, Rand$_B$, PMS)\newline
+ClientFinish : H("client", A, B, SID, ListOfChoices, Choice, Rand$_A$, Rand$_B$, PMS)\newline
+ServerFinish : H("server", A, B, SID, ListOfChoices, Choice, Rand$_A$, Rand$_B$, PMS)\newline
+ClientFinish2 : H("client", A, B, SID, Choice, Rand$_A$, Rand$_B$, PMS)\newline
+ServerFinish2 : H("server", A, B, SID, Choice, Rand$_A$, Rand$_B$, PMS)\newline
 
 We suppose the following in the abstract handshake protocol: a server always sends his/her certificate to a client when a full handshake process is performed; a server sends neither SeverKeyExchange nor CertificateRequest messages; server Certificate message also plays the role of ServerHelloDone messages; a client sends neither Certificate nor CertificateVerify messages; ChangeCipherSpec messages are implicit; there exists only one trusted certificate authority; the method used for exchanging pre-master secrets is RSA only; the content of Finished messages is not the hash of the security parameters and handshake messages exchanged, but that of two random numbers and a pre-master secret, etc.
 % 		\end{verbatim}
