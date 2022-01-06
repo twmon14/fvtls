@@ -64,20 +64,7 @@
 \RequirePackage{xspace,xstring,footmisc}
 \RequirePackage[svgnames,dvipsnames]{xcolor}
 
-\RequirePackage[colorlinks]{hyperref}
-\colorlet{scolor}{black}
-\colorlet{hscolor}{DarkSlateGrey}
-\hypersetup{%
-  pdftitle={\csuse{__short_title:}},
-  pdfauthor={\csuse{__short_authors:}},
-  pdfcreator={LaTeX3; cas-sc.cls; hyperref.sty},
-  pdfproducer={pdfTeX;},
-  linkcolor={hscolor},
-  urlcolor={hscolor},
-  citecolor={hscolor},
-  filecolor={hscolor},
-  menucolor={hscolor},
- }
+
 
  \let\comma\@empty
 \let\tnotesep\@empty
@@ -166,7 +153,21 @@
    columnsep=18pt
 ]{geometry}
 
-
+\RequirePackage[colorlinks]{hyperref}
+\colorlet{scolor}{black}
+\colorlet{hscolor}{DarkSlateGrey}
+\hypersetup{%
+  pdftitle={\csuse{__short_title:}},
+  pdfauthor={\csuse{__short_authors:}},
+  pdfcreator={LaTeX3; cas-sc.cls; hyperref.sty},
+  pdfproducer={pdfTeX;},
+  linkcolor={hscolor},
+  urlcolor={hscolor},
+  citecolor={hscolor},
+  filecolor={hscolor},
+  menucolor={hscolor},
+ }
+ 
 \endinput
   
 %

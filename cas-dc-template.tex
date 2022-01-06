@@ -143,6 +143,7 @@
 
 % For a title note without a number/mark
 %\nonumnote{}
+\maketitle
 
 % Here goes the abstract
 \begin{abstract}
@@ -166,8 +167,6 @@ TLS protocol has been formally verified with CiMPG in CafeInMaude. The formal sp
 \begin{keywords}
  CiMPG \ CafeInMaude \ invariant \ OTS \ proof scores
 \end{keywords}
-
-\maketitle
 
 % Main text
 \section{Introduction}\label{intro}
@@ -205,21 +204,21 @@ If a cipher suite used is weaker than the available one to both peers or the sec
     \begin{tabular}{ c c c }
     Client &  & Server \\ 
     \hline
-    & \leftarrow & HelloRequest^* \\  
-    ClientHello & \xrightarrow & \\ 
-    & \xleftarrow & ServerHello \\  
-    & \xleftarrow & Certificate^* \\  
-    & \xleftarrow & ServerKeyExchange^* \\  
-    & \xleftarrow & CertificateRequest^* \\  
-    & \xleftarrow & ServerHelloDone^* \\  
-    Certificate^* & \xrightarrow & \\ 
-    ClientKeyExchange & \xrightarrow & \\ 
-    CertificateVerify^* & \xrightarrow & \\ 
-    \verb![ChangeCipherSpec]! & \rightarrow & \\ 
-    Finished & \xrightarrow & \\ 
-    & \xleftarrow & \verb![ChangeCipherSpec]! \\  
-    & \xleftarrow & Finished \\ 
-    Application Data & \leftrightarrow & Application Data \\ 
+    & $\leftarrow$ & HelloRequest$^*$ \\  
+    ClientHello & $\rightarrow$ & \\ 
+    & $\leftarrow$ & ServerHello \\  
+    & $\leftarrow$ & Certificate$^*$ \\  
+    & $\leftarrow$ & ServerKeyExchange$^*$ \\  
+    & $\leftarrow$ & CertificateRequest$^*$ \\  
+    & $\leftarrow$ & ServerHelloDone$^*$ \\  
+    Certificate$^*$ & $\rightarrow$ & \\ 
+    ClientKeyExchange & $\rightarrow$ & \\ 
+    CertificateVerify$^*$ & $\rightarrow$ & \\ 
+    \verb![ChangeCipherSpec]! & $\rightarrow$ & \\ 
+    Finished & $\rightarrow$ & \\ 
+    & $\leftarrow$ & \verb![ChangeCipherSpec]! \\  
+    & $\leftarrow$ & Finished \\ 
+    Application Data & $\leftrightarrow$ & Application Data \\ 
     \end{tabular}
     \caption{TLS handshake protocol}
     \label{tab:tb1}
@@ -255,17 +254,17 @@ The server then signals the client to use the newly negotiated security paramete
 \begin{table}[]
 \centering
     \begin{tabular}{ c c c }
-    ClientHello & $A \rightarrow B$  & Rand_A, ListOfChoices \\ 
-    ServerHello & $B \rightarrow A$ & Rand_B, SID, Choice \\  
-    Certificate & $B \rightarrow A$ & Cert_B \\ 
-    KeyExchange & $A \rightarrow B$ & \varepsilon_{K_B}(PMS) \\ 
-    ClientFinished & $A \rightarrow B$ & \varepsilon_{ClientKey}(ClientFinish) \\
-   ServerFinished & $B \rightarrow A$ & \varepsilon_{ServerKey}(ServerFinish) \\
+    ClientHello & $A \rightarrow B$  & $Rand_A, ListOfChoices$ \\ 
+    ServerHello & $B \rightarrow A$ & $Rand_B, SID, Choice$ \\  
+    Certificate & $B \rightarrow A$ & $Cert_B$ \\ 
+    KeyExchange & $A \rightarrow B$ & $\varepsilon_{K_B}(PMS)$ \\ 
+    ClientFinished & $A \rightarrow B$ & $\varepsilon_{ClientKey}(ClientFinish)$ \\
+   ServerFinished & $B \rightarrow A$ & $\varepsilon_{ServerKey}(ServerFinish)$ \\
    \\
-   ClientHello2 & $A \rightarrow B$  & Rand_A, SID \\
-   ServerHello2 & $B \rightarrow A$ & Rand_B, SID, Choice \\
-   ServerFinished2 & $B \rightarrow A$ & \varepsilon_{ServerKey}(ServerFinish2) \\
-   ClientFinished2 & $A \rightarrow B$ & \varepsilon_{ClientKey}(ClientFinish2) \\
+   ClientHello2 & $A \rightarrow B$  & $Rand_A, SID$ \\
+   ServerHello2 & $B \rightarrow A$ & $Rand_B, SID, Choice$ \\
+   ServerFinished2 & $B \rightarrow A$ & $\varepsilon_{ServerKey}(ServerFinish2)$ \\
+   ClientFinished2 & $A \rightarrow B$ & $\varepsilon_{ClientKey}(ClientFinish2)$ \\
     \end{tabular}
     % \setlength{\parindent}{4em}
     \caption{An abstract handshake protocol}
