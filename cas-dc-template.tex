@@ -291,7 +291,7 @@ We suppose the following in the abstract handshake protocol: a server always sen
 % 	\end{small}
 
 \section{Formal Specification of TLS} \label{fstls}
-Suppose that there exist not only multiple trustable
+Suppose that there exists not only multiple trustable
 principals but also multiple malicious (untrustable) principals, and the cryptosystem used is perfect. Trustable
 principals exactly follow the protocol, while malicious ones may do something against the protocol as well. The combination and cooperation of malicious principals is modeled as the most general intruder Dolev-Yao [\cite{dolev}]. 
 An intruder can glean as much information as possible from messages flowing in the network and create fake messages based on the gleaned information, provided that the intruder cannot break the perfect cryptosystem.
@@ -342,17 +342,17 @@ which is certified by $g$, is denoted by \verb!cert!($a$, $k$, $g$).
 
 For each data constructor such as \verb!pms!, \verb!sig!, etc., projection operators such as \verb!client!, \verb!server! and \verb!secret! that return arguments of the data constructor are also defined. For example, \verb!client(pms!($a$, $b$, $s$)) = $a$, \verb!server(pms!($a$, $b$, $s$)) = $b$ and \verb!secret(pms!($a$, $b$, $s$)) = $s$. Other projection operators for other data constructor are also defined likewise.
 
-For data constructor \verb!x! (where \verb!x = ch!, \verb!sh!, \verb!ct!, \verb!kx!, \verb!cf!, \verb!sf!, \verb!ch2,! \verb!sh2!, \verb!sf2!, \verb!cf2!), predicate \verb!x!? is defined, which checks if a given message is \verb!x! message. Given a term denoting a message, projection operators such as \verb!crt!, \verb!src! and \verb!dst! return the first, second and third arguments of the term, respectively.The first, second and  third  arguments  of  each  message are  the  actual creator,  the  seeming  sender  and  the  receiver  of the  corresponding message. The first argument is meta-information that is only available to the outside observer and the principal that has sent the corresponding message, and that cannot be forged by the intruder; while the remaining arguments may be forged by the intruder. The projection operators \verb!rand, list, choice, sid, cert, epms, ecfin, esfin, ecfin2! and \verb!esfin2! return other arguments, respectively.
+For data constructor \verb!x! (where \verb!x = ch!, \verb!sh!, \verb!ct!, \verb!kx!, \verb!cf!, \verb!sf!, \verb!ch2,! \verb!sh2!, \verb!sf2!, \verb!cf2!), predicate \verb!x!? is defined, which checks if a given message is \verb!x! message. Given a term denoting a message, projection operators such as \verb!crt!, \verb!src! and \verb!dst! return the first, second and third arguments of the term, respectively. The first, second and  third  arguments  of  each  message are  the  actual creator,  the  seeming  sender  and  the  receiver  of the  corresponding message. The first argument is meta-information that is only available to the outside observer and the principal that has sent the corresponding message, and that cannot be forged by the intruder; while the remaining arguments may be forged by the intruder. The projection operators \verb!rand, list, choice, sid, cert, epms, ecfin, esfin, ecfin2! and \verb!esfin2! return other arguments, respectively.
 
 Suppose that there exists a message in the network. It is true that the principal denoted by the first
 argument has sent the message. If the first argument is the
 intruder and the second one is not, then the message has been
-faked by the intruder. For example, a principal $a$ receives a message denoted by \verb!ct!($b$',$b$,$a$,$cert$). 
+faked by the intruder. For example, a principal $a$ receives a message denoted by \verb!ct!($b$', $b$, $a$, $cert$). 
 Since messages are supposed to be never deleted from the network, if there exists a message denoted by
-\verb!ct!($b$,$b$,$a$,$cert$) the network, we can conclude that the message received by $a$ really originates from $b$.
+\verb!ct!($b$, $b$, $a$, $cert$) the network, we can conclude that the message received by $a$ really originates from $b$.
 Therefore, this formalization of messages makes it possible to describe a property such as one that a message received by a principal really originates from the seeming sender (second argument) of the message. 
 
-The  network  is  modeled  as  a  multiset  of  messages,  in which the intruder can use as his/her storage. Any message that has been sent or put once into the network is supposed to be never deleted from the network because the intruder can replay the message repeatedly, although the intruder cannot forge the first argument. Consequently, the empty network(i.e., the empty multiset) means that no messages have been sent.
+The  network  is  modeled  as  a  multiset  of  messages,  in which the intruder can use as his/her storage. Any message that has been sent or put once into the network is supposed to be never deleted from the network because the intruder can replay the message repeatedly, although the intruder cannot forge the first argument. Consequently, the empty network (i.e., the empty multiset) means that no messages have been sent.
 
 The intruder tries to glean seven kinds of quantities from
 the network as much as possible. The seven kinds of quantities are pre-master secrets, digital signatures and five kinds of ciphertexts. The collections of the seven quantities gleaned by the intruder from the network are denoted by the following operators, respectively:
@@ -441,8 +441,8 @@ eq  us(chello(P,A,B,R,L)) = us(P) .
 ceq chello(P,A,B,R,L)     = P if not c-chello(P,A,B,R,L) . 
 \end{verbatim}
 \end{small}	
-The  equations  say  that  if c-chello(P,A,B,R,L) is  true
-(i.e., random number R has   not   been   used), then the ClientHello message ch(A,A,B,R,L) is put into the network nw(P), R is put into ur(P); if c-chello(P,A,B,R,L) is  false,  nothing  changes.  The remaining transitions can be defined likewise.
+The  equations  say  that  if c-chello(P, A, B, R, L) is  true
+(i.e., random number R has   not   been   used), then the ClientHello message ch(A, A, B, R, L) is put into the network nw(P), R is put into ur(P); if c-chello(P, A, B, R, L) is  false,  nothing  changes.  The remaining transitions can be defined likewise.
 
 The behavior of the intruder is modeled by 15
 kinds of transitions. The intruder fakes messages based on the gleaned information. The effective condition to the action operators is that the necessary information is available to the intruder. The 15 kinds of transitions are defined by the following operators:
@@ -474,6 +474,15 @@ Protocol {constr}
 \end{small}	
 Each operator is defined with equations. In the original specification of TLS, the state space is denoted by hidden sort and the action and observation operators with respect to hidden sorts are declared by starting with \verb !bop!. 
 We slightly revise the original specification of the state space denoting visible sort and the action and observation operators are declared with respect to visible sorts by starting with \verb !op! as behavioral specifications are not supported in CafeInMaude.
+
+To successfully complete the formal verification of TLS protocol, we add one useful lemma in the specification. The trivial lemma is defined by the following operator and equation as follows:
+\begin{small}
+\begin{verbatim}
+  op lm1 : Msg Msg Network -> Bool
+  eq lm1(M, M2, NW) = (M = M2 and M \in NW) implies (M2 \in NW) .
+\end{verbatim}
+\end{small}	
+The equation says that there exists a message \verb!M! in the network and if \verb!M2! message is equivalent to \verb!M!, then \verb!M2! is also in the network. We use the trivial lemma in some invariants (\verb!inv7, 8, 12, 13, 14, 16, 17, 18!) and the formal verification is successfully done with the help of this lemma.
 
 \section{Formal Verification of TLS with CiMPG}\label{fvtls}
 The five properties for the protocol [\cite{1437139}] are formalized as CafeOBJ terms. To formally verify the five properties, 13 more properties are required. Let us define the properties as inv$x$ where x = 1 to 18. inv1, inv3, inv5, inv17 and inv18 are the five properties of the protocol. The first property is formalized as follows: 
@@ -701,14 +710,14 @@ eq pms(a,b,s) = pms(epms(m4)) .
 eq a = dst(m2) .
 \end{verbatim}
 \end{small}
-the first equation says that the left hand side rewrites the right hand side. The second equation says that \verb!a! rewrites \verb!dst(m2)!. When we declare the second equation , it does not rewrite \verb!a! into \verb!dst(m2)! in the first equation. Hence, \verb!eq pms(a,b,s) = pms(epms(m4))! does not make sense. Instead, the equation should be: \verb!eq pms(dst(m2),b,s) = pms(epms(m4)) .! There are many cases in which we need to revise the proof scores by changing the order of the equations if necessary.
+the first equation says that the left hand side rewrites the right hand side. The second equation says that \verb!a! rewrites \verb!dst(m2)!. When we declare the second equation, it does not rewrite \verb!a! into \verb!dst(m2)! in the first equation. Hence, \verb!eq pms(a,b,s) = pms(epms(m4))! does not make sense. Instead, the equation should be: \verb!eq pms(dst(m2),b,s) = pms(epms(m4)) .! There are many cases in which we need to revise the proof scores by changing the order of the equations if necessary.
 
 The formal verification can be conducted by writing  proof  scripts  with  CiMPA. However, writing proof scripts manually is not a good idea for this protocol because the size of the proof scores is large and it is subject to human errors. On the other hand, CiMPG takes time to generate the proof script when the size of the proof score is large. In this case study, we tackle each property with
 CiMPG one by one since the size of the proof score of each property is quit complex and large. By conducting one invariant by one, we can understand the problems and revise the proof scores in appropriate way. 
 
-We use three devices (two MacBook Air that carry 1.6 GHz Intel Core i5 processor, 16 GB memory and one MacBook Pro that carries 2.3 GHz Quad-Core Intel Core i7 processor, 32 GB memory) to run the programs in parallel so as to complete the formal verification faster. CiMPG takes 8~9 hours to generate the proof scripts for each invariant in both devices, however it takes 52 hours and 17 minutes for inv17 using MacBook Pro. Since the size of the proof scores of inv17 is quite large (it has 297 open–close proof fragments involving more than 8000 lines of code). We come up with an idea to divide the proof scores into smaller  open-close fragments when the proof scores is too big to be tackled by CiMPG in a reasonable amount of time.
+We use three devices (two MacBook Air that carry 1.6 GHz Intel Core i5 processor, 16 GB memory and one MacBook Pro that carries 2.3 GHz Quad-Core Intel Core i7 processor, 32 GB memory) to run the programs in parallel so as to complete the formal verification faster. CiMPG takes 8-9 hours to generate the proof scripts for each invariant in both devices, however it takes 52 hours and 17 minutes for inv17 using MacBook Pro. Since the size of the proof scores of inv17 is quite large (it has 297 open–close proof fragments involving more than 8000 lines of code). We come up with an idea to divide the proof scores into smaller  open-close fragments when the proof scores is too big to be tackled by CiMPG in a reasonable amount of time.
 
-The proof scores of inv17 is divided into each induction case with the base case and feed into CiMPG using the same environment. Then, we measure the time for each induction case as shown in the table \ref{tab:tb3}. CiMPG takes 16 hours and 23 minutes in total for all induction cases. The result is obvious that CiMPG reduces the running time compared to running all induction cases in one time. Therefore, this is a good idea to divide the proof scores into smaller cases and running into CiMPG, however, we need to create 27 files to run each induction case separately.\\
+The proof scores of inv17 is divided into each induction case with the base case and feed into CiMPG using the same environment. Then, we measure the time for each induction case as shown in the table \ref{tab:tb3}. CiMPG takes 16 hours and 23 minutes in total for all induction cases inv17. The result is obvious that CiMPG reduces the running time compared to running all induction cases in one time. Therefore, this is a good idea to divide the proof scores into smaller cases and running into CiMPG, however, we need to create 27 files to run each induction case separately.\\
 \newline
 \begin{table}[]
 \begin{tabularx}{0.48\textwidth} { 
@@ -771,9 +780,9 @@ There is a large number of tools existing for automatically verifying cryptograp
 ProVerif can automatically prove security properties of cryptographic protocol specifications.
 The tool is based on an abstract representation of the protocol by a set of Horn clauses,
 and it determines whether the desired security properties hold by resolution on these clauses.
-The practicability of ProVerif has been demonstrated through case studies, such as ...
-%TODO: search for some case studies and add them here
-%ProVerif can handle an unbounded number of sessions (executions) of protocols, but termination is not guaranteed in general because the resolution algorithm may not terminate. 
+The practicability of ProVerif has been demonstrated through case studies, such as \cite{proverif2}, \cite{proverif3}. 
+ProVerif can handle an unbounded number of sessions (executions) of protocols. 
+% but termination is not guaranteed in general because the resolution algorithm may not terminate. 
 However, the full automatic of ProVerif comes at a cost, that is, termination is not guaranteed in general because the resolution algorithm may not terminate. 
 %the number of sessions (executions) of protocols may be unbounded. 
 
@@ -782,7 +791,7 @@ The tool can handle searches in the unbounded session model, and thus can be use
 The most challenging problem is how to deal with a huge or even infinite state space.
 To mitigate this challenge, Escobar et al. [\cite{maudenpa08}] have proposed some techniques to reduce the size of the search space, such as generating formal grammars representing terms (states information) unreachable from initial states and using super lazy intruder to delay the generation of substitution instances as much as possible.
 Even though, the termination of the tool is not always guaranteed.
-Many case studies have been presented to demonstrate the practicability of Maude-NPA, such as ...
+% Many case studies have been presented to demonstrate the practicability of Maude-NPA, such as ...
 %TODO: search for some case studies and add them here
 
 Scyther [\cite{Scyther08}] is another tool for security verification of cryptographic protocols.
@@ -792,7 +801,7 @@ Moreover, Tamarin  provides two ways of constructing proofs: fully automated mod
 The tool may not terminate in the fully automated mode.
 In the interactive mode, the tool allows users to provide lemmas that must be proved. 
 Of course, finding suitable lemmas is an intellectual task, which is not novel in the field of formal verification.
-Some case studies on security analysis of cryptographic primitives and protocols with Tamarin are ...
+% Some case studies on security analysis of cryptographic primitives and protocols with Tamarin are ...
 %TODO: search for some case studies and add them here
 
 Ogata and Futatsugi [\cite{1437139}] have formally verified TLS 1.0 handshake protocol  with the proof score approach [\cite{OgataF03fmoods}].
@@ -851,9 +860,9 @@ the verifier may not terminate; in others, it may take a huge amount of memory.
 % proved in Coq. On the other hand, proof that demonstrates that the properties hold may be harder to construct. In comparison with our research, we proved lemmas that show protocol security using proof assistant CiMPA and proof generator CiMPG.
 
 \section{Conclusion}\label{conclusion}
-We have described how to revise the proof scores of TLS 1.0 in the OTS/CafeOBJ method to succeed the formal verification of the protocol with CiMPG. CiMPG often takes time to generate proof scripts when the size of input
-proof scores is big. We found an effective solution for this issue by dividing the proof scores into smaller sub-case.
-
+This paper has presented the formal verification of TLS protocol with proof generator CiMPG. We have described how to revise the proof scores in the OTS/CafeOBJ method to succeed the formal verification of the protocol with CiMPG. CiMPG often takes time to generate proof scripts when the size of input
+proof scores is huge. We found an effective way to solve this issue by dividing the proof scores into smaller sub-case. One piece of our future
+work is to formally verify other security protocols with CiMPG.
 
 
 
@@ -922,7 +931,7 @@ proof scores is big. We found an effective solution for this issue by dividing t
 
 
 % To print the credit authorship contribution details
-\printcredits
+% \printcredits
 
 %% Loading bibliography style file
 %\bibliographystyle{model1-num-names}
