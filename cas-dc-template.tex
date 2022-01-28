@@ -203,28 +203,51 @@ conclusions and outlines some lines of future work. The formal specification of 
 
 \section{Preliminaries}\label{pre}
 % Please make one section that is dedicated to Preliminaries where you are supposed to describe CafeOBJ (or CafeInMaude), proof socres, CiMPG, proof script and CiMPA by using a small example, such as IFF.
-We present in this section some preliminaries such as
-CafeOBJ specification of the IFF protocol, how to prove properties on this protocol by using proof scores. Then we show CafeInMaude, how to use CiMPA for proving the properties of the example and how CiMPG infers the proof script.
+This section gives some common notions and background which are requirements for the paper. We first present the CafeOBJ specification and proof scores through a simple example such as IFF protocol. We then describe CafeInMaude, how to use CiMPA for proving the properties of the example and how CiMPG infers the proof score.
+% We present in this section some preliminaries such as
+% CafeOBJ specification of the IFF protocol, how to prove properties on this protocol by using proof scores. Then we show CafeInMaude, how to use CiMPA for proving the properties of the example and how CiMPG infers the proof script.
 
-\subsection{CafeOBJ and IFF in CafeOBJ} \label{cafeobj}
-CafeOBJ \cite{DiaconescuF98amast} is a direct successor of OBJ3, the best-known algebraic specification language, and its system is also referred to as CafeOBJ. Proof scores are proof plans written in an algebraic specification language, such as OBJ3 and CafeOBJ.
+\subsection{CafeOBJ} \label{cafeobj}
+CafeOBJ \cite{DiaconescuF98amast} is a direct successor of OBJ3, a formal specification language in which formal verification is conducted by writing what is called "proof scores" \cite{OgataF03fmoods} and executing them with CafeOBJ. CafeOBJ implements equational logic by rewriting and provides several features such as flexible mix-fix syntax, parameterized modules and views for instantiating the parameters, module expressions, operators for defining terms, equations for defining the equalities as rewrite rules, and transitions for specifying how a system evolves, etc. Proof scores consist of the reduction, by means of equations, of goal-oriented terms in user-defined modules (the so-called open–close environments), and checking whether they are reduced to the expected value (usually true). 
+% More specifically, given a property that must hold in an initial module, we have that:
+% —These goal-oriented terms must take into account whether (i) we require induction and
+% hence a ground term built with constructors should substitute some of the variables from
+% the goal while the rest should be substituted by fresh constants; or (ii) we need to use any
+% of the hypotheses, probably by using an implication.
+% —These user-defined modules must include the definitions for all fresh constants required
+% by the equations and the equations standing for the hypotheses or case splittings, among
+% others.
 
-CafeOBJ is a formal specification language for writing formal specifications for a wide variety of software and hardware systems and for verifying their properties. CafeOBJ implements equational logic by rewriting and can be used as a powerful platform for proving properties of systems. CafeOBJ provides several features to ease the specification of systems. These features include a flexible mix-fix syntax, a powerful and clear typing system with ordered sorts, parameterized modules and views for instantiating the parameters, module expressions, operators for defining terms, equations for defining the (possibly conditional) equalities
-between terms, and (possibly conditional) transitions for specifying how a system evolves, among others. Regarding verification, specifiers can also write proof scores (Futatsugi et al. 2012) in CafeOBJ and perform proofs by executing these proof scores. Proof scores consist of the reduction, by
-means of equations, of goal-oriented terms in user-defined modules (the so-called open–close environments, which allow extension of previous theories by adding new operators and equations) and checking whether they are reduced to the expected value (usually true). More specifically, given a property that must hold in an initial module, we have that:
-—These goal-oriented terms must take into account whether (i) we require induction and
-hence a ground term built with constructors should substitute some of the variables from
-the goal while the rest should be substituted by fresh constants; or (ii) we need to use any
-of the hypotheses, probably by using an implication.
-—These user-defined modules must include the definitions for all fresh constants required
-by the equations and the equations standing for the hypotheses or case splittings, among
-others.
+\subsection{IFF in CafeOBJ}
+IFF (Identify-Friend-or-Foe) \cite{iff2001} is used to check if a principal is a member of a group. The IFF protocol can be described as the following two message exchanges:
+	
+	${\rm Check} \ \ \: p \rightarrow q : r$
+	
+	${\rm Reply}  \ \ \ q \rightarrow p : \varepsilon_k(r,q)$
+	
+	\noindent
+Each principal (or agent) such as $p$ and $q$ belongs to only one group. A symmetric key is given to each group, whose members share the same key, and keys are different from group to group. If a principal $p$ wants to check if a principal $q$ is a member of the $p$'s group, $p$ generates a fresh random number $r$ and sends it to $q$ as a $\rm Check$ message. 
+On receipt of the $\rm Check$ message, $q$ sends back to $p$ a $\rm Reply$ message that consists of $r$ and ID $q$ encrypted by the symmetric key $k$ of the $q$'s group. On receipt of the $\rm Reply$ message, $p$ tries to decrypt the ciphertext with the symmetric key of the $p$'s group. If the decryption succeeds and the plaintext consists of $r$ and $q$, $p$ then concludes that $q$ is a member of the $p$'s group. 
+	%The protocol is supposed to have the property that if $p$ receives a valid $\rm Reply$ message from $q$, $q$ is always a member of the $p$'s group. The property is called the IFF property in this paper.
+	
+We suppose that the cryptosystem used is perfect, there is only one legitimate group, all members of the group are trustable, and there are also untrustable principals who are not members. Trustable principals exactly follow the protocol, but untrustable ones may do something against the protocol as well. The combination and cooperation of untrustable principals is modeled as the most general enemy (or intruder). The enemy gleans as much information as possible from messages flowing in the network and creates the fake messages based on the gleaned information, provided that the enemy cannot break the perfect cryptosystem.
+
+In order to specify this protocol in CafeOBJ, we first define the module PRINCIPAL, which starts by mod! to indicate that it has tight semantics. This module defines the sort Prin and indicates the enemy (denoted by the constr attribute). It also defines an equation for the equality predicate meaning that only syntactically equal term is equal, any other equation for it.
+\begin{small}
+\begin{verbatim}
+mod! PRINCIPAL {
+  [Prin]
+  op enemy : -> Prin {constr}
+  eq (P:Prin = P) = true .
+}
+\end{verbatim}
+\end{small}
 
 \subsection{Proof Scores for Verifying IFF} \label{pscores}
 
-\subsection{Verifying QLOCK with CiMPA} \label{cimpa}
+\subsection{Verifying IFF with CiMPA} \label{cimpa}
 
-\subsection{Verifying QLOCK with CiMPG} \label{cimpg}
+\subsection{Verifying IFF with CiMPG} \label{cimpg}
 
 \section{TLS}\label{tls}
 TLS \cite{dierk} provides privacy and data integrity between client/server communications. The protocol consists of four sub-protocols. They are TLS handshake protocol, the change cipher spec protocol, the alert protocol and TLS record protocol. We focus on the TLS handshake protocol in this paper. When client and server want to establish a secure communication, TLS handshake protocol is used to negotiate a cipher suite and security parameters between client and server. 
@@ -330,6 +353,7 @@ two random numbers, a pre-master secret, etc.
 % 	\end{small}
 
 \section{Formal Specification of TLS handshake protocol} \label{fstls}
+\textbf{TO REVISE THIS PART}
 The formal specification of the protocol written in CafeOBJ is available and the modeling of the system has already been described in \cite{1437139}. We slightly revise the existing specification and the description of the formal specification of the protocol is given in this section. There are two kinds of principals such as trustable and untrustable ones. Trustable principals exactly follow the protocol, while untrustable ones do something against the protocol. 
 
 % Suppose that there exists not only multiple trustable
@@ -565,7 +589,7 @@ eq inv1(P,PMS) = (PMS \in cpms(nw(P)) implies
 \end{small}
 The equation says that if a pre-master secret is available to the intruder as a server, the pre-master secret has been generated by the intruder or a client has generated it for a session with the intruder. This means that the intruder cannot obtain any pre-master secrets for sessions in which the intruder is not involved. 
 
-TO EXPLAIN INV3, INV5, INV17, INV18
+\textbf{TO EXPLAIN INV3, INV5, INV17, INV18}
 
 The five properties inv12, inv13, inv16, inv17 and inv18 have been proved by case analysis with other properties as lemmas, and the remaining ones by (simultaneous) structural induction on reachable states in \cite{1437139}. CiMPG cannot deal with proofs by case analysis. Thus, it is necessary to prove the five properties by structural induction on reachable states. We have written proof scores to do so while referring to some tips on writing proof scores \cite{Ogata2006}.
 
@@ -621,7 +645,7 @@ fragment informs CiMPG that the open-close fragments in the file
 all of which are supposed to be annotated by :proof(tls) are to
 be handled by CiMPG.
 
-TO REVISE THIS PART
+\textbf{TO REVISE THIS PART}
 % This part should be revised.
 
 % 1. Similar sentences are repeated, which is redundant.
