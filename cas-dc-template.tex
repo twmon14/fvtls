@@ -98,7 +98,7 @@
 
 % Address/affiliation
 \affiliation[1]{organization={School of Information Science, Japan Advanced Institute of Science and Technology (JAIST)},
-            addressline={1-1 Asahidai }, 
+            addressline={1-1 Asahidai}, 
             city={Nomi},
             postcode={923-1292}, 
             state={Ishikawa},
@@ -882,7 +882,72 @@ The proof scores of inv17 is divided into each induction case with the base case
 % Please add the time taken for tackling the while of inv17 so as to easily compare both time taken.
 % You may have two tables in Table 3. If so, each table is give its own caption. The caption of Table 3 should be revised.
 
-\subsection{how to revise the existing proof scores}
+\subsection{Revising semantic-based case splitting}
+In the existing proof scores, there are many times case splitting based on semantics are used. However, this case splitting cannot be handled by CiMPG. Thus, we need to revise the proof scores to get rid of any case splitting based on semantics. For example, the original proof score for the induction case  \verb!shello!  of \verb!inv1! consists of the following two open-close fragments:
+
+\begin{small}
+\begin{verbatim}
+open ISTEP .
+	ops p p' : -> Protocol .  op pms : -> Pms .  op b : -> Prin .
+	op c : -> Choice .        op r : -> Rand .   op i : -> Sid . 
+	op nw10 : -> Network .    op m : -> Msg .           
+	eq r \in ur(p) = false .  eq i \in ui(p) = false .
+	eq nw(p) = m , nw10 .     eq ch?(m) = true . eq dst(m) = b .
+	eq c \in list(m) = true . 
+	eq p' = shello(p,b,r,i,c,m) .
+	red istep1(pms) .
+	close
+	open ISTEP .
+	ops p p' : -> Protocol .  op pms : -> Pms .  op b : -> Prin .
+	op c : -> Choice .        op r : -> Rand .   op i : -> Sid . 
+	op nw10 : -> Network .    op m : -> Msg .           
+	eq c-shello(p,b,r,i,c,m) = false . 
+	eq p' = shello(p,b,r,i,c,m) .
+	red istep1(pms) .
+	close
+\end{verbatim}
+\end{small}
+
+\noindent
+where \verb!istep1(pms)! is \verb!inv1(p,pms) implies inv1(p',pms)!.
+The proof is semantically split into two sub-cases: (1)  \verb!c-shello(p,b,r,i,c,m) = true!, which corresponds to the first open-close fragment above; 
+and (2) \verb!c-shello(p,b,r,i,c,m)! \verb!= false!,
+which corresponds to the second open-close fragment above. 
+For the sub-case (1), based on the definition of \verb!c-shello!,  \verb!c-shello(p,b,r,i,c,m) = true! is rewritten into the first five equations in the first open-close fragment. 
+This case splitting is semantically correct, but unfortunately, cannot be handled by CiMPG. Therefore, we need to modify the proof score.
+The revised proof score consists of seven sub-cases as shown in Fig.~\ref{fig-cs-inv1}, where $csb1$, $csb2$, $csb3$, $csb4$, $csb5$, and $csb6$ are
+ \verb!r \in ur(p)!,
+ \verb!i \in ui(p)!,
+ \verb!m \in nw(p)!,
+ \verb!ch?(m)!,
+ \verb!dst(m) = b!, and
+ \verb!c \in list(m)!, respectively.
+
+%\begin{itemize}
+%	\item $csb1 \triangleq$ \verb!r \in ur(p)!
+%	\item $csb2 \triangleq$ \verb!i \in ui(p)!
+%	\item $csb3 \triangleq$ \verb!m \in nw(p)!
+%	\item $csb4 \triangleq$ \verb!ch?(m)!
+%	\item $csb5 \triangleq$ \verb!dst(m) = b!
+%	\item $csb6 \triangleq$ \verb!c \in list(m)!
+%\end{itemize}
+
+\noindent
+\begin{table}[]
+	\begin{tabular}{l|l}
+		\hline
+		(1)           & $csb1$                                                                     \\ \hline
+		(2.1)         & $\neg csb1$, $csb2$                                                       \\ \hline
+		(2.2.1.1.1.1) & $\neg csb1$, $\neg csb2$, $csb3$, $csb4$, $csb5$, $csb6$  \\ \hline
+		(2.2.1.1.1.2) & $\neg csb1$, $\neg csb2$, $csb3$, $csb4$, $csb5$, $\neg csb6$ \\ \hline
+		(2.2.1.1.2)   & $\neg csb1$, $\neg csb2$, $csb3$, $csb4$, $\neg csb5$              \\ \hline
+		(2.2.1.2)     & $\neg csb1$, $\neg csb2$, $csb3$, $\neg csb4$                           \\ \hline
+		(2.2.2)       & $\neg csb1$, $\neg csb2$, $\neg csb3$                                        \\ \hline
+	\end{tabular}
+\caption{Case splitting for the induction case shello of inv1}
+\label{fig-cs-inv1}
+\end{table}
+
 \subsection{how to find one missing lemma and the lemma}
 \subsection{how to handle each proof score one by one with CiMPG}
 \subsection{how to handle each induction case one by one with CiMPG}
