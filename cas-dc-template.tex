@@ -248,10 +248,8 @@ The below module KEY defines the sort Key and indicates the symmetric key.
 mod! KEY {
   pr(PRINCIPAL)
   [Key]
-  op k : Prin -> Key
-  op p : Key -> Prin
-  var P : Prin
-  vars K1 K2 : Key
+  op k : Prin -> Key    op p : Key -> Prin
+  var P : Prin          vars K1 K2 : Key
   eq p(k(P)) = P .
   ceq (K1 = K2) = true if not(p(K1) = enemy) and not(p(K2) = enemy) .
   ceq (K1 = K2) = false if not(p(K1) = enemy) and p(K2) = enemy .
@@ -275,14 +273,10 @@ The specification of cipher text is defined as follows:
 mod! CIPHER {
   pr(PRINCIPAL + KEY + RAND)
   [Cipher]
-  op enc : Key Rand Prin -> Cipher
-  op k : Cipher -> Key
-  op r : Cipher -> Rand
-  op p : Cipher -> Prin
-  var K : Key
-  var R : Rand
-  var P : Prin
-  vars C1 C2 : Cipher
+  op enc : Key Rand Prin -> Cipher  op k : Cipher -> Key
+  op r : Cipher -> Rand             op p : Cipher -> Prin
+  var K : Key   var R : Rand
+  var P : Prin  vars C1 C2 : Cipher
   eq k(enc(K,R,P)) = K .
   eq r(enc(K,R,P)) = R .
   eq p(enc(K,R,P)) = P .
@@ -302,16 +296,11 @@ mod! MSG {
   --      ---------------------------------
   op cm : Prin    Prin   Prin        Rand   -> Msg
   op rm : Prin    Prin   Prin        Cipher -> Msg
-  op cm? : Msg -> Bool
-  op rm? : Msg -> Bool
-  op crt : Msg -> Prin
-  op src : Msg -> Prin
-  op dst : Msg -> Prin
-  op r : Msg -> Rand
+  op cm? : Msg -> Bool  op rm? : Msg -> Bool
+  op crt : Msg -> Prin  op src : Msg -> Prin
+  op dst : Msg -> Prin  op r : Msg -> Rand
   op c : Msg -> Cipher
-  vars P1 P2 P3 : Prin
-  var R : Rand
-  var C : Cipher
+  vars P1 P2 P3 : Prin  var R : Rand  var C : Cipher
   vars M1 M2 : Msg
   eq cm?(cm(P1,P2,P3,R)) = true .
   eq cm?(rm(P1,P2,P3,C)) = false .
@@ -353,8 +342,7 @@ mod! BAG (D :: TRIV) {
   op void : -> Bag
   op _,_ : Bag Bag -> Bag { assoc comm id: void }
   op _\in_ : Elt.D Bag -> Bool
-  var B : Bag
-  vars E1 E2 : Elt.D
+  var B : Bag   vars E1 E2 : Elt.D
   eq E1 \in void = false .
   ceq E1 \in (E2,B) = true if E1 = E2 .
   ceq E1 \in (E2,B) = E1 \in B if not(E1 = E2) .
@@ -369,8 +357,7 @@ mod! SET (D :: TRIV) {
   op empty : -> Set
   op __ : Set Set -> Set { assoc comm idem id: empty }
   op _\in_ : Elt.D Set -> Bool
-  var S : Set
-  vars E1 E2 : Elt.D
+  var S : Set   vars E1 E2 : Elt.D
   eq E1 \in empty = false .
   ceq E1 \in (E2 S) = true if E1 = E2 .
   ceq E1 \in (E2 S) = E1 \in S if not(E1 = E2) .
@@ -416,21 +403,20 @@ mod! NETWORK {
   op rands : Network -> ColRands
   op ciphers : Network -> ColCiphers
 --
-  var NW : Network
-  var M : Msg
-  var R : Rand
-  var C : Cipher
+  var NW : Network  var M : Msg var R : Rand    var C : Cipher
 -- rands
   eq R \in rands(void) = false .
   ceq R \in rands(M,NW) = true if cm?(M) and R = r(M) .
-  ceq R \in rands(M,NW) = true if rm?(M) and k(enemy) = k(c(M)) and R = r(c(M)) .
-  ceq R \in rands(M,NW) = R \in rands(NW)
-      if not(cm?(M) and R = r(M)) and
-         not(rm?(M) and k(enemy) = k(c(M)) and R = r(c(M))) .
+  ceq R \in rands(M,NW) = true if rm?(M) and k(enemy) = k(c(M)) 
+  and R = r(c(M)) .
+  ceq R \in rands(M,NW) = R \in rands(NW) if not(cm?(M) and 
+  R = r(M)) and not(rm?(M) and k(enemy) = k(c(M)) 
+   and R = r(c(M))) .
 -- ciphers
   eq C \in ciphers(void) = false .
   ceq C \in ciphers(M,NW) = true if rm?(M) and C = c(M) .
-  ceq C \in ciphers(M,NW) = C \in ciphers(NW) if not(rm?(M) and C = c(M)) .
+  ceq C \in ciphers(M,NW) = C \in ciphers(NW) if not(rm?(M) 
+   and C = c(M)) .
 }
 \end{verbatim}
 \end{small}
@@ -451,15 +437,13 @@ The sort Sys stands for the state space of the system. The system starts in the 
 -- an arbitrary initial state
   op init : -> Sys {constr}
 -- observations
-  op nw : Sys -> Network
-  op ur : Sys -> URands
+  op nw : Sys -> Network    op ur : Sys -> URands
 \end{verbatim}
 \end{small}  
 We use five transitions: \verb!sdcm! and \verb!sdrm! formalize sending $\rm Check$ and $\rm Reply$ messages exactly following the protocol.
-The remaining actions \verb!fkcm1!, \verb!fkrm1!, and \verb!fkrm2! are the enemy's faking messages, respectively.
+The remaining transitions \verb!fkcm1!, \verb!fkrm1!, and \verb!fkrm2! are the enemy's faking messages, respectively.
 \begin{small}
 \begin{verbatim}
--- actions
   op sdcm : Sys Prin Prin Rand -> Sys {constr}
   op sdrm : Sys Prin Msg -> Sys {constr}
   --
@@ -472,59 +456,198 @@ The observational functions are easily applied to the init state: the network an
 \begin{small}
 \begin{verbatim}
 -- CafeOBJ variables
-  var S : Sys
-  vars P1 P2 P3 : Prin
-  vars M1 M2 : Msg
-  var R : Rand
-  var C : Cipher
-  var K : Key
+  var S : Sys   vars P1 P2 P3 : Prin  vars M1 M2 : Msg
+  var R : Rand  var C : Cipher  var K : Key
 
 -- for any initial state
-  eq nw(init) = void .
-  eq ur(init) = empty .
+  eq nw(init) = void .  eq ur(init) = empty .
 \end{verbatim}
 \end{small}
-In order to define the behavior of the values observed by these two functions for \verb!sdcm!, we first specify
-an auxiliary condition c-sdcm that returns true when \verb!R! has not been used. Assuming that the condition holds, the equation for nw and ur indicate that, the $\rm Check$ message \verb!cm(P1,P1,P2,R)! is put into the network \verb!nw(S)! and \verb!R! is put into \verb!ur(S)! in the state denoted by \verb!sdcm(S,P1,P2,R)!; if \verb!c-sdcm(S,P1,P2,R)! does not hold, nothing changes. The remaining four transitions for sdrm, fkcm1, fkrm1, and fkrm2 can be defined analogously.
+In order to define the behavior of the values observed by these two functions for transition functions, we specify
+an auxiliary condition (or effective condition). For example, \verb!fkrm1! has an auxiliary condition c-fkrm1 that returns true when \verb!C! is in the collection of ciphertexts. Assuming that the condition holds, the equation for nw indicates that, the $\rm Reply$ message \verb!rm(enemy,P1,P2,C)! is put into the network \verb!nw(S)! in the state denoted by \verb!fkrm1(S,P1,P2,C)!; if \verb!c-fkrm1(S,P1,P2,C)! does not hold, nothing changes.
+% \verb!sdcm!  c-sdcm that returns true when \verb!R! has not been used. Assuming that the condition holds, the equation for nw and ur indicate that, the $\rm Check$ message \verb!cm(P1,P1,P2,R)! is put into the network \verb!nw(S)! and \verb!R! is put into \verb!ur(S)! in the state denoted by \verb!sdcm(S,P1,P2,R)!; if \verb!c-sdcm(S,P1,P2,R)! does not hold, nothing changes.
+The remaining four transitions for sdcm, sdrm, fkcm1 and fkrm2 can be defined analogously.
 \begin{small}
 \begin{verbatim}
--- for action sdcm
-  op c-sdcm : Sys Prin Prin Rand -> Bool
-  eq c-sdcm(S,P1,P2,R) = (not (R \in ur(S))) .
-  --
-  ceq nw(sdcm(S,P1,P2,R)) = (cm(P1,P1,P2,R) , nw(S)) if c-sdcm(S,P1,P2,R) .
-  ceq ur(sdcm(S,P1,P2,R)) = (R ur(S))                if c-sdcm(S,P1,P2,R) .
-  ceq sdcm(S,P1,P2,R)     = S                      if not c-sdcm(S,P1,P2,R) .
-
--- for action sdrm, fkcm1, fkrm1, fkrm2
+-- for action fkrm1
+  op c-fkrm1 : Sys Prin Prin Cipher -> Bool
+  eq c-fkrm1(S,P1,P2,C) = C \in ciphers(nw(S)) .
+  ceq nw(fkrm1(S,P1,P2,C)) = rm(enemy,P1,P2,C) , nw(S) 
+  if c-fkrm1(S,P1,P2,C) .
+  eq ur(fkrm1(S,P1,P2,C))  = ur(S) .
+  ceq fkrm1(S,P1,P2,C)     = S  if not c-fkrm1(S,P1,P2,C) .
 \end{verbatim}
 \end{small}
-We define two invariants in our system. The first ensures identifiable property by stating that whenever $p$ receives a valid $\rm Reply$ message from $q$, $q$ is always a member of the $p$'s group. Note that our goal is just inv1, while inv2 is an auxiliary lemma required for proving
-inv1.
+We define two invariants in our system. The first ensures identifiable property by stating that whenever $p$ receives a valid $\rm Reply$ message from $q$, $q$ is always a member of the $p$'s group. Note that our goal is just inv1, while inv2 is an auxiliary lemma required for proving inv1.
 \begin{small}
 \begin{verbatim}
--- INV
 -- declare invariant candidates
   op inv1 : Sys Prin Prin Prin Key Rand -> Bool
   op inv2 : Sys Key Rand -> Bool
 -- CafeOBJ variables
-  var S : Sys
-  vars P1 P2 P3 : Prin
-  var K : Key
-  var R : Rand
+  var S : Sys   vars P1 P2 P3 : Prin
+  var K : Key   var R : Rand
 -- define invariant candidates
-  eq inv1(S,P1,P2,P3,K,R) = ((not(K = k(enemy)) and rm(P1,P2,P3,enc(K,R,P2)) \in nw(S)) implies not(P2 = enemy)) .
-  eq inv2(S,K,R) = (enc(K,R,enemy) \in ciphers(nw(S)) implies (K = k(enemy))) .
+  eq inv1(S,P1,P2,P3,K,R) = ((not(K = k(enemy)) and rm(P1,P2,P3,
+  enc(K,R,P2)) \in nw(S)) implies not(P2 = enemy)) .
+  eq inv2(S,K,R) = (enc(K,R,enemy) \in ciphers(nw(S)) 
+  implies (K = k(enemy))) .
 }
 \end{verbatim}
 \end{small}
 We will present in the following section how we can prove these invariants by using proof scores method.
 
 \subsection{Proof Scores for Verifying IFF} \label{pscores}
+In this section, we introduce proof scores by proving the invariants above. We will focus on proving the first invariant, inv1, for the base case and inductive case. Since there were five transition functions, the inductive case for inv1 is divided into five cases; proof fragments are created for each case where auxiliary condition holds and does not hold. We describe \verb!fkrm1! among five transition functions. The complete proof is available at \url{https://github.com/twmon14/fvap}. We first prove the invariant for the base case, init. In this case, our system is init and fresh constants a, b, c, s, k and r1 are declared, respectively.
+\begin{small}
+\begin{verbatim}
+open IFF .
+op a : -> Prin . op b : -> Prin . op c : -> Prin .
+op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
+red inv1(init,a,b,c,k,r1) .
+close
+\end{verbatim}
+\end{small}
+CafeOBJ returns true for the base case. We can define a similar environment for the fkrm1 case. The proof is semantically split into two sub-cases: (i) c-fkrm1 holds and (ii) c-fkrm1 does not hold. The proof fragment below corresponds to (i):
+\begin{small}
+\begin{verbatim}
+open IFF .
+op a : -> Prin . op b : -> Prin . op c : -> Prin .
+op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
+op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
+-- c-fkrm1(s,d,e,r2) = true .
+eq r2 \in ciphers(nw(s)) = true .
+red inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
+close
+\end{verbatim}
+\end{small}
+however, the term cannot be reduced to true due to the lack of information in the module on the fresh constants whether they are different or not. We need to include this information by means of equations. We put some assumptions in the environment below. More strategies on how to find these case splittings can be found in \cite{OgataF03fmoods, Ogata2006, nakano2003}. Moreover, we use the induction hypothesis as a premise in the reduction command as follows:
+\begin{small}
+\begin{verbatim}
+open IFF .
+op a : -> Prin . op b : -> Prin . op c : -> Prin .
+op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
+op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
+eq r2 \in ciphers(nw(s)) = true .
+-- assumption
+eq (rm(enemy,d,e,r2) = rm(a,b,c,enc(k,r1,b))) = false .
+red inv1(s,a,b,c,k,r1) implies inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
+close
+\end{verbatim}
+\end{small}
+Here, we have proven a very specific case in which an additional equation is used as a assumption. We need to prove all possible cases to really prove the invariant. For example, we can assume that rm(enemy,a,b,r2) is equal to rm(p1,p2,p3,enc(k,r,p2)) as follows: 
+\begin{small}
+\begin{verbatim}
+open IFF .
+op a : -> Prin . op b : -> Prin . op c : -> Prin .
+op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
+op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
+-- eq r2 \in ciphers(nw(s)) = true .  --(1)
+eq enc(k,r1,b) \in ciphers(nw(s)) = true . --(2)
+-- assumption
+-- eq rm(enemy,d,e,r2) = rm(a,b,c,enc(k,r1,b)) . --(3)
+eq a = enemy .  eq d = b .  eq e = c .  eq r2 = enc(k,r1,b) .
 
-\subsection{Verifying IFF with CiMPA} \label{cimpa}
+eq k = k(enemy) . -- (4)
+red inv1(s,a,b,c,k,r1) implies inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
+close
+\end{verbatim}
+\end{small}
+In that case, (1) is semantically rewritten into (2) and (3) is rewritten into four sub-equations. Moreover, the equation (4) is required to use as an assumption. Then, CafeOBJ returns true for this case. The case in which k is different from k(enemy), however, cannot be reduced into true, In that case, an additional equation (5) are required for case-splitting and the second invariant, inv2 is used as the induction hypothesis to deduce that:
+\begin{small}
+\begin{verbatim}
+open IFF .
+op a : -> Prin . op b : -> Prin . op c : -> Prin .
+op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
+op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
+-- eq r2 \in ciphers(nw(s)) = true .  
+-- eq enc(k,r1,b) \in ciphers(nw(s)) = true . --(2)
+eq enc(k,r1,enermy) \in ciphers(nw(s)) = true . --(2.1)
+-- assumption
+-- eq rm(enemy,d,e,r2) = rm(a,b,c,enc(k,r1,b)) . 
+eq a = enemy .  eq d = b .  eq e = c .  eq r2 = enc(k,r1,b) .
+
+eq (k = k(enemy)) = false . -- (4)
+eq b = enemy . -- (5)
+red inv2(s,k,r1) implies inv1(s,a,b,c,k,r1) implies inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
+close
+\end{verbatim}
+\end{small}
+where the equation (2) is semantically rewritten into (2.1) according to the equation (5). When c-fkrm1 does not hold, the assumption eq c-fkrm1(s,d,e,r2) = false is used and CafeoBJ returns true for this case:
+\begin{small}
+\begin{verbatim}
+open IFF .
+op a : -> Prin . op b : -> Prin . op c : -> Prin .
+op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
+op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
+eq c-fkrm1(s,d,e,r2) = false .
+red implies inv1(s,a,b,c,k,r1) implies inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
+close
+\end{verbatim}
+\end{small}
+
+Similarly, we would write proof scores for covering all cases for all invariant. Note that it is easy to develop proofs with proof scores, but it is also subject to human errors which leads to the case that we would run the complete set of proof scores obtaining true for all of them, but the property would not be really proven.  Unfortunately, the case splittings based on semantics used in the existing proof scores cannot be handled by CiMPG. To utilize CiMPG and CiMPA, we need to revise the the existing proof scores; how to revise the proof scores will be described in the next section.
+
+% We will present in the next sections how proof scores can be formally checked that no human error is lurking in the proof scores by using CiMPA and CiMPG.
+
+% -- here
+% however, the term cannot be reduced to true due to the lack of information in the module on the fresh constants whether they are different or not. We need to include this information by means of equations. We put some assumptions in the environment below. More strategies on how to find these case splittings can be found in \cite{OgataF03fmoods, Ogata2006, nakano2003}. Moreover, we use the induction hypothesis as a premise in the reduction command as follows:
+% \begin{small}
+% \begin{verbatim}
+% open IFF .
+% op a : -> Prin . op b : -> Prin . op c : -> Prin .
+% op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
+% op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
+% eq r2 \in ciphers(nw(s)) = true .
+% eq a = enemy .  eq d = b .  eq e = c .
+% eq k(r2) = k .  eq r1(r2) = r1 .    eq p(r2) = b .
+% eq k = k(enemy) .
+% red inv1(s,a,b,c,k,r1) implies inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
+% close
+% \end{verbatim}
+% \end{small}
+% Here, we have proven a very specific case in which several equations hold. We need to prove all possible cases to really prove the invariant. For example, we can assume that k is different from k(enemy). In that case, two additional equations are required and the second invariant is used as the induction hypothesis to deduce that.
+% \begin{small}
+% \begin{verbatim}
+% open IFF .
+% op a : -> Prin . op b : -> Prin . op c : -> Prin .
+% op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
+% op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
+% eq r2 \in ciphers(nw(s)) = true .
+% eq a = enemy .  eq d = b .  eq e = c .
+% eq k(r2) = k .  eq r1(r2) = r1 .    eq p(r2) = b .
+% eq (k = k(enemy)) = false .
+% eq b = enemy . eq enc(k,r1,enemy) \in ciphers(nw(s)) = true .
+% red inv2(s,k,r1) implies inv1(s,a,b,c,k,r1) 
+% implies inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
+% close
+% \end{verbatim}
+% \end{small}
+% Similarly, we would write proof scores for covering all cases as shown in the table \ref{}; in this case, we used 11 open–close environments for checking them; all are available at the repository given in the previous
+% section. Note that it is easy to develop proofs with proof scores, but it is also subject to human errors which leads to the case that we would run the complete set of proof scores obtaining true for all of them, but the property would not be really proven. We will
+% present in the next sections how proof scores can be formally checked that no human error is lurking in the proof scores.
+
+% \noindent
+% \begin{table}[]
+% 	\begin{tabular}{l|l}
+% 		\hline
+% 		(1)           & $csb1$                                                                     \\ \hline
+% 		(2.1)         & $\neg csb1$, $csb2$                                                       \\ \hline
+% 		(2.2.1.1.1.1) & $\neg csb1$, $\neg csb2$, $csb3$, $csb4$, $csb5$, $csb6$  \\ \hline
+% 		(2.2.1.1.1.2) & $\neg csb1$, $\neg csb2$, $csb3$, $csb4$, $csb5$, $\neg csb6$ \\ \hline
+% 		(2.2.1.1.2)   & $\neg csb1$, $\neg csb2$, $csb3$, $csb4$, $\neg csb5$              \\ \hline
+% 		(2.2.1.2)     & $\neg csb1$, $\neg csb2$, $csb3$, $\neg csb4$                           \\ \hline
+% 		(2.2.2)       & $\neg csb1$, $\neg csb2$, $\neg csb3$                                        \\ \hline
+% 	\end{tabular}
+% \caption{Case splitting for the induction case shello of inv1}
+% \label{fig-cs-inv1}
+% \end{table}
+
+\subsection{Revising semantic-based case splitting in the existing proof scores} \label{semantic}
 
 \subsection{Verifying IFF with CiMPG} \label{cimpg}
+
+\subsection{Verifying IFF with CiMPA} \label{cimpa}
 
 \section{TLS}\label{tls}
 TLS \cite{dierk} provides privacy and data integrity between client/server communications. The protocol consists of four sub-protocols. They are TLS handshake protocol, the change cipher spec protocol, the alert protocol and TLS record protocol. We focus on the TLS handshake protocol in this paper. When client and server want to establish a secure communication, TLS handshake protocol is used to negotiate a cipher suite and security parameters between client and server. 
