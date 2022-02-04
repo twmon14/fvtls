@@ -232,7 +232,7 @@ On receipt of the $\rm Check$ message, $q$ sends back to $p$ a $\rm Reply$ messa
 	
 We suppose that the cryptosystem used is perfect, there is only one legitimate group, all members of the group are trustable, and there are also untrustable principals who are not members. Trustable principals exactly follow the protocol, but untrustable ones may do something against the protocol as well. The combination and cooperation of untrustable principals is modeled as the most general enemy (or intruder). The enemy gleans as much information as possible from messages flowing in the network and creates the fake messages based on the gleaned information, provided that the enemy cannot break the perfect cryptosystem.
 
-In order to specify this protocol in CafeOBJ, we first define the module PRINCIPAL, which starts by mod! to indicate that it has tight semantics. This module defines the sort Prin and indicates the enemy (denoted by the constr attribute). It also defines an equation for the equality predicate meaning that only syntactically equal term is equal, any other equation for it.
+In order to specify this protocol in CafeOBJ, we first define the module PRINCIPAL, which starts by mod! to indicate that it has tight semantics. This module defines the sort Prin and indicates the enemy (denoted by the constr attribute). It also defines an equation for the equality predicate meaning that only syntactically equal term is equal.
 \begin{small}
 \begin{verbatim}
 mod! PRINCIPAL {
@@ -242,6 +242,283 @@ mod! PRINCIPAL {
 }
 \end{verbatim}
 \end{small}
+The below module KEY defines the sort Key and indicates the symmetric key.
+\begin{small}
+\begin{verbatim}
+mod! KEY {
+  pr(PRINCIPAL)
+  [Key]
+  op k : Prin -> Key
+  op p : Key -> Prin
+  var P : Prin
+  vars K1 K2 : Key
+  eq p(k(P)) = P .
+  ceq (K1 = K2) = true if not(p(K1) = enemy) and not(p(K2) = enemy) .
+  ceq (K1 = K2) = false if not(p(K1) = enemy) and p(K2) = enemy .
+}
+\end{verbatim}
+\end{small}
+The operator k is a function that returns the key of a given principal based on that principal. Similarly, the operator p is a function that returns the principal holding the key based on the key.
+The module RAND is defined as follows:
+\begin{small}
+\begin{verbatim}
+mod! RAND {
+  [Rand]
+  op _=_ : Rand Rand -> Bool {comm}
+}
+\end{verbatim}
+\end{small}
+The operation \_=\_ is a equality predicate to determine whether the terms representing two random numbers are equal.
+The specification of cipher text is defined as follows:
+\begin{small}
+\begin{verbatim}
+mod! CIPHER {
+  pr(PRINCIPAL + KEY + RAND)
+  [Cipher]
+  op enc : Key Rand Prin -> Cipher
+  op k : Cipher -> Key
+  op r : Cipher -> Rand
+  op p : Cipher -> Prin
+  var K : Key
+  var R : Rand
+  var P : Prin
+  vars C1 C2 : Cipher
+  eq k(enc(K,R,P)) = K .
+  eq r(enc(K,R,P)) = R .
+  eq p(enc(K,R,P)) = P .
+  eq (C1 = C2) = (k(C1) = k(C2) and r(C1) = r(C2) and p(C1) = p(C2)) .
+}
+\end{verbatim}
+\end{small}
+The module defines the ciphertext enc which consists of three parameters such as Key, Rand and Prin. Given the key, the random number and the principal, it represents the ciphertext enc(K,R,P). The operators k, r and p return the first, second and third parameters of the operator enc, respectively.
+
+The module MSG defines the two exchanged messages with the sort Msg.
+\begin{small}
+\begin{verbatim}
+mod! MSG {
+  pr(PRINCIPAL + RAND + CIPHER)
+  [Msg]
+  --      creator source destination body
+  --      ---------------------------------
+  op cm : Prin    Prin   Prin        Rand   -> Msg
+  op rm : Prin    Prin   Prin        Cipher -> Msg
+  op cm? : Msg -> Bool
+  op rm? : Msg -> Bool
+  op crt : Msg -> Prin
+  op src : Msg -> Prin
+  op dst : Msg -> Prin
+  op r : Msg -> Rand
+  op c : Msg -> Cipher
+  vars P1 P2 P3 : Prin
+  var R : Rand
+  var C : Cipher
+  vars M1 M2 : Msg
+  eq cm?(cm(P1,P2,P3,R)) = true .
+  eq cm?(rm(P1,P2,P3,C)) = false .
+  eq rm?(cm(P1,P2,P3,R)) = false .
+  eq rm?(rm(P1,P2,P3,C)) = true .
+  eq crt(cm(P1,P2,P3,R)) = P1 .
+  eq crt(rm(P1,P2,P3,C)) = P1 .
+  eq src(cm(P1,P2,P3,R)) = P2 .
+  eq src(rm(P1,P2,P3,C)) = P2 .
+  eq dst(cm(P1,P2,P3,R)) = P3 .
+  eq dst(rm(P1,P2,P3,C)) = P3 .
+  eq r(cm(P1,P2,P3,R)) = R .
+  eq c(rm(P1,P2,P3,C)) = C .
+  ceq (M1 = M2) = (cm?(M1) and crt(M1) = crt(M2) and src(M1) = src(M2)
+  and dst(M1) = dst(M2) and r(M1) = r(M2)) if cm?(M2) .
+  ceq (M1 = M2) = (rm?(M1) and crt(M1) = crt(M2) and src(M1) = src(M2)
+  and dst(M1) = dst(M2) and c(M1) = c(M2)) if rm?(M2) .
+}
+\end{verbatim}
+\end{small}
+The operator cm takes three principals and a random number as parameters and return a message. Similarly, the operator rm takes three principals and a ciphertext as parameters and return a message. First three parameters in each message represents the actual creator, seeming sender and receiver of the message and the operators crt, src and dst return the first, second and third parameters, respectively. The operators cm? and rm? are predicates that determine whether the given message is cm or rm. The operators r and s return a random number and a ciphertext from the given message, respectively.
+
+The module TRIV below states the existence of the principal sort Elt which
+stands for elements and it has equality predicates.
+\begin{small}
+\begin{verbatim}
+mod* TRIV principal-sort Elt {
+[Elt]
+op _=_ : Elt Elt -> Bool {comm}
+eq (E:Elt = E) = true .
+}
+\end{verbatim}
+\end{small}
+The module BAG is parameterized by the module TRIV; thus, it defines a bag (multiset) of any sort fulfilling the requirements above. Elt.D stands for the sort Elt from the parameter D, which is required to fulfill the requirements from module TRIV (stated with syntax D :: TRIV) and a supersort Bag containing elements. Then, appropriate operators are defined:
+\begin{small}
+\begin{verbatim}
+mod! BAG (D :: TRIV) {
+  [Elt.D < Bag]
+  op void : -> Bag
+  op _,_ : Bag Bag -> Bag { assoc comm id: void }
+  op _\in_ : Elt.D Bag -> Bool
+  var B : Bag
+  vars E1 E2 : Elt.D
+  eq E1 \in void = false .
+  ceq E1 \in (E2,B) = true if E1 = E2 .
+  ceq E1 \in (E2,B) = E1 \in B if not(E1 = E2) .
+}
+\end{verbatim}
+\end{small}
+where \verb!void! denotes the empty multiset, \verb!\in! is an infix operator checking the existence of an element in a bag, and operator \verb!,! denotes the data constructor of nonempty multisets. Similarly, the parameterized modules SET and COLLECTION are aslo defined as follows:
+\begin{small}
+\begin{verbatim}
+mod! SET (D :: TRIV) {
+  [Elt.D < Set]
+  op empty : -> Set
+  op __ : Set Set -> Set { assoc comm idem id: empty }
+  op _\in_ : Elt.D Set -> Bool
+  var S : Set
+  vars E1 E2 : Elt.D
+  eq E1 \in empty = false .
+  ceq E1 \in (E2 S) = true if E1 = E2 .
+  ceq E1 \in (E2 S) = E1 \in S if not(E1 = E2) .
+}
+\end{verbatim}
+\end{small}
+\begin{small}
+\begin{verbatim}
+mod! COLLECTION(D :: TRIV) {
+  [Elt.D < Col]
+  op _\in_ : Elt.D Col -> Bool
+}
+\end{verbatim}
+\end{small}
+
+We use the views TRIV2MSG, TRIV2CIPHER and TRIV2RAND to indicate that the modules MSG, CIPHER and RAND satisfy the requirements stated by TRIV by using the given mapping:
+\begin{small}
+\begin{verbatim}
+view TRIV2MSG from TRIV to MSG {
+  sort Elt -> Msg
+}
+view TRIV2CIPHER from TRIV to CIPHER {
+  sort Elt -> Cipher
+}
+view TRIV2RAND from TRIV to RAND {
+  sort Elt -> Rand
+}
+\end{verbatim}
+\end{small}
+
+The network is modeled as a bag of messages. 
+It first imports the modules with their parameters instantiated by TRIV2MSG, TRIV2RAND and TRIV2CIPHER. The sort name has been changed from Bag to Network, from
+Col to ColRands and ColCiphers.
+The functions rands and ciphers return the collection of random numbers that have been used and the collection of nonces gathered by
+the intruder from the network in a given multiset, respectively. Other equations and conditional equations are also defined:
+\begin{small}
+\begin{verbatim}
+mod! NETWORK {
+  pr(BAG(D <= TRIV2MSG)*{ sort Bag -> Network })
+  pr(COLLECTION(D <= TRIV2RAND)*{sort Col -> ColRands})
+  pr(COLLECTION(D <= TRIV2CIPHER)*{sort Col -> ColCiphers})
+--
+  op rands : Network -> ColRands
+  op ciphers : Network -> ColCiphers
+--
+  var NW : Network
+  var M : Msg
+  var R : Rand
+  var C : Cipher
+-- rands
+  eq R \in rands(void) = false .
+  ceq R \in rands(M,NW) = true if cm?(M) and R = r(M) .
+  ceq R \in rands(M,NW) = true if rm?(M) and k(enemy) = k(c(M)) and R = r(c(M)) .
+  ceq R \in rands(M,NW) = R \in rands(NW)
+      if not(cm?(M) and R = r(M)) and
+         not(rm?(M) and k(enemy) = k(c(M)) and R = r(c(M))) .
+-- ciphers
+  eq C \in ciphers(void) = false .
+  ceq C \in ciphers(M,NW) = true if rm?(M) and C = c(M) .
+  ceq C \in ciphers(M,NW) = C \in ciphers(NW) if not(rm?(M) and C = c(M)) .
+}
+\end{verbatim}
+\end{small}
+
+Finally, the module IFF specifies the behavior of the protocol as an observational transition system \cite{OgataF03fmoods}. It first imports the modules NETWORK and SET with its parameter RAND. The sort name has been changed from Set to URands (used random numbers).
+%  A collection can include different types of elements. Whereas a set is a well-defined collection of distinct elements
+\begin{small}
+\begin{verbatim}
+mod* IFF {
+  pr(NETWORK)
+  pr(SET(RAND)*{sort Set -> URands})
+\end{verbatim}
+\end{small}  
+The sort Sys stands for the state space of the system. The system starts in the init state. We use two observational functions \verb!nw! and \verb!ur! to observe the network and the set of used random numbers, respectively.
+\begin{small}
+\begin{verbatim}
+  [Sys]
+-- an arbitrary initial state
+  op init : -> Sys {constr}
+-- observations
+  op nw : Sys -> Network
+  op ur : Sys -> URands
+\end{verbatim}
+\end{small}  
+We use five transitions: \verb!sdcm! and \verb!sdrm! formalize sending $\rm Check$ and $\rm Reply$ messages exactly following the protocol.
+The remaining actions \verb!fkcm1!, \verb!fkrm1!, and \verb!fkrm2! are the enemy's faking messages, respectively.
+\begin{small}
+\begin{verbatim}
+-- actions
+  op sdcm : Sys Prin Prin Rand -> Sys {constr}
+  op sdrm : Sys Prin Msg -> Sys {constr}
+  --
+  op fkcm1 : Sys Prin Prin Rand -> Sys {constr}
+  op fkrm1 : Sys Prin Prin Cipher -> Sys {constr}
+  op fkrm2 : Sys Prin Prin Rand -> Sys {constr}
+\end{verbatim}
+\end{small}
+The observational functions are easily applied to the init state: the network and the set of used random numbers are empty:
+\begin{small}
+\begin{verbatim}
+-- CafeOBJ variables
+  var S : Sys
+  vars P1 P2 P3 : Prin
+  vars M1 M2 : Msg
+  var R : Rand
+  var C : Cipher
+  var K : Key
+
+-- for any initial state
+  eq nw(init) = void .
+  eq ur(init) = empty .
+\end{verbatim}
+\end{small}
+In order to define the behavior of the values observed by these two functions for \verb!sdcm!, we first specify
+an auxiliary condition c-sdcm that returns true when \verb!R! has not been used. Assuming that the condition holds, the equation for nw and ur indicate that, the $\rm Check$ message \verb!cm(P1,P1,P2,R)! is put into the network \verb!nw(S)! and \verb!R! is put into \verb!ur(S)! in the state denoted by \verb!sdcm(S,P1,P2,R)!; if \verb!c-sdcm(S,P1,P2,R)! does not hold, nothing changes. The remaining four transitions for sdrm, fkcm1, fkrm1, and fkrm2 can be defined analogously.
+\begin{small}
+\begin{verbatim}
+-- for action sdcm
+  op c-sdcm : Sys Prin Prin Rand -> Bool
+  eq c-sdcm(S,P1,P2,R) = (not (R \in ur(S))) .
+  --
+  ceq nw(sdcm(S,P1,P2,R)) = (cm(P1,P1,P2,R) , nw(S)) if c-sdcm(S,P1,P2,R) .
+  ceq ur(sdcm(S,P1,P2,R)) = (R ur(S))                if c-sdcm(S,P1,P2,R) .
+  ceq sdcm(S,P1,P2,R)     = S                      if not c-sdcm(S,P1,P2,R) .
+
+-- for action sdrm, fkcm1, fkrm1, fkrm2
+\end{verbatim}
+\end{small}
+We define two invariants in our system. The first ensures identifiable property by stating that whenever $p$ receives a valid $\rm Reply$ message from $q$, $q$ is always a member of the $p$'s group. Note that our goal is just inv1, while inv2 is an auxiliary lemma required for proving
+inv1.
+\begin{small}
+\begin{verbatim}
+-- INV
+-- declare invariant candidates
+  op inv1 : Sys Prin Prin Prin Key Rand -> Bool
+  op inv2 : Sys Key Rand -> Bool
+-- CafeOBJ variables
+  var S : Sys
+  vars P1 P2 P3 : Prin
+  var K : Key
+  var R : Rand
+-- define invariant candidates
+  eq inv1(S,P1,P2,P3,K,R) = ((not(K = k(enemy)) and rm(P1,P2,P3,enc(K,R,P2)) \in nw(S)) implies not(P2 = enemy)) .
+  eq inv2(S,K,R) = (enc(K,R,enemy) \in ciphers(nw(S)) implies (K = k(enemy))) .
+}
+\end{verbatim}
+\end{small}
+We will present in the following section how we can prove these invariants by using proof scores method.
 
 \subsection{Proof Scores for Verifying IFF} \label{pscores}
 
