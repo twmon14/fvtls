@@ -191,7 +191,7 @@ Proof scores are to be written by human users and what can be done by CafeOBJ fo
 
 CiMPG and CiMPA have been used to formally verify laboratory authentication protocols, such as NSLPK (Needham-Schroeder-Lowe Public Key) for the nonce secrecy property \cite{RiescoO18tosem}, IFF (Identity-Friend-or-Foe) for the identifiable property \cite{twmon} and NSLPK for the correspondence property as well as the nonce secrecy property \cite{twmon}. We are the first who have formally verify TLS with CiMPG and CiMPA.
 
-A network in the formal specification of TLS is formalized as a soup of messages, where a soup is an associative-commutative collection. Let \verb|_,_| be the constructor of non-empty soups. Let us consider a case splitting as follows: a case is split into two sub-cases: (1) there is a specific message $m$ in the network and (2) there is no such a message in the network. (1) can be characterized by the equation \verb!eq nw(s) = m , nw .!, while (2) can be expressed by the equation \verb!eq m \in nw(s) = false.! \verb!nw(s)! denotes the network (the soup of messages) in a given state $s$ and \verb!nw! denotes an arbitrary network. The first equation says that \verb!nw(s)! equals \verb!m , nw!, and then there exists \verb!m in nw(s)!. \verb|_\in_| is the membership predicate for soups and the second equation says that there does not exist in \verb!nw(s)!. Hence, the case splitting is semantically correct. However, the case splitting cannot be handled by CiMPG. The first equation should be revised as follows: 
+A network in the formal specification of TLS is formalized as a soup of messages, where a soup is an associative-commutative collection. Let \verb|_,_| be the constructor of non-empty soups. Let us consider a case splitting as follows: a case is split into two subcases: (1) there is a specific message $m$ in the network and (2) there is no such a message in the network. (1) can be characterized by the equation \verb!eq nw(s) = m , nw .!, while (2) can be expressed by the equation \verb!eq m \in nw(s) = false.! \verb!nw(s)! denotes the network (the soup of messages) in a given state $s$ and \verb!nw! denotes an arbitrary network. The first equation says that \verb!nw(s)! equals \verb!m , nw!, and then there exists \verb!m in nw(s)!. \verb|_\in_| is the membership predicate for soups and the second equation says that there does not exist in \verb!nw(s)!. Hence, the case splitting is semantically correct. However, the case splitting cannot be handled by CiMPG. The first equation should be revised as follows: 
 \verb!eq m \in nw(s) = true!. CiMPG found one missing lemma, meaning that the existing proof scores for TLS had a human error. It took too much time to handle all proof scores at the same with CiMPG. Thus, we need to tackle each proof score one by one. To this end, we are supposed to provide all needed lemmas for the proof scores. Because all lemmas except for one are given, we know what lemmas are needed for each proof score in advance. There is one proof score such that even if we handle the proof score only with CiMPG, it took an unreasonable amount of time to do so. Therefore, we handle each induction case one by one for the proof score, reducing the time taken to the proof script with CiMPG. Note that the main proof technique used is (simultaneous) structural induction on reachable states. We describe how to revise the existing proof scores, how to find the missing lemma, the lemma, how to handle each proof score one by one, and how to handle each induction case one by one as tips on handling existing large proof scores.
 
 % You should summarize the main contributions here in Introduction. But I do not clearly know the main contributions now and then cannot give you very concrete candidates.
@@ -231,87 +231,86 @@ On receipt of the $\rm Check$ message, $q$ sends back to $p$ a $\rm Reply$ messa
 	%The protocol is supposed to have the property that if $p$ receives a valid $\rm Reply$ message from $q$, $q$ is always a member of the $p$'s group. The property is called the IFF property in this paper.
 	
 We suppose that the cryptosystem used is perfect, there is only one legitimate group, all members of the group are trustable, and there are also untrustable principals who are not members. Trustable principals exactly follow the protocol, but untrustable ones may do something against the protocol as well. The combination and cooperation of untrustable principals is modeled as the most general enemy (or intruder). The enemy gleans as much information as possible from messages flowing in the network and creates the fake messages based on the gleaned information, provided that the enemy cannot break the perfect cryptosystem.
-
-We first declare the operator \verb!enc! to specify the ciphertexts which consists of three parameters such as the key, the random number and the principal:
-\begin{small}
-\begin{verbatim}
-		op enc : Key Rand Prin -> Cipher . op k : Cipher -> Key .
-		op r : Cipher -> Rand . op p : Cipher -> Prin .
-		\end{verbatim}
-\end{small}
-	\smallskip
-\noindent
-where \verb!Key! is the sort (or type) representing symmetric keys, \verb!Rand! is the sort denoting random numbers, \verb!Prin! is the sort representing principals, and \verb!Cipher! is the sort denoting ciphertexts. \verb!enc!$(k,r,p)$ denotes the ciphertext obtained by encrypting a random number $r$ and a principal $p$ with a key $k$. Operators \verb!k!, \verb!r! and \verb!p! return the first, second and third arguments of \verb!enc!$(k, r, p)$, respectively.
+We first declare the operator \verb!enc! to specify the ciphertexts which consists of three parameters such as the key, the random number and the principal.
+% \begin{small}
+% \begin{verbatim}
+% 		op enc : Key Rand Prin -> Cipher . op k : Cipher -> Key .
+% 		op r : Cipher -> Rand . op p : Cipher -> Prin .
+% 		\end{verbatim}
+% \end{small}
+% 	\smallskip
+% \noindent
+% where \verb!Key! is the sort (or type) representing symmetric keys, \verb!Rand! is the sort denoting random numbers, \verb!Prin! is the sort representing principals, and \verb!Cipher! is the sort denoting ciphertexts. 
+\verb!enc!$(k,r,p)$ denotes the ciphertext obtained by encrypting a random number $r$ and a principal $p$ with a key $k$. 
+% Operators \verb!k!, \verb!r! and \verb!p! return the first, second and third arguments of \verb!enc!$(k, r, p)$, respectively.
+Two messages, $\rm Check$ and $\rm Reply$ are specified by two operators \verb!cm! and \verb!rm!.
+% as follows:
+% 	\begin{small}
+% 		\begin{verbatim}
+% 			op cm : Prin Prin Prin Rand   -> Msg
+% 			op rm : Prin Prin Prin Cipher -> Msg
+% 		\end{verbatim}
+% 	\end{small}
+% 	%constant enemy denotes the enemy,
+% 	\noindent
+% where \verb!Msg! is the sort denoting messages.
+The first, second and third arguments of each of \verb!cm! and \verb!rm! are the actual creator, the seeming sender and the receiver of the corresponding message. The first argument is meta-information that is only available to the outside observer and that cannot be forged by the enemy; while the remaining arguments may be forged by the enemy. 
 	
-Two messages, $\rm Check$ and $\rm Reply$ are specified by two operators \verb!cm! and \verb!rm! as follows:
-	\begin{small}
-		\begin{verbatim}
-			op cm : Prin Prin Prin Rand   -> Msg
-			op rm : Prin Prin Prin Cipher -> Msg
-		\end{verbatim}
-	\end{small}
-	
-	%constant enemy denotes the enemy,
-	\noindent
-	where \verb!Msg! is the sort denoting messages.
-	The first, second and third arguments of each of \verb!cm! and \verb!rm! are the actual creator, the seeming sender and the receiver of the corresponding message. The first argument is meta-information that is only available to the outside observer and that cannot be forged by the enemy; while the remaining arguments may be forged by the enemy. 
-	
-	The network is modeled as a multiset of messages. Any message that has been sent or put once into the network is supposed to be never deleted from the network because the enemy can replay the message repeatedly, although the enemy cannot forge the first argument. Consequently, the empty network (i.e., the empty multiset) means that no messages have been sent. The enemy tries to glean two kinds of values from the network, which are random numbers and ciphertexts. The collections of these values gleaned by the enemy are denoted by operators \verb!rands! and \verb!ciphers!, which are declared as follows:
-	\begin{small}
-		\begin{verbatim}
-			op rands   : Network -> ColRands
-			op ciphers : Network -> ColCiphers
-		\end{verbatim}
-	\end{small}
-	
-	\noindent
-	where \verb!Network! is the sort denoting networks, \verb!ColRands! is the sort denoting collections of random numbers, and \verb!ColCiphers! is the sort denoting collections of ciphertexts. 
-	\verb!ciphers! is defined by the following equations:
-	\begin{small}
-		\begin{verbatim}
-			eq C \in ciphers(void) = false .
-			ceq C \in ciphers(M , NW) = true if rm?(M) and C = c(M) .
-			ceq C \in ciphers(M , NW) = C \in ciphers(NW) 
-			if not(rm?(M) and C = c(M)) .
-		\end{verbatim}
-	\end{small}
-	
-	\noindent
-	where \verb!void! denotes the empty multiset (or empty network),
-	operator \verb!rm?! checks if a given message is a $\rm Reply$ message,
-	operator \verb!c! takes a $\rm Reply$ message as a parameter and returns its ciphertext (i.e., the fourth argument of \verb!rm! operator),
-	\verb!\in! is an infix operator checking the existence of an element in a collection,
-	and operator \verb!,! in \verb!M , NW! denotes the data constructor of nonempty multisets. 
-	The equations say that a ciphertext \verb!C! is available to the enemy iff there exists a $\rm Reply$ message whose content is \verb!C!. \verb!rands! can be defined likewise.
-	
-We use two observational functions \verb!nw! and \verb!ur! to observe the network and the set of used random numbers, respectively as follows:
-	\begin{small}
-	\begin{verbatim}
-		op nw : Sys -> Network . op ur : Sys -> URands
-		\end{verbatim}
-	\end{small}
-	\noindent
-	where \verb!Sys! is the sort denoting the state space of IFF, \verb!URands! is the sort denoting the sets of random numbers.
-We use five transitions together with one constant of \verb!Sys! to represent an arbitrary initial state as follows: 
-	\begin{small}
-		\begin{verbatim}
-			op init  : -> Sys {constr}
-			op sdcm  : Sys Prin Prin Rand -> Sys {constr}
-			op sdrm  : Sys Prin Msg -> Sys {constr}
-			op fkcm1 : Sys Prin Prin Rand -> Sys {constr}
-			op fkrm1 : Sys Prin Prin Cipher -> Sys {constr}
-			op fkrm2 : Sys Prin Prin Rand -> Sys {constr}
-		\end{verbatim}
-	\end{small}
-	
-	\noindent
-	\verb!sdcm! and \verb!sdrm! formalize sending $\rm Check$ and $\rm Reply$ messages.
-	The remaining actions \verb!fkcm1!, \verb!fkrm1!, and \verb!fkrm2! are the enemy's faking messages, which can be understood as follows:
-	\begin{itemize}
-		\item \verb!fkcm1!: a random number \verb!R! is available to the enemy, the enemy fakes and sends a $\rm Check$ message using \verb!R!, 
-		\item \verb!fkrm1!: a ciphertext \verb!C! is available to the enemy, the enemy fakes and sends a $\rm Reply$ message using \verb!C!, 
-		\item \verb!fkrm2!: a random number \verb!R! is available to the enemy, the enemy fakes and sends a $\rm Reply$ message using \verb!R!.
-	\end{itemize}
+The network is modeled as a multiset of messages. Any message that has been sent or put once into the network is supposed to be never deleted from the network because the enemy can replay the message repeatedly, although the enemy cannot forge the first argument. Consequently, the empty network (i.e., the empty multiset) means that no messages have been sent. The enemy tries to glean two kinds of values from the network, which are random numbers and ciphertexts. The collections of these values gleaned by the enemy are denoted by operators \verb!rands! and \verb!ciphers!.
+% , which are declared as follows:
+% 	\begin{small}
+% 		\begin{verbatim}
+% 			op rands   : Network -> ColRands
+% 			op ciphers : Network -> ColCiphers
+% 		\end{verbatim}
+% 	\end{small}
+% 	\noindent
+% 	where \verb!Network! is the sort denoting networks, \verb!ColRands! is the sort denoting collections of random numbers, and \verb!ColCiphers! is the sort denoting collections of ciphertexts. 
+% 	\verb!ciphers! is defined by the following equations:
+% 	\begin{small}
+% 		\begin{verbatim}
+% 			eq C \in ciphers(void) = false .
+% 			ceq C \in ciphers(M , NW) = true if rm?(M) and C = c(M) .
+% 			ceq C \in ciphers(M , NW) = C \in ciphers(NW) 
+% 			if not(rm?(M) and C = c(M)) .
+% 		\end{verbatim}
+% 	\end{small}
+% 	\noindent
+% 	where \verb!void! denotes the empty multiset (or empty network),
+% 	operator \verb!rm?! checks if a given message is a $\rm Reply$ message,
+% 	operator \verb!c! takes a $\rm Reply$ message as a parameter and returns its ciphertext (i.e., the fourth argument of \verb!rm! operator),
+% 	\verb!\in! is an infix operator checking the existence of an element in a collection,
+% 	and operator \verb!,! in \verb!M , NW! denotes the data constructor of nonempty multisets. 
+% 	The equations say that a ciphertext \verb!C! is available to the enemy iff there exists a $\rm Reply$ message whose content is \verb!C!. \verb!rands! can be defined likewise.
+We use two observational functions \verb!nw! and \verb!ur! to observe the network and the set of used random numbers.
+% , respectively as follows:
+% 	\begin{small}
+% 	\begin{verbatim}
+% 		op nw : Sys -> Network . op ur : Sys -> URands
+% 		\end{verbatim}
+% 	\end{small}
+% 	\noindent
+% 	where \verb!Sys! is the sort denoting the state space of IFF, \verb!URands! is the sort denoting the sets of random numbers.
+and five transitions together with one constant of \verb!Sys! to represent an arbitrary initial state.
+% as follows: 
+% 	\begin{small}
+% 		\begin{verbatim}
+% 			op init  : -> Sys {constr}
+% 			op sdcm  : Sys Prin Prin Rand -> Sys {constr}
+% 			op sdrm  : Sys Prin Msg -> Sys {constr}
+% 			op fkcm1 : Sys Prin Prin Rand -> Sys {constr}
+% 			op fkrm1 : Sys Prin Prin Cipher -> Sys {constr}
+% 			op fkrm2 : Sys Prin Prin Rand -> Sys {constr}
+% 		\end{verbatim}
+% 	\end{small}
+% 	\noindent
+Among five transitions, \verb!sdcm! and \verb!sdrm! formalize sending $\rm Check$ and $\rm Reply$ messages. The remaining actions \verb!fkcm1!, \verb!fkrm1!, and \verb!fkrm2! are the enemy's faking messages.
+% , which can be understood as follows:
+% 	\begin{itemize}
+% 		\item \verb!fkcm1!: a random number \verb!R! is available to the enemy, the enemy fakes and sends a $\rm Check$ message using \verb!R!, 
+% 		\item \verb!fkrm1!: a ciphertext \verb!C! is available to the enemy, the enemy fakes and sends a $\rm Reply$ message using \verb!C!, 
+% 		\item \verb!fkrm2!: a random number \verb!R! is available to the enemy, the enemy fakes and sends a $\rm Reply$ message using \verb!R!.
+% 	\end{itemize}
 % 	\verb!sdcm! is defined as follows:
 % 	\begin{small}
 % 		\begin{verbatim}
@@ -323,11 +322,11 @@ We use five transitions together with one constant of \verb!Sys! to represent an
 % 			if not c-sdcm(S,P1,P2,R) .
 % 		\end{verbatim}
 % 	\end{small}
-	
 % 	\noindent
 % 	where \verb!c-sdcm(S,P1,P2,R)! is \verb!not(R \in ur(S))!.
 % 	The equations say that if \verb!c-sdcm(S,P1,P2,R)! is true (i.e., \verb!R! has not been used), then the $\rm Check$ message \verb!cm(P1,P1,P2,R)! is put into the network \verb!nw(S)!, \verb!R! is put into \verb!ur(S)! in the state denoted by \verb!sdcm(S,P1,P2,R)!; if \verb!c-sdcm(S,P1,P2,R)! is false, nothing changes. 
-\verb!fkrm1! is defined as follows:
+% \noindent
+The operators are defined with equations. \verb!fkrm1! is defined as follows:
 \begin{small}
 \begin{verbatim}
 ceq nw(fkrm1(S,P1,P2,C)) = rm(enemy,P1,P2,C) , nw(S) 
@@ -336,13 +335,12 @@ eq ur(fkrm1(S,P1,P2,C))  = ur(S) .
 ceq fkrm1(S,P1,P2,C) = S if not c-fkrm1(S,P1,P2,C) .
 \end{verbatim}
 \end{small}
-	
-	\noindent
-	where \verb!c-fkrm1(S,P1,P2,C)! is \verb!C \in! \verb!ciphers(nw(S))!, 
-	\verb!enemy! is a constant of \verb!Prin! denoting an arbitrary enemy.
-	The equations say that if \verb!c-fkrm1(S,P1,P2,R)! is true, then the $\rm Reply$ message \verb!rm(enemy,P1,P2,C)! is put into the network \verb!nw(S)!, \verb!ur(S)! does not change in the state denoted by \verb!fkrm1(S,P1,P2,C)!; if \verb!c-fkrm1(S,P1,P2,C)! is false, nothing changes. 
-	The remaining transitions can be defined likewise.
-% 	--here
+\noindent
+where \verb!c-fkrm1(S,P1,P2,C)! is \verb!C \in! \verb!ciphers(nw(S))!, 
+\verb!enemy! is a constant of \verb!Prin! denoting an arbitrary enemy.
+The equations say that if \verb!c-fkrm1(S,P1,P2,R)! is true, then the $\rm Reply$ message \verb!rm(enemy,P1,P2,C)! is put into the network \verb!nw(S)!, \verb!ur(S)! does not change in the state denoted by \verb!fkrm1(S,P1,P2,C)!; if \verb!c-fkrm1(S,P1,P2,C)! is false, nothing changes. 
+% The remaining transitions can be defined likewise.
+% --here	
 % In order to specify this protocol in CafeOBJ, we first define the module PRINCIPAL, which starts by mod! to indicate that it has tight semantics. This module defines the sort Prin and indicates the enemy (denoted by the constr attribute). It also defines an equation for the equality predicate meaning that only syntactically equal term is equal.
 % \begin{small}
 % \begin{verbatim}
@@ -391,7 +389,6 @@ ceq fkrm1(S,P1,P2,C) = S if not c-fkrm1(S,P1,P2,C) .
 % \end{verbatim}
 % \end{small}
 % The module defines the ciphertext enc which consists of three parameters such as Key, Rand and Prin. Given the key, the random number and the principal, it represents the ciphertext enc(K,R,P). The operators k, r and p return the first, second and third parameters of the operator enc, respectively.
-
 % The module MSG defines the two exchanged messages with the sort Msg.
 % \begin{small}
 % \begin{verbatim}
@@ -421,7 +418,6 @@ ceq fkrm1(S,P1,P2,C) = S if not c-fkrm1(S,P1,P2,C) .
 % \end{verbatim}
 % \end{small}
 % The operator cm takes three principals and a random number as parameters and return a message. Similarly, the operator rm takes three principals and a ciphertext as parameters and return a message. First three parameters in each message represents the actual creator, seeming sender and receiver of the message and the operators crt, src and dst return the first, second and third parameters, respectively. The operators cm? and rm? are predicates that determine whether the given message is cm or rm. The operators r and s return a random number and a ciphertext from the given message, respectively.
-
 % The module TRIV below states the existence of the principal sort Elt which
 % stands for elements and it has equality predicates.
 % \begin{small}
@@ -470,7 +466,6 @@ ceq fkrm1(S,P1,P2,C) = S if not c-fkrm1(S,P1,P2,C) .
 % }
 % \end{verbatim}
 % \end{small}
-
 % We use the views TRIV2MSG, TRIV2CIPHER and TRIV2RAND to indicate that the modules MSG, CIPHER and RAND satisfy the requirements stated by TRIV by using the given mapping:
 % \begin{small}
 % \begin{verbatim}
@@ -485,7 +480,6 @@ ceq fkrm1(S,P1,P2,C) = S if not c-fkrm1(S,P1,P2,C) .
 % }
 % \end{verbatim}
 % \end{small}
-
 % The network is modeled as a bag of messages. 
 % It first imports the modules with their parameters instantiated by TRIV2MSG, TRIV2RAND and TRIV2CIPHER. The sort name has been changed from Bag to Network, from
 % Col to ColRands and ColCiphers.
@@ -518,7 +512,6 @@ ceq fkrm1(S,P1,P2,C) = S if not c-fkrm1(S,P1,P2,C) .
 % }
 % \end{verbatim}
 % \end{small}
-
 % Finally, the module IFF specifies the behavior of the protocol as an observational transition system \cite{OgataF03fmoods}. It first imports the modules NETWORK and SET with its parameter RAND. The sort name has been changed from Set to URands (used random numbers).
 % %  A collection can include different types of elements. Whereas a set is a well-defined collection of distinct elements
 % \begin{small}
@@ -527,7 +520,6 @@ ceq fkrm1(S,P1,P2,C) = S if not c-fkrm1(S,P1,P2,C) .
 %   pr(NETWORK)   pr(SET(RAND)*{sort Set -> URands})
 % \end{verbatim}
 % \end{small}  
-
 % The network is modeled as a bag of messages. 
 % The sort Sys stands for the state space of the system. The system starts in the init state. We use two observational functions \verb!nw! and \verb!ur! to observe the network and the set of used random numbers, respectively.
 % \begin{small}
@@ -563,7 +555,6 @@ ceq fkrm1(S,P1,P2,C) = S if not c-fkrm1(S,P1,P2,C) .
 % \end{small}
 % In order to define the behavior of the values observed by these two functions for transition functions, we specify
 % an auxiliary condition (or effective condition). For example, \verb!fkrm1! has an auxiliary condition c-fkrm1 that returns true when \verb!C! is in the collection of ciphertexts. Assuming that the condition holds, the equation for nw indicates that, the $\rm Reply$ message \verb!rm(enemy,P1,P2,C)! is put into the network \verb!nw(S)! in the state denoted by \verb!fkrm1(S,P1,P2,C)!; if \verb!c-fkrm1(S,P1,P2,C)! does not hold, nothing changes.
-
 % \verb!sdcm!  c-sdcm that returns true when \verb!R! has not been used. Assuming that the condition holds, the equation for nw and ur indicate that, the $\rm Check$ message \verb!cm(P1,P1,P2,R)! is put into the network \verb!nw(S)! and \verb!R! is put into \verb!ur(S)! in the state denoted by \verb!sdcm(S,P1,P2,R)!; if \verb!c-sdcm(S,P1,P2,R)! does not hold, nothing changes.
 % \begin{small}
 % \begin{verbatim}
@@ -576,49 +567,51 @@ ceq fkrm1(S,P1,P2,C) = S if not c-fkrm1(S,P1,P2,C) .
 %   ceq fkrm1(S,P1,P2,C)     = S  if not c-fkrm1(S,P1,P2,C) .
 % \end{verbatim}
 % \end{small}
+\noindent
 The remaining four transitions for \verb!sdcm!, \verb!sdrm!, \verb!fkcm1! and \verb!fkrm2! can be defined analogously.
 We define two invariants in our system. The first ensures identifiable property by stating that whenever $p$ receives a valid $\rm Reply$ message from $q$, $q$ is always a member of the $p$'s group. Note that our goal is just inv1, while inv2 is an auxiliary lemma required for proving inv1.
-\begin{small}
-\begin{verbatim}
--- declare invariant candidates
-  op inv1 : Sys Prin Prin Prin Key Rand -> Bool
-  op inv2 : Sys Key Rand -> Bool
--- CafeOBJ variables
- var S : Sys vars P1 P2 P3 : Prin var K : Key var R : Rand
--- define invariant candidates
-  eq inv1(S,P1,P2,P3,K,R) = ((not(K = k(enemy)) and rm(P1,P2,P3,
-  enc(K,R,P2)) \in nw(S)) implies not(P2 = enemy)) .
-  eq inv2(S,K,R) = (enc(K,R,enemy) \in ciphers(nw(S)) 
-  implies (K = k(enemy))) .
-}
-\end{verbatim}
-\end{small}
+% \begin{small}
+% \begin{verbatim}
+% -- declare invariant candidates
+%   op inv1 : Sys Prin Prin Prin Key Rand -> Bool
+%   op inv2 : Sys Key Rand -> Bool
+% -- CafeOBJ variables
+%  var S : Sys vars P1 P2 P3 : Prin var K : Key var R : Rand
+% -- define invariant candidates
+%   eq inv1(S,P1,P2,P3,K,R) = ((not(K = k(enemy)) and rm(P1,P2,P3,
+%   enc(K,R,P2)) \in nw(S)) implies not(P2 = enemy)) .
+%   eq inv2(S,K,R) = (enc(K,R,enemy) \in ciphers(nw(S)) 
+%   implies (K = k(enemy))) .
+% }
+% \end{verbatim}
+% \end{small}
 We will present in the following section how we can prove these invariants by using proof scores method in CafeOBJ.
 
 \subsection{Proof Scores for Verifying IFF} \label{pscores}
-In this section, we introduce proof scores by proving the invariants above. We will focus on proving the first invariant, inv1, for the base case and inductive case. Since there were five transition functions, the inductive case for inv1 is divided into five cases; proof fragments are created for each case where auxiliary condition holds and does not hold. We describe \verb!fkrm1! among five transition functions. The complete proof is available at \url{https://github.com/twmon14/fvap/tree/main/IFF}. We first prove the invariant for the base case, init. In this case, our system is init and fresh constants a, b, c, s, k and r1 are declared, respectively.
-\begin{small}
-\begin{verbatim}
-open IFF .
-op a : -> Prin . op b : -> Prin . op c : -> Prin .
-op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
-red inv1(init,a,b,c,k,r1) .
-close
-\end{verbatim}
-\end{small}
-CafeOBJ returns true for the base case. We can define a similar environment for the fkrm1 case. The proof is semantically split into two sub-cases: (i) c-fkrm1 holds and (ii) c-fkrm1 does not hold. The proof fragment below corresponds to (i):
+In this section, we introduce proof scores by proving the invariants above. We will focus on proving the first invariant, inv1, for the base case and inductive case. Since there were five transition functions, the inductive case for inv1 is divided into five cases; proof fragments are created for each case where auxiliary condition holds and does not hold. We describe \verb!fkrm1! among five transition functions. The complete proof is available at \url{https://github.com/twmon14/fvap/tree/main/IFF}. We first prove the invariant for the base case, init. 
+% In this case, our system is init and fresh constants a, b, c, s, k and r1 are declared, respectively.
+% \begin{small}
+% \begin{verbatim}
+% open IFF .
+% op a : -> Prin . op b : -> Prin . op c : -> Prin .
+% op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
+% red inv1(init,a,b,c,k,r1) .
+% close
+% \end{verbatim}
+% \end{small}
+CafeOBJ returns true for the base case. We can define a similar environment for the fkrm1 case. The proof is semantically split into two subcases: (i) c-fkrm1 holds and (ii) c-fkrm1 does not hold. The proof fragment below corresponds to (i):
 \begin{small}
 \begin{verbatim}
 open IFF .
 op a : -> Prin . op b : -> Prin . op c : -> Prin .
 op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
 op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
--- c-fkrm1(s,d,e,r2) = true .
 eq r2 \in ciphers(nw(s)) = true .
 red inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
 close
 \end{verbatim}
 \end{small}
+% -- c-fkrm1(s,d,e,r2) = true .
 however, the term cannot be reduced to true due to the lack of information in the module on the fresh constants whether they are different or not. We need to include this information by means of equations. We put some assumptions in the environment below. More strategies on how to find these case splittings can be found in \cite{OgataF03fmoods, Ogata2006, nakano2003}. Moreover, we use the induction hypothesis as a premise in the reduction command as follows:
 \begin{small}
 \begin{verbatim}
@@ -626,9 +619,8 @@ open IFF .
 op a : -> Prin . op b : -> Prin . op c : -> Prin .
 op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
 op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
-eq r2 \in ciphers(nw(s)) = true .
--- assumption
-eq (rm(enemy,d,e,r2) = rm(a,b,c,enc(k,r1,b))) = false .
+eq r2 \in ciphers(nw(s)) = true . --(1)
+eq (rm(enemy,d,e,r2) = rm(a,b,c,enc(k,r1,b))) = false . --(2)
 red inv1(s,a,b,c,k,r1) implies inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
 close
 \end{verbatim}
@@ -640,135 +632,84 @@ open IFF .
 op a : -> Prin . op b : -> Prin . op c : -> Prin .
 op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
 op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
--- eq r2 \in ciphers(nw(s)) = true .  --(1)
-eq enc(k,r1,b) \in ciphers(nw(s)) = true . --(2)
--- assumption
--- eq rm(enemy,d,e,r2) = rm(a,b,c,enc(k,r1,b)) . --(3)
+eq enc(k,r1,b) \in ciphers(nw(s)) = true . --(3)
 eq a = enemy .  eq d = b .  eq e = c .  eq r2 = enc(k,r1,b) .
-
-eq k = k(enemy) . -- (4)
+eq k = k(enemy) . --(4)
 red inv1(s,a,b,c,k,r1) implies inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
 close
 \end{verbatim}
 \end{small}
-In that case, (1) is semantically rewritten into (2) and (3) is rewritten into four sub-equations. Moreover, the equation (4) is required to use as an assumption. Then, CafeOBJ returns true for this case. The case in which k is different from k(enemy), however, cannot be reduced into true, In that case, an additional equation (5) are required for case-splitting and the second invariant, inv2 is used as the induction hypothesis to deduce that:
-\begin{small}
-\begin{verbatim}
-open IFF .
-op a : -> Prin . op b : -> Prin . op c : -> Prin .
-op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
-op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
--- eq r2 \in ciphers(nw(s)) = true .  
--- eq enc(k,r1,b) \in ciphers(nw(s)) = true . --(2)
-eq enc(k,r1,enermy) \in ciphers(nw(s)) = true . --(2.1)
--- assumption
--- eq rm(enemy,d,e,r2) = rm(a,b,c,enc(k,r1,b)) . 
-eq a = enemy .  eq d = b .  eq e = c .  eq r2 = enc(k,r1,b) .
-eq (k = k(enemy)) = false . -- (4)
-eq b = enemy . -- (5)
-red inv2(s,k,r1) implies inv1(s,a,b,c,k,r1) 
-implies inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
-close
-\end{verbatim}
-\end{small}
-where the equation (2) is semantically rewritten into (2.1) according to the equation (5). When c-fkrm1 does not hold, the assumption eq c-fkrm1(s,d,e,r2) = false is used and CafeoBJ returns true for this case:
-\begin{small}
-\begin{verbatim}
-open IFF .
-op a : -> Prin . op b : -> Prin . op c : -> Prin .
-op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
-op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
-eq c-fkrm1(s,d,e,r2) = false .
-red implies inv1(s,a,b,c,k,r1) 
-implies inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
-close
-\end{verbatim}
-\end{small}
-
-Similarly, we would write proof scores for covering all cases for all invariant. Note that it is easy to develop proofs with proof scores, but it is also subject to human errors which leads to the case that we would run the complete set of proof scores obtaining true for all of them, but the property would not be really proven.  Unfortunately, the case splittings based on semantics used in the existing proof scores cannot be handled by CiMPG. To utilize CiMPG and CiMPA, we need to revise the the existing proof scores; how to revise the proof scores will be described in the next section.
-
-% We will present in the next sections how proof scores can be formally checked that no human error is lurking in the proof scores by using CiMPA and CiMPG.
-
-% -- here
-% however, the term cannot be reduced to true due to the lack of information in the module on the fresh constants whether they are different or not. We need to include this information by means of equations. We put some assumptions in the environment below. More strategies on how to find these case splittings can be found in \cite{OgataF03fmoods, Ogata2006, nakano2003}. Moreover, we use the induction hypothesis as a premise in the reduction command as follows:
+In that case, (1) is semantically rewritten into (3) and (2) is rewritten into four sub-equations. Moreover, the equation (4) is required to use as an assumption. Then, CafeOBJ returns true for this case. The case in which k is different from k(enemy), however, cannot be reduced into true, In that case, an additional equation \verb!b = enemy! is required for case-splitting, the equation (3) is rewritten into \verb!enc(k,r1,enermy) \in ciphers(nw(s)) = true! and the second invariant, inv2 is used as the induction hypothesis to deduce that.
 % \begin{small}
 % \begin{verbatim}
 % open IFF .
 % op a : -> Prin . op b : -> Prin . op c : -> Prin .
 % op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
 % op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
-% eq r2 \in ciphers(nw(s)) = true .
-% eq a = enemy .  eq d = b .  eq e = c .
-% eq k(r2) = k .  eq r1(r2) = r1 .    eq p(r2) = b .
-% eq k = k(enemy) .
-% red inv1(s,a,b,c,k,r1) implies inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
-% close
-% \end{verbatim}
-% \end{small}
-% Here, we have proven a very specific case in which several equations hold. We need to prove all possible cases to really prove the invariant. For example, we can assume that k is different from k(enemy). In that case, two additional equations are required and the second invariant is used as the induction hypothesis to deduce that.
-% \begin{small}
-% \begin{verbatim}
-% open IFF .
-% op a : -> Prin . op b : -> Prin . op c : -> Prin .
-% op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
-% op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
-% eq r2 \in ciphers(nw(s)) = true .
-% eq a = enemy .  eq d = b .  eq e = c .
-% eq k(r2) = k .  eq r1(r2) = r1 .    eq p(r2) = b .
-% eq (k = k(enemy)) = false .
-% eq b = enemy . eq enc(k,r1,enemy) \in ciphers(nw(s)) = true .
+% -- eq r2 \in ciphers(nw(s)) = true .  
+% -- eq enc(k,r1,b) \in ciphers(nw(s)) = true . --(2)
+% eq enc(k,r1,enermy) \in ciphers(nw(s)) = true . --(2.1)
+% -- assumption
+% -- eq rm(enemy,d,e,r2) = rm(a,b,c,enc(k,r1,b)) . 
+% eq a = enemy .  eq d = b .  eq e = c .  eq r2 = enc(k,r1,b) .
+% eq (k = k(enemy)) = false . -- (4)
+% eq b = enemy . -- (5)
 % red inv2(s,k,r1) implies inv1(s,a,b,c,k,r1) 
 % implies inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
 % close
 % \end{verbatim}
 % \end{small}
-% Similarly, we would write proof scores for covering all cases as shown in the table \ref{}; in this case, we used 11 open–close environments for checking them; all are available at the repository given in the previous
-% section. Note that it is easy to develop proofs with proof scores, but it is also subject to human errors which leads to the case that we would run the complete set of proof scores obtaining true for all of them, but the property would not be really proven. We will
-% present in the next sections how proof scores can be formally checked that no human error is lurking in the proof scores.
+% where the equation (2) is semantically rewritten into (2.1) according to the equation (5). 
+When c-fkrm1 does not hold, the assumption eq c-fkrm1(s,d,e,r2) = false is used and CafeoBJ returns true for this case.
+% \begin{small}
+% \begin{verbatim}
+% open IFF .
+% op a : -> Prin . op b : -> Prin . op c : -> Prin .
+% op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
+% op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
+% eq c-fkrm1(s,d,e,r2) = false .
+% red implies inv1(s,a,b,c,k,r1) 
+% implies inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
+% close
+% \end{verbatim}
+% \end{small}
 
-% \noindent
-% \begin{table}[]
-% 	\begin{tabular}{l|l}
-% 		\hline
-% 		(1)           & $c1$                                                                     \\ \hline
-% 		(2.1)         & $\neg c1$, $c2$                                                       \\ \hline
-% 		(2.2.1.1.1.1) & $\neg c1$, $\neg c2$, $c3$, $c4$, $c5$, $c6$  \\ \hline
-% 		(2.2.1.1.1.2) & $\neg c1$, $\neg c2$, $c3$, $c4$, $c5$, $\neg c6$ \\ \hline
-% 		(2.2.1.1.2)   & $\neg c1$, $\neg c2$, $c3$, $c4$, $\neg c5$              \\ \hline
-% 		(2.2.1.2)     & $\neg c1$, $\neg c2$, $c3$, $\neg c4$                           \\ \hline
-% 		(2.2.2)       & $\neg c1$, $\neg c2$, $\neg c3$                                        \\ \hline
-% 	\end{tabular}
-% \caption{Case splitting for the induction case shello of inv1}
-% \label{fig-cs-inv1}
-% \end{table}
-
-\subsection{Revising semantic-based case splitting in the IFF proof scores} \label{semantic}
-We describe in this section how to revise the existing proof score of IFF to use CiMPG using the previous example, fkrm1. In the existing proof scores of IFF, there are many times case splitting based on semantics are used. However, this case splitting cannot be handled by CiMPG although it is correct from proof score point of view. Thus, we need to revise the proof scores to get rid of any case splitting based on semantics. For example, we have seen that the original proof score for the induction case  \verb!fkrm1!  of inv1 consists of semantic -based case splittings; the revised proof score contains 11 sub-cases as shown in Table \ref{fig-cs-inv1iff}:
+Similarly, we would write proof scores for covering all cases for all invariant. Note that it is easy to develop proofs with proof scores, but it is also subject to human errors which leads to the case that we would run the complete set of proof scores obtaining true for all of them, but the property would not be really proven.  Unfortunately, the case splittings based on semantics used in the existing proof scores cannot be handled by CiMPG. To utilize CiMPG and CiMPA, 
+% we need to revise the the existing proof scores.
+% ; how to revise the proof scores will be described in the next section.
+% \subsection{Revising semantic-based case splitting in the IFF proof scores} \label{semantic}
+% We describe in this section how to revise the existing proof score of IFF to use CiMPG using the previous example, fkrm1.
+% In the existing proof scores of IFF, there are many times case splitting based on semantics are used. However, this case splitting cannot be handled by CiMPG although it is correct from proof score point of view. 
+thus, we need to revise the proof scores to get rid of any case splitting based on semantics. For example, we have seen that the original proof score for the induction case  \verb!fkrm1! of inv1 consists of semantic-based case splittings; the revised proof score for \verb!fkrm1! contains 11 subcases as shown in Table \ref{fig-cs-inv1iff}.
 \noindent
 \begin{table}[]
 	\begin{tabular}{l|l}
 		\hline
-		(2.1.1.1.1.1.1.1.1)           & $c1$, $c2$, $c3$, $c4$, $c5$, $c6$, $c7$, $c8$                                                    \\ \hline
-		(2.1.1.1.1.1.1.1.2.1.1)         & $c1$, ..., $\neg c8$, $c9$, $c10$                                                       \\ \hline
-		(2.1.1.1.1.1.1.1.2.1.2)         & $c1$, ..., $\neg c8$, $c9$, $\neg c10$                                                       \\ \hline
-		(2.1.1.1.1.1.1.1.2.2) & $c1$, ..., $\neg c8$, $\neg c9$
+		(1.1.1.1.1.1.1.1)   & $c1$, $c2$, $c3$, $c4$, $c5$, $c6$, $c7$, $c8$                                                    
 		\\ \hline
-		(2.1.1.1.1.1.1.2) & $c1$, $c2$, $c3$, $c4$, $c5$, $c6$, $\neg c7$ \\ \hline
-		(2.1.1.1.1.1.2)   & $c1$, $c2$, $c3$, $c4$, $c5$, $\neg c6$              \\ \hline
-		(2.1.1.1.1.2)     & $c1$, $c2$, $c3$, $c4$, $\neg c5$                           \\ \hline
-		(2.1.1.1.2)       & $c1$, $c2$, $c3$, $\neg c4$                                        \\ \hline
-		(2.1.1.2)       & $c1$, $c2$, $\neg c3$                                        \\ \hline
+		(1.1.1.1.1.1.1.2.1.1)         & $c1$, ..., $\neg c8$, $c9$, $c10$                                                       \\ \hline
+		(1.1.1.1.1.1.1.2.1.2)         & $c1$, ..., $\neg c8$, $c9$, $\neg c10$                                                       \\ \hline
+		(1.1.1.1.1.1.1.2.2) & $c1$, ..., $\neg c8$, $\neg c9$
+		\\ \hline
+		(1.1.1.1.1.1.2) & $c1$, $c2$, $c3$, $c4$, $c5$, $c6$, $\neg c7$ \\ \hline
+		(1.1.1.1.1.2)   & $c1$, $c2$, $c3$, $c4$, $c5$, $\neg c6$              \\ \hline
+		(1.1.1.1.2)     & $c1$, $c2$, $c3$, $c4$, $\neg c5$                           \\ \hline
+		(1.1.1.2)       & $c1$, $c2$, $c3$, $\neg c4$                                        \\ \hline
+		(1.1.2)       & $c1$, $c2$, $\neg c3$                                        \\ \hline
 		
-	    (2.1.2)       & $c1$, $\neg c2$                                        \\ \hline
-	    (2.2)       & $\neg c1$                                        \\ \hline
+	    (1.2)       & $c1$, $\neg c2$                                        \\ \hline
+	    (2)       & $\neg c1$                                        \\ \hline
 	\end{tabular}
 \caption{Case splitting by equations for fkrm1 case of inv1}
 \label{fig-cs-inv1iff}
 \end{table}
-
-The proof is semantically split into two sub-cases: (1)  \verb!c-fkrm1(s,d,e,r2) = true!,
+The proof is semantically split into two subcases: (1)  \verb!c-fkrm1(s,d,e,r2) = true!,
 and (2) \verb!c-fkrm1(s,d,e,r2)! \verb!= false!,
-For the sub-case (1), several additional equations with semantic-based case splitting are used as assumptions including auxiliary condition for the case fkrm1 in the previous section \ref{pscores}. This case splitting cannot be handled by CiMPG. Therefore, we need to modify the proof score. The equations used for case splitting in Table \ref{fig-cs-inv1iff} are shown in Table.~\ref{fig-inv1iff}
+For the subcase (1), several additional equations with case splitting including auxiliary condition are used as assumptions to reduce each case.
+% for the case fkrm1. 
+% This case splitting cannot be handled by CiMPG. 
+% Therefore, we modify the proof score for the subcase (1). 
+The equations used for case splitting in Table \ref{fig-cs-inv1iff} are shown in Table.~\ref{fig-inv1iff}
 \noindent
 \begin{table}[]
 	\begin{tabular}{l|l}
@@ -793,7 +734,7 @@ For the sub-case (1), several additional equations with semantic-based case spli
 	    c10 &  enc(k,r1,enemy) \verb!\in! ciphers(nw(s)) = true
 	    \\ \hline
 	\end{tabular}
-\caption{The equations used in Table \ref{fig-cs-inv1iff}}
+\caption{The equations used for case splitting in Table \ref{fig-cs-inv1iff}}
 \label{fig-inv1iff}
 \end{table}
 % \begin{itemize}
@@ -810,25 +751,22 @@ For the sub-case (1), several additional equations with semantic-based case spli
 We present in this section the CafeInMaude Proof Assistant (CiMPA) and how to use it in IFF from the previous section. CiMPA is a tool that allows us to prove the properties in CafeOBJ specifications by using induction. The proof starts by introducing as the goal two equations that state that the invariants.
 \begin{small}
 	\begin{verbatim}
-	open IFF .
-		:goal{
-			eq [iff1 :nonexec] : inv1(S:Sys,P:Prin,P1:Prin,P0:Prin,
-			                     K:Key,R:Rand) = true .
+		:goal{eq [iff1 :nonexec] : inv1(S:Sys,P:Prin,P1:Prin,P0:Prin,
+			K:Key,R:Rand) = true .
 			eq [iff :nonexec] : inv2(S:Sys,K:Key,R:Rand) = true . }
 	\end{verbatim}
 \end{small}  
 	\noindent
-where \verb!IFF! is the module in which the specification of IFF together two invariants. Note that these equations are defined by using the attribute :nonexec, which indicates that they must not be used for reduction:
-
+% where \verb!IFF! is the module in which the specification of IFF together two invariants. 
+Note that these equations are defined by using the attribute :nonexec, which indicates that they must not be used for reduction.
 Then, we start proving the goals by applying simultaneous
-induction on the variable \verb!S:Sys! by using:
-	\begin{small}
-		\begin{verbatim}
-			:ind on (S:Sys) :apply(si)
-		\end{verbatim}
-	\end{small}
-	
- where \verb!si! stands for simultaneous induction. The command \verb!:apply(si)! starts the proof by simultaneous induction on \verb!S!, generating six new goals for six constructors (\verb!fkcm1!, \verb!fkrm1!, \verb!fkrm2!, \verb!init!, \verb!sdcm! and \verb!sdrm!) in alphabetical order. Each subgoal consists of two equations to prove corresponding to inv1 and inv2. 
+induction on the variable \verb!S:Sys! by using: \verb!:ind on (S:Sys) :apply(si)!
+% 	\begin{small}
+% 		\begin{verbatim}
+% 			:ind on (S:Sys) :apply(si)
+% 		\end{verbatim}
+% 	\end{small}
+where \verb!si! stands for simultaneous induction. The command \verb!:apply(si)! starts the proof by simultaneous induction on \verb!S!, generating six new goals for six constructors (\verb!fkcm1!, \verb!fkrm1!, \verb!fkrm2!, \verb!init!, \verb!sdcm! and \verb!sdrm!) in alphabetical order. Each subgoal consists of two equations to prove corresponding to inv1 and inv2. 
 
 We will focus on the second goal for fkrm1, since it is the one that we worked with in the previous section. We start applying the theorem of constants by using the command: \verb!:apply(tc)!. The application of the theorem of constants splits the current goal into the following subgoals:
 \begin{small}
@@ -841,7 +779,6 @@ We will focus on the second goal for fkrm1, since it is the one that we worked w
 \end{small}
 where the > symbol indicates the current goal.
 The command \verb!:apply(tc)! replaces CafeOBJ variables with fresh constants in goals. \verb!S#Sys!, \verb!P#Prin!, \verb!P0#Prin!, and \verb!C#Cipher! are fresh constants introduced by \verb!:apply(si)!, while \verb!P@Prin!, \verb!P1@Prin!, \verb!P0@Prin!, \verb!K@Key!, and \verb!R@Rand! are fresh constants introduced by \verb!:apply(tc)!.
-
 In order to discharge goal 2-1, We need to distinguish cases as explained in the previous section; thus, we introduce the same
 equations:
 	\begin{small}
@@ -858,7 +795,7 @@ equations:
 		\end{verbatim}
 	\end{small}
 	\noindent
-Note that the order in the case splitting matters, since we will generate different sets of assumptions. Thus we apply them in order. Now we have nine new goals based on one Boolean term (c1) and seven equations (c2 to c8). As shown in Table \ref{fig-cs-inv1iff}, the first subgoal is 2.1.1.1.1.1.1.1.1 in which c1 is true and seven equations hold. To discharge this goal, we required use of an implication with the induction hypothesis. The induction hypothesis is instantiated by	replacing the variables with the fresh constants, and the instance is used as the premise of the implication. Thus, we indicate the substitution for the implication and apply a reduction as follows:
+Note that the order in the case splitting matters, since we will generate different sets of assumptions. Thus we apply them in order. Now we have nine new goals based on one Boolean term (c1) and seven equations (c2 to c8). As shown in Table \ref{fig-cs-inv1iff}, the first subgoal is 1.1.1.1.1.1.1.1 in which c1 is true and seven equations hold. To discharge this goal, we required use of an implication with the induction hypothesis. The induction hypothesis is instantiated by	replacing the variables with the fresh constants, and the instance is used as the premise of the implication. Thus, we indicate the substitution for the implication and apply a reduction as follows:
 \begin{small}
 	\begin{verbatim}
 		:imp [iff1] by {K:Key <- K@Key ; P0:Prin <- P0@Prin ;
@@ -866,9 +803,7 @@ Note that the order in the case splitting matters, since we will generate differ
 		:apply (rd)
 		\end{verbatim}
 	\end{small}
-	
-However, with the subgoal in which c1 is true, first six equations hold and the last equation does not hold, we need to conduct case splitting more as well as use inv2 as a lemma; this goal becomes 2.1.1.1.1.1.1.1.2.1.1 in Table \ref{fig-cs-inv1iff}:
-	
+However, with the subgoal in which c1 is true, first six equations hold and the last equation does not hold, we need to conduct case splitting more as well as use inv2 as a lemma; this goal becomes 1.1.1.1.1.1.1.2.1.1 in Table \ref{fig-cs-inv1iff}:
 	\begin{small}
 		\begin{verbatim}
 			:def c9 = :ctf {eq P1@Prin  = enemy .}
@@ -882,52 +817,36 @@ However, with the subgoal in which c1 is true, first six equations hold and the 
 	\end{small}
 	\noindent
 The lemma inv2 is instantiated by replacing the variables
-\verb!K:Key! and \verb!R:Rand! with the fresh constants \verb!K@Key! and \verb!R@Rand!, and the instance is used as the premise of the implication. Then, \verb!:apply(rd)! is
-used to discharge the current goal.
-The rest of the goals are discharged following the same ideas. 
+\verb!K:Key! and \verb!R:Rand! with the fresh constants \verb!K@Key! and \verb!R@Rand!, and the instance is used as the premise of the implication. Then, \verb!:apply(rd)! is used to discharge the current goal. The rest of the goals are discharged following the same ideas.
+In comparison with proof scripts, proof scores are often easier to understand and more flexible than writing proof scripts. 
 We will present in the following section a way to automatically generate the proof scripts from the proof scores.	
 
-
 \subsection{Verifying IFF with CiMPG} \label{cimpg}
-The CafeInMaude Proof Generator (CiMPG) infers proof scripts from proof scores, ensuring the correctness of the proof while allowing the user to freely use CafeOBJ syntax. We present in this section how to use CiMPG and how CiMPG analyzes the proof scores to generate a proof script for verifying IFF using CiMPA. 
+Although we are able to conduct the formal verification with
+CiMPA, it would be preferable to automatically confirm the correctness of proof scores by CiMPG because CiMPA is easy to choose an erroneous order for the case distinctions, generating more goals than required and it is not a good idea to manually write the proof script when the size of the proof score is large. The CafeInMaude Proof Generator (CiMPG) infers proof scripts from proof scores, ensuring the correctness of the proof while allowing the user to freely use CafeOBJ syntax. We present in this section how to use CiMPG.
+% and how CiMPG analyzes the proof scores to generate a proof script for CiMPA. 
 % Note that the script generated is quite similar
 % to that discussed in Section 3.3; thus, in some cases, we rely on the information presented in that
 % section. 
-First, we need to indicate that the proof scores refer to the same proof, which is done by using the :id() statement provided by the CiMPG. For instance, we use :id(iff) in all
-proof scores to state that they are related to the proof for goal iff. 
+First, we need to indicate that the proof scores refer to the same proof, which is done by using the :id() statement provided by the CiMPG. For instance, we use :id(iff) in all proof scores to state that they are related to the proof for goal iff. 
 % Then, we ask the CiMPG to generate the proof score by using
-The following is the proof score for the case corresponding to goal 2.1.1.1.1.1.1.1.1 in the section \ref{fig-cs-inv1}:
-\begin{small}
-\begin{verbatim}
-open IFF .
-op a : -> Prin . op b : -> Prin . op c : -> Prin .
-op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
-op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
-eq r2 \in ciphers(nw(s)) = true .   eq a = enemy .
-eq d = b .  eq e = c .  eq k(r2) = k .  eq r1(r2) = r1 .    
-eq p(r2) = b .  eq k = k(enemy) .
-red implies inv1(s,a,b,c,k,r1) implies
-inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
-close
-\end{verbatim}
-\end{small}
-\noindent
-where \verb!s! and \verb!k! correspond to \verb!S#Sys! and \verb!K@Key! in the last section, respectively.
-\verb!a!, \verb!b!, \verb!c!, \verb!d!, and \verb!e! correspond to \verb!P@Prin!, \verb!P1@Prin!, \verb!P0@Prin!, \verb!P#Prin!, and \verb!P0#Prin!, respectively. \verb!r1! and \verb!r2! correspond to \verb!R@Rand! and \verb!R#Rand!, respectively.
-In comparison with proof scripts, proof scores are often easier to understand and more flexible than writing proof scripts. 
-Although we are able to conduct the formal verification with
-CiMPA, it would be preferable to automatically confirm the correctness of proof scores by CiMPG because CiMPA is easy to choose an erroneous order for the case distinctions, generating more goals than required. 
-
-To use CiMPG, we need to add one more open-close fragment to the proof scores; the proof fragment for fkrm1 for inv1 becomes as follows:
-
-\begin{small}
-		\noindent
-		\verb!open IFF .!\\
-		\verb!  :proof(iff)!\\
-		\verb!close!
-		\smallskip
-\end{small}
-\noindent
+% The following is the proof fragment for the case corresponding to goal 1.1.1.1.1.1.1.1 in the section \ref{fig-cs-inv1}:
+% \begin{small}
+% \begin{verbatim}
+% open IFF .
+% op a : -> Prin . op b : -> Prin . op c : -> Prin .
+% op s : -> Sys .  op k : -> Key .  op r1 : -> Rand .
+% op d : -> Prin . op e : -> Prin . op r2 : -> Cipher .
+% eq r2 \in ciphers(nw(s)) = true .   eq a = enemy .
+% eq d = b .  eq e = c .  eq k(r2) = k .  eq r1(r2) = r1 .    
+% eq p(r2) = b .  eq k = k(enemy) .
+% red implies inv1(s,a,b,c,k,r1) implies
+% inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
+% close
+% \end{verbatim}
+% \end{small}
+% \noindent
+To use CiMPG, we need to add one more open-close fragment to the proof scores which consists of only one command \verb! :proof(iff)!; the proof fragment for fkrm1 for inv1 becomes as follows:
 \begin{small}
 \begin{verbatim}
 open IFF .
@@ -943,8 +862,17 @@ inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
 close
 \end{verbatim}
 \end{small}
-Feeding the annotated proof scores into CiMPG, CiMPG generates the proof script for CiMPA. The proof script generated is quite similar to the one discussed in section \ref{cimpa}. Feeding the generated proof script into CiMPA, CiMPA discharges all goals, confirming that the proof scores are correct. The CiMPG continues in the same way proving the rest of the subgoals, finishing the
-proof.
+% \begin{small}
+% 		\noindent
+% 		\verb!open IFF .!\\
+% 		\verb!  :proof(iff)!\\
+% 		\verb!close!
+% 		\smallskip
+% \end{small}
+% \noindent
+where \verb!s! and \verb!k! correspond to \verb!S#Sys! and \verb!K@Key! in the last section, respectively.
+\verb!a!, \verb!b!, \verb!c!, \verb!d!, and \verb!e! correspond to \verb!P@Prin!, \verb!P1@Prin!, \verb!P0@Prin!, \verb!P#Prin!, and \verb!P0#Prin!, respectively. \verb!r1! and \verb!r2! correspond to \verb!R@Rand! and \verb!R#Rand!, respectively.
+Feeding the annotated proof scores into CiMPG, CiMPG generates the proof script for CiMPA. The proof script generated is quite similar to the one discussed in section \ref{cimpa}. Feeding the generated proof script into CiMPA, CiMPA discharges all goals, confirming that the proof scores are correct. The CiMPG continues in the same way proving the rest of the subgoals, finishing the proof.
 
 \section{TLS}\label{tls}
 TLS \cite{dierk} provides privacy and data integrity between client/server communications. The protocol consists of four sub-protocols. They are TLS handshake protocol, the change cipher spec protocol, the alert protocol and TLS record protocol. We focus on the TLS handshake protocol in this paper. When client and server want to establish a secure communication, TLS handshake protocol is used to negotiate a cipher suite and security parameters between client and server. 
@@ -1002,7 +930,7 @@ The server then notifies the client to use the newly negotiated security paramet
 
 \begin{table}[]
 \centering
- \caption{An abstract handshake protocol}
+%  \caption{An abstract handshake protocol}
     \begin{tabular}{ c c c }
     ClientHello & $A \rightarrow B$  & Rand$_A$, ListOfChoices \\ 
     ServerHello & $B \rightarrow A$ & Rand$_B$, SID, Choice \\  
@@ -1016,12 +944,13 @@ The server then notifies the client to use the newly negotiated security paramet
    ServerFinished2 & $B \rightarrow A$ & $\varepsilon_{ServerKey}$(ServerFinish2) \\
    ClientFinished2 & $A \rightarrow B$ & $\varepsilon_{ClientKey}$(ClientFinish2) \\
     \end{tabular}
+     \caption{An abstract handshake protocol}
     % \setlength{\parindent}{4em}
    
     \label{tab:tb2}
 \end{table}
 
-\subsection{The Abstract Handshake Protocol}\label{abstracthandshake}
+% \subsection{The Abstract Handshake Protocol}\label{abstracthandshake}
 Table \ref{tab:tb2} shows the abstract version of TLS handshake protocol. In the protocol, \textbf{A} denotes a client and \textbf{B} a server respectively. In the table, the first six exchanged messages are the full handshake process between the client and the server. The remaining ones are for the resumption of a previously established session or the duplication of a current session.
 
 % Cryptographic functions used in the protocol are H(.)
@@ -1036,29 +965,24 @@ Table \ref{tab:tb2} shows the abstract version of TLS handshake protocol. In the
 % ClientFinish2 : H("client", A, B, SID, Choice, Rand$_A$, Rand$_B$, PMS)\newline
 % ServerFinish2 : H("server", A, B, SID, Choice, Rand$_A$, Rand$_B$, PMS)\newline
 
-There are some assumptions in the abstract handshake protocol as follows:
-\begin{itemize}
-\item A server always sends his/her certificate to a client in handshake process; 
-\item A server sends neither SeverKeyExchange nor CertificateRequest messages; 
-\item A client sends neither Certificate nor CertificateVerify messages; \item The ChangeCipherSpec messages are implicit and not considered in the abstract handshake protocol; 
-\item There exists only one trusted certificate authority denoted by CA; 
-\item Only RSA method is used for exchanging pre-master secrets; 
-\item The content of Finished messages is not the hash of the security parameters and handshake messages exchanged, but that of
-two random numbers, a pre-master secret, etc.
-\end{itemize}
-% 		\end{verbatim}
-% 	\end{small}
+% There are some assumptions in the abstract handshake protocol as follows:
+% \begin{itemize}
+% \item A server always sends his/her certificate to a client in handshake process; 
+% \item A server sends neither SeverKeyExchange nor CertificateRequest messages; 
+% \item A client sends neither Certificate nor CertificateVerify messages; \item The ChangeCipherSpec messages are implicit and not considered in the abstract handshake protocol; 
+% \item There exists only one trusted certificate authority denoted by CA; 
+% \item Only RSA method is used for exchanging pre-master secrets; 
+% \item The content of Finished messages is not the hash of the security parameters and handshake messages exchanged, but that of two random numbers, a pre-master secret, etc.
+% \end{itemize}
 
 \section{Formal Specification of TLS handshake protocol} \label{fstls}
-\textbf{TO REVISE THIS PART}
+% \textbf{TO REVISE THIS PART}
 The formal specification of the protocol written in CafeOBJ is available and the modeling of the system has already been described in \cite{1437139}. We slightly revise the existing specification and the description of the formal specification of the protocol is given in this section. There are two kinds of principals such as trustable and untrustable ones. 
 % Trustable principals exactly follow the protocol, while untrustable ones do something against the protocol. 
-
 % Suppose that there exists not only multiple trustable
 % principals but also multiple malicious (untrustable) principals, and the cryptosystem used is perfect. Trustable
 % principals exactly follow the protocol, while malicious ones may do something against the protocol as well. The combination and cooperation of malicious principals is modeled as the most general intruder Dolev-Yao \cite{dolev}. 
 % An intruder can glean as much information as possible from messages flowing in the network and create fake messages based on the gleaned information, provided that the intruder cannot break the perfect cryptosystem.
-
 % We specify 10 operators (data construtors) to define 10 kinds of messages. The data constructors used in TLS are declared as follows:
 The 10 kinds of messages defined with 10 operators (data constructors) are declared as follows.
 \begin{small}
@@ -1104,14 +1028,13 @@ which is certified by $g$, is denoted by \verb!cert!($a$, $k$, $g$).
 \item \verb!Session! denotes a quadruple of a cipher suite, two random numbers and a pre-master secret. A quadruple of cipher suite $c$, two random numbers $r1, r2$ and pre-master secret $pms$ is denoted by \verb!st!($c$, $r1, r2$, $pms$).
 \end{itemize}
 
-The projection operators are defined to return the arguments of the data constructors. The projection operators such as \verb!crt!, \verb!src! and \verb!dst! return the first, second and third arguments of a message, respectively. The first, second and  third  arguments  of  each  message are  the  actual creator,  the  seeming  sender  and  the  receiver  of the  corresponding message. The other projection operators 
+The projection operators are defined to return the arguments of the data constructors. The projection operators such as \verb!crt!, \verb!src! and \verb!dst! return the first, second and third arguments of a message, respectively. 
+% The first, second and  third  arguments  of  each  message are  the  actual creator,  the  seeming  sender  and  the  receiver  of the  corresponding message. 
+The other projection operators 
 % such as \verb!client(pms!($a$, $b$, $s$)) = $a$, \verb!server(pms!($a$, $b$, $s$)) = $b$ and \verb!secret(pms!($a$, $b$, $s$)) = $s$ 
 are also defined likewise.
-
 % For each data constructor such as \verb!pms!, \verb!sig!, etc., projection operators such as \verb!client!, \verb!server! and \verb!secret! that return arguments of the data constructor are also defined. For example, \verb!client(pms!($a$, $b$, $s$)) = $a$, \verb!server(pms!($a$, $b$, $s$)) = $b$ and \verb!secret(pms!($a$, $b$, $s$)) = $s$. Other projection operators for other data constructor are also defined likewise.
-
 %  Given a term denoting a message,  The first, second and  third  arguments  of  each  message are  the  actual creator,  the  seeming  sender  and  the  receiver  of the  corresponding message. The first argument is meta-information that is only available to the outside observer and that cannot be forged by the intruder; while the remaining arguments may be forged by the intruder. 
-
 % Suppose that there exists a message in the network. It is true that the principal denoted by the first
 % argument has sent the message. If the first argument is the
 % intruder and the second one is not, then the message has been
@@ -1119,24 +1042,18 @@ are also defined likewise.
 % Since messages are supposed to be never deleted from the network, if there exists a message denoted by
 % \verb!ct!($b$, $b$, $a$, $cert$) the network, we can conclude that the message received by $a$ really originates from $b$.
 % Therefore, this formalization of messages makes it possible to describe a property such as one that a message received by a principal really originates from the seeming sender (second argument) of the message. 
-
 % The  network  is  modeled  as  a  multiset  of  messages,  in which the intruder can use as his/her storage. Any message that has been sent or put once into the network is supposed to be never deleted from the network because the intruder can replay the message repeatedly, although the intruder cannot forge the first argument. Consequently, the empty network (i.e., the empty multiset) means that no messages have been sent.
-
-The  network  is  modeled  as  a  bag (multiset)  of  messages,  in which each principal’s storage. Any message that has been sent into the network is supposed to be never deleted from the network because the intruder can replay the message repeatedly, although the intruder cannot forge the first argument. The empty network means that no messages have been sent.
-
+% The  network  is  modeled  as  a  bag (multiset)  of  messages,  in which each principal’s storage. Any message that has been sent into the network is supposed to be never deleted from the network because the intruder can replay the message repeatedly, although the intruder cannot forge the first argument. The empty network means that no messages have been sent.
 % The intruder tries to glean seven kinds of quantities from
 % the network as much as possible. The seven kinds of quantities are pre-master secrets, digital signatures and five kinds of ciphertexts.
-
+% \noindent
 The collections of the seven quantities gleaned by the intruder from the network are denoted by the following operators, respectively:
 \begin{small}
 \begin{verbatim}
-op cpms : Network -> ColPms
-op csig : Network -> ColSig
-op cepms : Network -> ColEncPms
-op cecfin : Network -> ColEncCFin
-op cesfin : Network -> ColEncSFin
-op cecfin2 : Network -> ColEncCFin2
-op cesfin2 : Network -> ColEncSFin2
+op cpms : Network -> ColPms op cesfin : Network -> ColEncSFin
+op cepms : Network -> ColEncPms op cecfin : Network -> ColEncCFin
+op cecfin2 : Network -> ColEncCFin2 op csig : Network -> ColSig
+op cesfin2 : Network -> ColEncSFin2 
 \end{verbatim}
 \end{small}	
 where Network is the sort denoting networks. Col$X$ is
@@ -1155,7 +1072,8 @@ by sort $X$.
 % \end{small}	
 % where constant \verb!void! denotes the empty bag. Operator    \verb|_,_| of \verb!M,NW! is the data constructor of bags. The first equation says that any pre-master secret generated by the intruder is always available to the intruder and no other pre-master secrets are at any initial state. Messages from which pre-master secrets can be gleaned are Certificate messages only. The second equation says that if there exits a Certificate message in the network and the ciphertext in the message is encrypted with the intruder’s public key, then the pre-master secret in the message can be available to the intruder. The third one says that no pre-master secrets cannot be gleaned from any non-Certificate messages and any Certificate messages whose ciphertexts are not encrypted with the intruder’s public key. The remaining operators are also defined likewise.
 
-The operators are defined with equations. For example, the operator \verb!cepms! is defined with equations as follows:
+\noindent 
+The operator \verb!cepms! is defined with equations as follows:
 \begin{small}
 \begin{verbatim}
 eq EPMS \in cepms(void) = false .
@@ -1169,29 +1087,28 @@ where constant \verb!void! denotes the empty bag. Operator    \verb|_,_| of \ver
 encrypted with the intruder’s public key, then the intruder can glean the encrypted pre-master secret in the message.
 % The second equation says that if there exits a KeyExchange message in the network and the pre-master secret in the message is not encrypted with the intruder’s public key, then the encrypted pre-master secret in the message can be available to the intruder. The third one says that no encrypted pre-master secrets cannot be gleaned from any non-KeyExchange messages and any KeyExchange messages whose pre-master secrets are encrypted with the intruder’s public key. 
 The remaining operators are also defined likewise.
-
 Five observational functions have been declared as follows:
 \begin{small}
 \begin{verbatim}
-op nw : Protocol -> Network
+op nw : Protocol -> Network   op ur : Protocol -> URand
 op ss : Protocol Prin Prin Sid -> Session
-op ur : Protocol -> URand
-op ui : Protocol -> USid
-op us : Protocol -> USecret
+op ui : Protocol -> USid      op us : Protocol -> USecret
 \end{verbatim}
 \end{small}	
 where \verb!Protocol! is  the  sort  denoting  the  state  space. \verb!URand!, \verb!USid! and \verb!USecret! are the  sorts denoting sets of random numbers, ones of session IDs and ones of secrets. 
 Let $p$ denotes a state of the protocol. \verb!nw!($p$) denotes the network, \verb!ur!($p$) the set of used random numbers, \verb!ui!($p$) that of used session IDs and \verb!us!($p$) that of used secrets in the state. 
 \verb!ss!($p$, $a$, $b$, $i$) denotes the principal $a$’s session state identified by session ID $i$ with principal $b$ in the state where $a, b$ denotes principals and $i$ a session ID.
 
-The behaviors of the principals are modeled by transitions. The behavior of trustable principals is defined by 12 kinds of transitions corresponding to sending 10 kinds of messages and receiving two Finished messages respectively.
+% The behaviors of the principals are modeled by transitions. 
+The behavior of trustable principals is defined by 12 kinds of transitions corresponding to sending 10 kinds of messages and receiving two Finished messages respectively;
 % We define 27 transitions together with one constant of \verb!Protocol! to represent an arbitrary initial state.
 % The behavior of trustable principals is modeled by 12
 % kinds of transitions. 10 of them correspond to sending
 % the 10 kinds of messages. The remaining two correspond
 % to clients’ receiving ServerFinished messages and
 % servers’ receiving ClientFinished2 messages, respectively.
-The 12 kinds of transitions are denoted by the following operators:
+% The 12 kinds of transitions are 
+denoted by the following operators:
 \begin{small}
 \begin{verbatim}
 op chello : Protocol Prin Prin Rand ListOfChoices ->
@@ -1212,7 +1129,7 @@ op compl2 : Protocol Prin Secret Msg Msg Msg Msg ->
 Protocol {constr} 
 \end{verbatim}
 \end{small}	
-Each transition is defined with equations.
+% Each transition is defined with equations.
 % The 12 action operators are defined with equations. 
 In this paper, we show the equations for \verb!chello!, which are declared as follows:
 \begin{small}
@@ -1234,9 +1151,11 @@ The  equations  say  that  if c-shello(P,B,R,I,C,M) is  true
 (i.e., random number R has not been used, section ID I has not been set and a ClientHello message is in the network), then the ServerHello message sh(B,B,src(M),R,I,C) is put into the network nw(P), R is put into ur(P) and I is put into ui(P); if c-shello(P,B,R,I,C,M) is  false,  nothing  changes.  The remaining transitions can be defined likewise.
 
 The behavior of the intruder is modeled by 15
-kinds of transitions. The intruder fakes messages based on the gleaned information. 
+kinds of transitions;
+% The intruder fakes messages based on the gleaned information. 
 % The effective condition to the action operators is that the necessary information is available to the intruder. 
-The 15 kinds of transitions are defined by the following operators:
+% The 15 kinds of transitions are 
+defined by the following operators:
 \begin{small}
 \begin{verbatim}
 op fakeChello : Protocol Prin Prin Rand ListOfChoices ->
@@ -1264,22 +1183,12 @@ Protocol {constr}
 \end{verbatim}
 \end{small}	
 % Each operator is defined with equations. 
+In the existing specification of the protocol, the state space is denoted by hidden sort. The transition and observation operators with respect to hidden sorts are declared by starting with \verb !bop!. We slightly revise the original specification of the state space denoting visible sort and the transition and observation operators are declared with respect to visible sorts by starting with \verb !op! since behavioral specifications are not supported in CafeInMaude.
 
-In the existing specification of the protocol, the state space is denoted by hidden sort and the transition and observation operators with respect to hidden sorts are declared by starting with \verb !bop!. 
-We slightly revise the original specification of the state space denoting visible sort and the transition and observation operators are declared with respect to visible sorts by starting with \verb !op! as behavioral specifications are not supported in CafeInMaude.
-
-To successfully complete the formal verification of TLS protocol, we add one useful lemma in the original specification. The trivial lemma is defined by the following operator and equation as follows:
-\begin{small}
-\begin{verbatim}
-  op lm1 : Msg Msg Network -> Bool
-  eq lm1(M, M2, NW) = (M = M2 and M \in NW) implies (M2 \in NW) .
-\end{verbatim}
-\end{small}	
-The equation says that there exists a message \verb!M! in the network and if \verb!M2! message is equivalent to \verb!M!, then \verb!M2! is also in the network. We use the trivial lemma in some invariants (\verb!inv7, 8, 12, 13, 14, 16, 17, 18!) and the formal verification is successfully done with the help of this lemma.
-
-\section{A Way to Use CiMPG and CiMPA for Existing Large Proof Scores}\label{fvtls}
-% You should make sub-sections such that each sub-section is dedicated to one contribution that is a tip of use of CiMPG and CiMPA.
-The five properties of the protocol \cite{1437139} are formalized as CafeOBJ terms. These five properties are (1) the secrecy property of pre-master secrets, (2) the correspondence (or authentication) one from a client point of view, (3) the correspondence one from a server point of view, (4) the correspondence one for resumed sessions from a client point of view, and (5) the correspondence one for resumed sessions from a server point of view. 13 lemmas are used by Ogata and Futatsugi to formally verify these five properties. Moreover, we found one missing lemma and it is required to use in the formal verification of the protocol with CiMPG. In this paper, the word property is used interchangeably with invariant. Let us refer to the properties as inv\textbf{$x$} where x = 1 to 18. inv1, inv3, inv5, inv17 and inv18 are the five properties of the protocol. The property (1) is formalized as follows: 
+\subsection{Five properties of TLS protocol}
+The five properties of the protocol are formalized as CafeOBJ terms in \cite{1437139}. They are (1) the secrecy property of pre-master secrets, (2) the correspondence (or authentication) one from a client point of view, (3) the correspondence one from a server point of view, (4) the correspondence one for resumed sessions from a client point of view, and (5) the correspondence one for resumed sessions from a server point of view. 13 lemmas are used by Ogata and Futatsugi to formally verify these five properties. Moreover, we found one missing lemma and it is required to use in the formal verification of the protocol with CiMPG. 
+% In this paper, the word property is used interchangeably with invariant. 
+Let us refer to the properties and lemmas as inv\textbf{$x$} where x = 1 to 18. inv1, inv3, inv5, inv17 and inv18 are the five properties of the protocol. The first property is formalized as follows: 
 \begin{small}
 \begin{verbatim}
 eq inv1(P,PMS) = (PMS \in cpms(nw(P)) implies 
@@ -1288,7 +1197,7 @@ eq inv1(P,PMS) = (PMS \in cpms(nw(P)) implies
 \end{small}
 where P and PMS are CafeOBJ variables of the sort Prin and Pms. The equation says that if a pre-master secret is available to the intruder as a server, the pre-master secret has been generated by the intruder or a client has generated it for a session with the intruder. This means that pre-master secrets cannot be leaked and the intruder cannot obtain any pre-master secrets for sessions in which the intruder is not involved. .
 
-The property (2) is specified as follows:
+The second property is specified as follows:
 \begin{small}
 \begin{verbatim}
 eq inv3(P,A,B,B1,R1,R2,L,C,I,S) = (not(A = intruder) and 
@@ -1306,7 +1215,7 @@ where A, B and B1 are CafeOBJ variables of Prin, R1 and R2 are CafeOBJ variables
 % cipals (e.g., B1). 
 % The second property guarantees that when a client has negotiated a cipher suite and security parameters with the corresponding server by a full handshake process, the server has really agreed on them.
 
-The property (3) is formally specified as follows:
+The third property is formally specified as follows:
 \begin{small}
 \begin{verbatim}
 eq inv5(P,A,B,B1,R1,R2,C,I,S) = (not(A = intruder) and
@@ -1329,7 +1238,7 @@ sh(B,B,A,R2,I,C) \in nw(P) and ct(B,B,A,cert(B,K,sig(ca,B,K)))
 \in nw(P)) .
 \end{verbatim}
 \end{small}
-The property means that if a trustable client receives a ServerHello message, a Certificate message and a ServerFinished message that are seemingly sent by a server, then the ServerHello and Certificate messages really originate from the server.
+This property means that if a trustable client receives a ServerHello message, a Certificate message and a ServerFinished message that are seemingly sent by a server, then the ServerHello and Certificate messages really originate from the server.
 
 The fifth property is specified as follows:
 \begin{small}
@@ -1350,6 +1259,95 @@ message really originate2 from the server.
 % and
 % (2) the principal whom p2 is communicating with is p1. 
 
+\section{Revising semantic-based case splitting and one Missing lemma}
+In the existing proof scores of TLS protocol, there are many times case splitting based on semantics are used. 
+% However, this case splitting cannot be handled by CiMPG. Thus, we need to revise the proof scores to get rid of any case splitting based on semantics. 
+For example, the original proof score for the induction case  \verb!shello! of inv1 consists of the following two open-close fragments:
+
+\begin{small}
+\begin{verbatim}
+open ISTEP .
+	ops p p' : -> Protocol .  op pms : -> Pms .  op b : -> Prin .
+	op c : -> Choice .        op r : -> Rand .   op i : -> Sid . 
+	op nw10 : -> Network .    op m : -> Msg .           
+	eq r \in ur(p) = false .  eq i \in ui(p) = false .
+	eq nw(p) = m , nw10 .     eq ch?(m) = true . eq dst(m) = b .
+	eq c \in list(m) = true . 
+	eq p' = shello(p,b,r,i,c,m) .
+	red istep1(pms) .
+	close
+	
+	open ISTEP .
+	ops p p' : -> Protocol .  op pms : -> Pms .  op b : -> Prin .
+	op c : -> Choice .        op r : -> Rand .   op i : -> Sid . 
+	op nw10 : -> Network .    op m : -> Msg .           
+	eq c-shello(p,b,r,i,c,m) = false . 
+	eq p' = shello(p,b,r,i,c,m) .
+	red istep1(pms) .
+	close
+\end{verbatim}
+\end{small}
+
+\noindent
+where \verb!istep1(pms)! is \verb!inv1(p,pms) implies inv1(p',pms)!.
+The proof is semantically split into two subcases: (1)  \verb!c-shello(p,!\\\verb!b,r,i,c,m) = true!, which corresponds to the first open-close fragment above; 
+and (2) \verb!c-shello(p,b,r,i,c,m)! \verb!= false!,
+which corresponds to the second open-close fragment above. 
+For the subcase (1), based on the definition of \verb!c-shello!,  \verb!c-shello(p,b,r,i,c,m) = true! is rewritten into the first five equations in the first open-close fragment. 
+This case splitting is semantically correct, but unfortunately, cannot be handled by CiMPG. 
+% Therefore, we need to modify the proof score. 
+The revised proof score consists of seven subcases as shown in Table.~\ref{fig-cs-inv1}, where $c1$, $c2$, $c3$, $c4$, $c5$, and $c6$ are
+ \verb!r \in ur(p)!,
+ \verb!i \in ui(p)!,
+ \verb!m \in nw(p)!,
+ \verb!ch?(m)!,
+ \verb!dst(m) = b!, and
+ \verb!c \in list(m)!, respectively.
+
+%\begin{itemize}
+%	\item $c1 \triangleq$ \verb!r \in ur(p)!
+%	\item $c2 \triangleq$ \verb!i \in ui(p)!
+%	\item $c3 \triangleq$ \verb!m \in nw(p)!
+%	\item $c4 \triangleq$ \verb!ch?(m)!
+%	\item $c5 \triangleq$ \verb!dst(m) = b!
+%	\item $c6 \triangleq$ \verb!c \in list(m)!
+%\end{itemize}
+
+\noindent
+\begin{table}[]
+	\begin{tabular}{l|l}
+		\hline
+		(1)           & $c1$                                                                     \\ \hline
+		(2.1)         & $\neg c1$, $c2$                                                       \\ \hline
+		(2.2.1.1.1.1) & $\neg c1$, $\neg c2$, $c3$, $c4$, $c5$, $c6$  \\ \hline
+		(2.2.1.1.1.2) & $\neg c1$, $\neg c2$, $c3$, $c4$, $c5$, $\neg c6$ \\ \hline
+		(2.2.1.1.2)   & $\neg c1$, $\neg c2$, $c3$, $c4$, $\neg c5$              \\ \hline
+		(2.2.1.2)     & $\neg c1$, $\neg c2$, $c3$, $\neg c4$                           \\ \hline
+		(2.2.2)       & $\neg c1$, $\neg c2$, $\neg c3$                                        \\ \hline
+	\end{tabular}
+\caption{Case splitting for the induction case shello of inv1}
+\label{fig-cs-inv1}
+\end{table}
+
+% \subsection{how to find one missing lemma and the lemma}
+TO REVISE THIS PART
+
+To successfully complete the formal verification of TLS protocol, we add one useful lemma in the original specification. The trivial lemma is defined by the following operator and equation as follows:
+\begin{small}
+\begin{verbatim}
+  op lm1 : Msg Msg Network -> Bool
+  eq lm1(M, M2, NW) = (M = M2 and M \in NW) implies (M2 \in NW) .
+\end{verbatim}
+\end{small}	
+The equation says that there exists a message \verb!M! in the network and if \verb!M2! message is equivalent to \verb!M!, then \verb!M2! is also in the network. We use the trivial lemma in some invariants (\verb!inv7, 8, 12, 13, 14, 16, 17, 18!) and the formal verification is successfully done with the help of this lemma.
+
+\section{A Way to Use CiMPG for Existing Large Proof Scores}\label{fvtls}
+\subsection{how to handle each proof score one by one with CiMPG}
+\subsection{how to handle each induction case one by one with CiMPG}
+% We 
+The proof scripts are reliable, but they are not easy to develop, especially with non-expert users.
+CiMPA is easy to choose an erroneous order for the case distinctions, generating more goals than required. 
+% You should make sub-sections such that each sub-section is dedicated to one contribution that is a tip of use of CiMPG and CiMPA.
 The five properties inv12, inv13, inv16, inv17 and inv18 have been proved by case analysis with other properties as lemmas, and the remaining ones by (simultaneous) structural induction on reachable states in \cite{1437139}. CiMPG cannot deal with proofs by case analysis. Thus, it is necessary to prove the five properties by structural induction on reachable states. We have written proof scores to do so while referring to some tips on writing proof scores \cite{Ogata2006}.
 
 % Our purpose is to formally verify the properties of the protocol with the use of CiMPG and CiMPA.
@@ -1616,75 +1614,6 @@ The proof scores of inv17 is divided into each induction case with the base case
 % Please add the time taken for tackling the while of inv17 so as to easily compare both time taken.
 % You may have two tables in Table 3. If so, each table is give its own caption. The caption of Table 3 should be revised.
 
-\subsection{Revising semantic-based case splitting}
-In the existing proof scores, there are many times case splitting based on semantics are used. However, this case splitting cannot be handled by CiMPG. Thus, we need to revise the proof scores to get rid of any case splitting based on semantics. For example, the original proof score for the induction case  \verb!shello!  of inv1 consists of the following two open-close fragments:
-
-\begin{small}
-\begin{verbatim}
-open ISTEP .
-	ops p p' : -> Protocol .  op pms : -> Pms .  op b : -> Prin .
-	op c : -> Choice .        op r : -> Rand .   op i : -> Sid . 
-	op nw10 : -> Network .    op m : -> Msg .           
-	eq r \in ur(p) = false .  eq i \in ui(p) = false .
-	eq nw(p) = m , nw10 .     eq ch?(m) = true . eq dst(m) = b .
-	eq c \in list(m) = true . 
-	eq p' = shello(p,b,r,i,c,m) .
-	red istep1(pms) .
-	close
-	open ISTEP .
-	ops p p' : -> Protocol .  op pms : -> Pms .  op b : -> Prin .
-	op c : -> Choice .        op r : -> Rand .   op i : -> Sid . 
-	op nw10 : -> Network .    op m : -> Msg .           
-	eq c-shello(p,b,r,i,c,m) = false . 
-	eq p' = shello(p,b,r,i,c,m) .
-	red istep1(pms) .
-	close
-\end{verbatim}
-\end{small}
-
-\noindent
-where \verb!istep1(pms)! is \verb!inv1(p,pms) implies inv1(p',pms)!.
-The proof is semantically split into two sub-cases: (1)  \verb!c-shello(p,b,r,i,c,m) = true!, which corresponds to the first open-close fragment above; 
-and (2) \verb!c-shello(p,b,r,i,c,m)! \verb!= false!,
-which corresponds to the second open-close fragment above. 
-For the sub-case (1), based on the definition of \verb!c-shello!,  \verb!c-shello(p,b,r,i,c,m) = true! is rewritten into the first five equations in the first open-close fragment. 
-This case splitting is semantically correct, but unfortunately, cannot be handled by CiMPG. Therefore, we need to modify the proof score. The revised proof score consists of seven sub-cases as shown in Table.~\ref{fig-cs-inv1}, where $c1$, $c2$, $c3$, $c4$, $c5$, and $c6$ are
- \verb!r \in ur(p)!,
- \verb!i \in ui(p)!,
- \verb!m \in nw(p)!,
- \verb!ch?(m)!,
- \verb!dst(m) = b!, and
- \verb!c \in list(m)!, respectively.
-
-%\begin{itemize}
-%	\item $c1 \triangleq$ \verb!r \in ur(p)!
-%	\item $c2 \triangleq$ \verb!i \in ui(p)!
-%	\item $c3 \triangleq$ \verb!m \in nw(p)!
-%	\item $c4 \triangleq$ \verb!ch?(m)!
-%	\item $c5 \triangleq$ \verb!dst(m) = b!
-%	\item $c6 \triangleq$ \verb!c \in list(m)!
-%\end{itemize}
-
-\noindent
-\begin{table}[]
-	\begin{tabular}{l|l}
-		\hline
-		(1)           & $c1$                                                                     \\ \hline
-		(2.1)         & $\neg c1$, $c2$                                                       \\ \hline
-		(2.2.1.1.1.1) & $\neg c1$, $\neg c2$, $c3$, $c4$, $c5$, $c6$  \\ \hline
-		(2.2.1.1.1.2) & $\neg c1$, $\neg c2$, $c3$, $c4$, $c5$, $\neg c6$ \\ \hline
-		(2.2.1.1.2)   & $\neg c1$, $\neg c2$, $c3$, $c4$, $\neg c5$              \\ \hline
-		(2.2.1.2)     & $\neg c1$, $\neg c2$, $c3$, $\neg c4$                           \\ \hline
-		(2.2.2)       & $\neg c1$, $\neg c2$, $\neg c3$                                        \\ \hline
-	\end{tabular}
-\caption{Case splitting for the induction case shello of inv1}
-\label{fig-cs-inv1}
-\end{table}
-
-\subsection{how to find one missing lemma and the lemma}
-\subsection{how to handle each proof score one by one with CiMPG}
-\subsection{how to handle each induction case one by one with CiMPG}
-
 
 \section{Related Work}\label{relatedwork}
 From a CafeOBJ specification and an invariant property,
@@ -1785,8 +1714,10 @@ the verifier may not terminate; in others, it may take a huge amount of memory.
 % proved in Coq. On the other hand, proof that demonstrates that the properties hold may be harder to construct. In comparison with our research, we proved lemmas that show protocol security using proof assistant CiMPA and proof generator CiMPG.
 
 \section{Conclusion}\label{conclusion}
+TO REVISE
+
 This paper has presented TLS 1.0 handshake protocol formal verification case study with the help of proof generator CiMPG and proof assistant CiMPA. We have described how to revise the existing proof scores in the OTS/CafeOBJ method with some examples and how to make the formal verification of the protocol successful. CiMPG often takes time to generate proof scripts when the size of input
-proof scores is huge. On the other hand, writing manual proof scripts for CiMPA is not a good idea for this case study. We found out an effective way to solve this issue by dividing the proof scores into smaller sub-case. One piece of our future work is to formally verify other security protocols with CiMPG. (may need to put specific work)
+proof scores is huge. On the other hand, writing manual proof scripts for CiMPA is not a good idea for this case study. We found out an effective way to solve this issue by dividing the proof scores into smaller subcase. One piece of our future work is to formally verify other security protocols with CiMPG. (may need to put specific work)
 
 % Numbered list
 % Use the style of numbering in square brackets.
