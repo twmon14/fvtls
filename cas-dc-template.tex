@@ -230,7 +230,9 @@ Each principal (or agent) such as $p$ and $q$ belongs to only one group. A symme
 On receipt of the $\rm Check$ message, $q$ sends back to $p$ a $\rm Reply$ message that consists of $r$ and ID $q$ encrypted by the symmetric key $k$ of the $q$'s group. On receipt of the $\rm Reply$ message, $p$ tries to decrypt the ciphertext with the symmetric key of the $p$'s group. If the decryption succeeds and the plaintext consists of $r$ and $q$, $p$ then concludes that $q$ is a member of the $p$'s group. 
 	%The protocol is supposed to have the property that if $p$ receives a valid $\rm Reply$ message from $q$, $q$ is always a member of the $p$'s group. The property is called the IFF property in this paper.
 	
-We suppose that the cryptosystem used is perfect, there is only one legitimate group, all members of the group are trustable, and there are also untrustable principals who are not members. Trustable principals exactly follow the protocol, but untrustable ones may do something against the protocol as well. The combination and cooperation of untrustable principals is modeled as the most general enemy (or intruder). The enemy gleans as much information as possible from messages flowing in the network and creates the fake messages based on the gleaned information, provided that the enemy cannot break the perfect cryptosystem.
+We suppose that the cryptosystem used is perfect, there are an arbitrary number of principles for which sort Prin is declared. There is only one legitimate group, all members of the group are trustable, and there are also untrustable principals who are not members. There is one special principal, an intruder, that is expressed as constant enemy of Prin. Trustable principals exactly follow the protocol, but untrustable ones may do something against the protocol as well. 
+% The combination and cooperation of untrustable principals is modeled as the most general enemy (or intruder). 
+The enemy gleans as much information as possible from messages flowing in the network and creates the fake messages based on the gleaned information, provided that the enemy cannot break the perfect cryptosystem.
 We first declare the operator \verb!enc! to specify the ciphertexts which consists of three parameters such as the key, the random number and the principal.
 % \begin{small}
 % \begin{verbatim}
@@ -329,6 +331,8 @@ Among five transitions, \verb!sdcm! and \verb!sdrm! formalize sending $\rm Check
 The operators are defined with equations. \verb!fkrm1! is defined as follows:
 \begin{small}
 \begin{verbatim}
+op c-fkrm1 : Sys Prin Prin Cipher -> Bool
+eq c-fkrm1(S,P1,P2,C) = C \in ciphers(nw(S)) .
 ceq nw(fkrm1(S,P1,P2,C)) = rm(enemy,P1,P2,C) , nw(S) 
 if c-fkrm1(S,P1,P2,C) .
 eq ur(fkrm1(S,P1,P2,C))  = ur(S) .
@@ -599,7 +603,7 @@ In this section, we introduce proof scores by proving the invariants above. We w
 % close
 % \end{verbatim}
 % \end{small}
-CafeOBJ returns true for the base case. We can define a similar environment for the fkrm1 case. The proof is semantically split into two subcases: (i) c-fkrm1 holds and (ii) c-fkrm1 does not hold. The proof fragment below corresponds to (i):
+CafeOBJ returns true for the base case. We can define a similar environment for the fkrm1 case. The proof is semantically split into two subcases: (i) c-fkrm1 holds and (ii) c-fkrm1 does not hold. The proof fragment below corresponds to (i): 
 \begin{small}
 \begin{verbatim}
 open IFF .
@@ -639,7 +643,7 @@ red inv1(s,a,b,c,k,r1) implies inv1(fkrm1(s,d,e,r2),a,b,c,k,r1) .
 close
 \end{verbatim}
 \end{small}
-In that case, (1) is semantically rewritten into (3) and (2) is rewritten into four sub-equations. Moreover, the equation (4) is required to use as an assumption. Then, CafeOBJ returns true for this case. The case in which k is different from k(enemy), however, cannot be reduced into true, In that case, an additional equation \verb!b = enemy! is required for case-splitting, the equation (3) is rewritten into \verb!enc(k,r1,enermy) \in ciphers(nw(s)) = true! and the second invariant, inv2 is used as the induction hypothesis to deduce that.
+In that case, (1) is semantically rewritten into (3) and (2) is rewritten into four sub-equations. Moreover, the equation (4) is required to use as an assumption. Then, CafeOBJ returns true for this case. The case in which (4) does not hold, however, cannot be reduced into true, In that case, an additional equation \verb!b = enemy! is required to use for case-splitting, the equation (3) is rewritten into \verb!enc(k,r1,enemy) \in ciphers(nw(s)) = true! and moreover, the second invariant, inv2 is used as the induction hypothesis to deduce that.
 % \begin{small}
 % \begin{verbatim}
 % open IFF .
@@ -977,44 +981,44 @@ Table \ref{tab:tb2} shows the abstract version of TLS handshake protocol. In the
 
 \section{Formal Specification of TLS handshake protocol} \label{fstls}
 % \textbf{TO REVISE THIS PART}
-The formal specification of the protocol written in CafeOBJ is available and the modeling of the system has already been described in \cite{1437139}. We slightly revise the existing specification and the description of the formal specification of the protocol is given in this section. There are two kinds of principals such as trustable and untrustable ones. 
+The formal specification of the protocol written in CafeOBJ is available and the modeling of the system has already been described in \cite{1437139}. We slightly revise the existing specification and the description of the formal specification of the protocol is given in this section. 
+% There are two special principals, certificate 
+% two kinds of principals such as trustable and untrustable ones. --here
 % Trustable principals exactly follow the protocol, while untrustable ones do something against the protocol. 
 % Suppose that there exists not only multiple trustable
 % principals but also multiple malicious (untrustable) principals, and the cryptosystem used is perfect. Trustable
 % principals exactly follow the protocol, while malicious ones may do something against the protocol as well. The combination and cooperation of malicious principals is modeled as the most general intruder Dolev-Yao \cite{dolev}. 
 % An intruder can glean as much information as possible from messages flowing in the network and create fake messages based on the gleaned information, provided that the intruder cannot break the perfect cryptosystem.
 % We specify 10 operators (data construtors) to define 10 kinds of messages. The data constructors used in TLS are declared as follows:
-The 10 kinds of messages defined with 10 operators (data constructors) are declared as follows.
-\begin{small}
-		\begin{verbatim}
-op ch  : Prin    Prin   Prin  Rand ListOfChoices -> Msg
-op sh  : Prin    Prin   Prin  Rand Sid Choice    -> Msg
-op ct  : Prin    Prin   Prin  Cert               -> Msg
-op kx  : Prin    Prin   Prin  EncPms             -> Msg
-op cf  : Prin    Prin   Prin  EncCFin            -> Msg
-op sf  : Prin    Prin   Prin  EncSFin            -> Msg
-op ch2 : Prin    Prin   Prin  Rand Sid           -> Msg
-op sh2 : Prin    Prin   Prin  Rand Sid Choice    -> Msg
-op cf2 : Prin    Prin   Prin  EncCFin2           -> Msg
-op sf2 : Prin    Prin   Prin  EncSFin2           -> Msg
-		\end{verbatim}
-	\end{small}
-where \verb!Msg! is the sort denoting messages. For data constructor \verb!x! (where \verb!x = ch!, \verb!sh!, \verb!ct!, \verb!kx!, \verb!cf!, \verb!sf!, \verb!ch2,! \verb!sh2!, \verb!sf2!, \verb!cf2!), predicate \verb!x!? is defined to check if a given message is \verb!x! message.
+The 10 kinds of messages are defined with operators as data constructors for which sort Msg is declared. The messages are ch, sh, ct, kx, cf, sf, ch2, sh2, cf2 and sf2 respectively.
+% declared as follows.
+% \begin{small}
+% 		\begin{verbatim}
+% op ch  : Prin    Prin   Prin  Rand ListOfChoices -> Msg
+% op sh  : Prin    Prin   Prin  Rand Sid Choice    -> Msg
+% op ct  : Prin    Prin   Prin  Cert               -> Msg
+% op kx  : Prin    Prin   Prin  EncPms             -> Msg
+% op cf  : Prin    Prin   Prin  EncCFin            -> Msg
+% op sf  : Prin    Prin   Prin  EncSFin            -> Msg
+% op ch2 : Prin    Prin   Prin  Rand Sid           -> Msg
+% op sh2 : Prin    Prin   Prin  Rand Sid Choice    -> Msg
+% op cf2 : Prin    Prin   Prin  EncCFin2           -> Msg
+% op sf2 : Prin    Prin   Prin  EncSFin2           -> Msg
+% 		\end{verbatim}
+% 	\end{small}
+% where \verb!Msg! is the sort denoting messages. 
+For each data constructor \verb!x!, the predicate \verb!x!? is defined to check if a given message is \verb!x! message (where \verb!x = ch!, \verb!sh!, \verb!ct!, \verb!kx!, \verb!cf!, \verb!sf!, \verb!ch2,! \verb!sh2!, \verb!sf2!, \verb!cf2!).
 
 The other sorts and the corresponding data
 constructors that constitute the messages are declared as follows:
 \begin{itemize}
-  \item \verb!Principal! denotes principals. There are two special principals; one is the \verb!intruder! denoted by intruder and the other the certificate authority denoted by \verb!ca!. We suppose that \verb!intruder! does not equal \verb!ca!. 
-  \item \verb!Rand! denotes random numbers generated by principals.
-\item \verb!ListOfChoices! denotes lists of cipher suites. Operator \verb|_\in_| is the membership predicate of lists.
-  \item \verb!Choice! denotes cipher suites. 
-  \item \verb!Sid! denotes session IDs. 
-  \item \verb!PubKey! denotes public keys. The principal $a$’s public key is denoted by \verb!k!($a$).
+  \item There are an arbitrary number of principles including two special principals; one is the \verb!intruder! and the other the certificate authority denoted by \verb!ca! for which sort Prin is declared. We suppose that \verb!intruder! does not equal \verb!ca!. 
+  \item \verb!Rand! denotes random numbers generated by principals and
+\verb!ListOfChoices! denotes lists of cipher suites. Operator \verb|_\in_| is the membership predicate of lists.
+  \item \verb!Choice! denotes cipher suites, \verb!Sid! denotes session IDs and \verb!PubKey! denotes public keys. The principal $a$’s public key is denoted by \verb!k!($a$).
 \item \verb!Sig! denotes digital signatures of pairs of a principal and a public key. The digital signature of the pair of principal $b$ and public key $k$ signed by $ca$ is denoted by \verb!sig!($ca$, $b$, $k$).
-\item \verb!Cert! denotes certificates of public keys. Given principal $a$, public key $k$ and signature $g$, the certificate that $k$ is $a$’s,
-which is certified by $g$, is denoted by \verb!cert!($a$, $k$, $g$).
-\item \verb!Secret! denotes secret values that make pre-master secret globally unique and unguessable. 
-\item \verb!Pms! denotes premaster secrets. Given two principals $a,b$ and a secret value $s$, a pre-master secret generated by client $a$ for server $b$ is denoted by \verb!pms!($a$, $b$, $s$).
+\item \verb!Cert! denotes certificates of public keys. Given principal $a$, public key $k$ and signature $g$, the certificate that $k$ is $a$’s, which is certified by $g$, is denoted by \verb!cert!($a$, $k$, $g$).
+\item \verb!Secret! denotes secret values that make pre-master secret globally unique and unguessable and \verb!Pms! denotes premaster secrets. Given two principals $a,b$ and a secret value $s$, a pre-master secret generated by client $a$ for server $b$ is denoted by \verb!pms!($a$, $b$, $s$).
 \item \verb!Key! denotes hashes used as symmetric keys to encrypt Finished messages. Given principal $a$, pre-master secret $pms$ and two random numbers $r1,r2$, the hash of those quantities is denoted by \verb!k!($a$, $pms$, $r1, r2$).
 \item \verb!CFinish! denotes ClientFinish’s. Given two principals $a, b$, session ID $i$, list $l$ of cipher suites, cipher suite $c$, two random numbers $r1, r2$ and pre-master secret $s$, the corresponding ClientFinish is denoted by \verb!cfin!($a, b$, $i$, $l$, $c$, $r1, r2$, $s$).
 \item \verb!SFinish! denotes ServerFinish’s. Given two principals $a, b$, session ID $i$, list $l$ of cipher suites, cipher suite $c$, two random numbers $r1, r2$ and pre-master secret $s$, the corresponding ServerFinish is denoted by \verb!sfin!($a, b$, $i$, $l$, $c$, $r1, r2$, $s$).
@@ -1028,7 +1032,7 @@ which is certified by $g$, is denoted by \verb!cert!($a$, $k$, $g$).
 \item \verb!Session! denotes a quadruple of a cipher suite, two random numbers and a pre-master secret. A quadruple of cipher suite $c$, two random numbers $r1, r2$ and pre-master secret $pms$ is denoted by \verb!st!($c$, $r1, r2$, $pms$).
 \end{itemize}
 
-The projection operators are defined to return the arguments of the data constructors. The projection operators such as \verb!crt!, \verb!src! and \verb!dst! return the first, second and third arguments of a message, respectively. 
+The projection operators are defined to return the arguments of the data constructors. The projection operators for a message such as \verb!crt!, \verb!src! and \verb!dst! return the first, second and third arguments of the message, respectively. 
 % The first, second and  third  arguments  of  each  message are  the  actual creator,  the  seeming  sender  and  the  receiver  of the  corresponding message. 
 The other projection operators 
 % such as \verb!client(pms!($a$, $b$, $s$)) = $a$, \verb!server(pms!($a$, $b$, $s$)) = $b$ and \verb!secret(pms!($a$, $b$, $s$)) = $s$ 
@@ -1100,7 +1104,13 @@ Let $p$ denotes a state of the protocol. \verb!nw!($p$) denotes the network, \ve
 \verb!ss!($p$, $a$, $b$, $i$) denotes the principal $a$’s session state identified by session ID $i$ with principal $b$ in the state where $a, b$ denotes principals and $i$ a session ID.
 
 % The behaviors of the principals are modeled by transitions. 
-The behavior of trustable principals is defined by 12 kinds of transitions corresponding to sending 10 kinds of messages and receiving two Finished messages respectively;
+The transitions are defined by operators in CafeOBJ. The behavior of trustable principals is defined by 12 kinds of transitions corresponding to sending ten kinds of messages and receiving two Finished messages;chello, shello, cert,
+kexch, cfin, sfin, compl, chello2,shello2, cfin2, sfin2 and compl2 respectively. The behavior of the intruder is modeled by 15 kinds of transitions; fakeChello, fakeShello, fakeCert,
+fakeKexch1, fakeKexch2,
+fakeCfin1, fakeCfin2, fakeSfin1,
+fakeSfin2, fakeChello2,
+fakeShello2, fakeCfin21, fakeCfin22, fakeSfin21 and
+fakeSfin22 respectively.
 % We define 27 transitions together with one constant of \verb!Protocol! to represent an arbitrary initial state.
 % The behavior of trustable principals is modeled by 12
 % kinds of transitions. 10 of them correspond to sending
@@ -1108,27 +1118,27 @@ The behavior of trustable principals is defined by 12 kinds of transitions corre
 % to clients’ receiving ServerFinished messages and
 % servers’ receiving ClientFinished2 messages, respectively.
 % The 12 kinds of transitions are 
-denoted by the following operators:
-\begin{small}
-\begin{verbatim}
-op chello : Protocol Prin Prin Rand ListOfChoices ->
-Protocol {constr}
-op shello : Protocol Prin Rand Sid Choice Msg -> Protocol {constr}
-op cert : Protocol Prin Msg Msg -> Protocol {constr}
-op kexch : Protocol Prin Secret Msg Msg Msg -> Protocol {constr}
-op cfin : Protocol Prin Secret Msg Msg Msg Msg -> Protocol {constr}
-op sfin : Protocol Prin Msg Msg Msg Msg Msg -> Protocol {constr}
-op compl : Protocol Prin Secret Msg Msg Msg Msg Msg Msg ->
-Protocol {constr}
-op chello2 : Protocol Prin Prin Secret Rand Sid -> 
-Protocol {constr}
-op shello2 : Protocol Prin Rand Msg -> Protocol {constr}
-op cfin2 : Protocol Prin Secret Msg Msg -> Protocol {constr}
-op sfin2 : Protocol Prin Msg Msg Msg -> Protocol {constr}
-op compl2 : Protocol Prin Secret Msg Msg Msg Msg -> 
-Protocol {constr} 
-\end{verbatim}
-\end{small}	
+% denoted by the following operators:
+% \begin{small}
+% \begin{verbatim}
+% op chello : Protocol Prin Prin Rand ListOfChoices ->
+% Protocol {constr}
+% op shello : Protocol Prin Rand Sid Choice Msg -> Protocol {constr}
+% op cert : Protocol Prin Msg Msg -> Protocol {constr}
+% op kexch : Protocol Prin Secret Msg Msg Msg -> Protocol {constr}
+% op cfin : Protocol Prin Secret Msg Msg Msg Msg -> Protocol {constr}
+% op sfin : Protocol Prin Msg Msg Msg Msg Msg -> Protocol {constr}
+% op compl : Protocol Prin Secret Msg Msg Msg Msg Msg Msg ->
+% Protocol {constr}
+% op chello2 : Protocol Prin Prin Secret Rand Sid -> 
+% Protocol {constr}
+% op shello2 : Protocol Prin Rand Msg -> Protocol {constr}
+% op cfin2 : Protocol Prin Secret Msg Msg -> Protocol {constr}
+% op sfin2 : Protocol Prin Msg Msg Msg -> Protocol {constr}
+% op compl2 : Protocol Prin Secret Msg Msg Msg Msg -> 
+% Protocol {constr} 
+% \end{verbatim}
+% \end{small}	
 % Each transition is defined with equations.
 % The 12 action operators are defined with equations. 
 In this paper, we show the equations for \verb!chello!, which are declared as follows:
@@ -1149,39 +1159,36 @@ ceq shello(P,B,R,I,C,M)     = P if not c-shello(P,B,R,I,C,M) .
 where A, A2, B and B2 are CafeOBJ variables of the sort Prin, I2 and I are CafeOBJ variables of the sort Sid and P, R, C and M are CafeOBJ variables of the sorts Protocol, Rand, Choice and Msg respectively.
 The  equations  say  that  if c-shello(P,B,R,I,C,M) is  true
 (i.e., random number R has not been used, section ID I has not been set and a ClientHello message is in the network), then the ServerHello message sh(B,B,src(M),R,I,C) is put into the network nw(P), R is put into ur(P) and I is put into ui(P); if c-shello(P,B,R,I,C,M) is  false,  nothing  changes.  The remaining transitions can be defined likewise.
-
-The behavior of the intruder is modeled by 15
-kinds of transitions;
 % The intruder fakes messages based on the gleaned information. 
 % The effective condition to the action operators is that the necessary information is available to the intruder. 
 % The 15 kinds of transitions are 
-defined by the following operators:
-\begin{small}
-\begin{verbatim}
-op fakeChello : Protocol Prin Prin Rand ListOfChoices ->
-Protocol {constr}
-op fakeShello : Protocol Prin Prin Rand Sid Choice ->
-Protocol {constr}
-op fakeCert : Protocol Prin Prin PubKey Sig -> Protocol {constr}
-op fakeKexch1 : Protocol Prin Prin EncPms -> Protocol {constr}
-op fakeKexch2 : Protocol Prin Prin PubKey Pms -> Protocol {constr}
-op fakeCfin1 : Protocol Prin Prin EncCFin -> Protocol {constr}
-op fakeCfin2 : Protocol Prin Prin Sid ListOfChoices Choice Rand 
-Rand Pms -> Protocol {constr}
-op fakeSfin1 : Protocol Prin Prin EncSFin -> Protocol {constr}
-op fakeSfin2 : Protocol Prin Prin Sid ListOfChoices Choice Rand 
-Rand Pms -> Protocol {constr}
-op fakeChello2 : Protocol Prin Prin Rand Sid -> Protocol {constr}
-op fakeShello2 : Protocol Prin Prin Rand Sid Choice ->
-Protocol {constr}
-op fakeCfin21  : Protocol Prin Prin EncCFin2 -> Protocol {constr}
-op fakeCfin22  : Protocol Prin Prin Sid Choice Rand Rand Pms -> 
-Protocol {constr}
-op fakeSfin21  : Protocol Prin Prin EncSFin2 -> Protocol {constr}
-op fakeSfin22  : Protocol Prin Prin Sid Choice Rand Rand Pms -> 
-Protocol {constr} 
-\end{verbatim}
-\end{small}	
+% defined by the following operators:
+% \begin{small}
+% \begin{verbatim}
+% op fakeChello : Protocol Prin Prin Rand ListOfChoices ->
+% Protocol {constr}
+% op fakeShello : Protocol Prin Prin Rand Sid Choice ->
+% Protocol {constr}
+% op fakeCert : Protocol Prin Prin PubKey Sig -> Protocol {constr}
+% op fakeKexch1 : Protocol Prin Prin EncPms -> Protocol {constr}
+% op fakeKexch2 : Protocol Prin Prin PubKey Pms -> Protocol {constr}
+% op fakeCfin1 : Protocol Prin Prin EncCFin -> Protocol {constr}
+% op fakeCfin2 : Protocol Prin Prin Sid ListOfChoices Choice Rand 
+% Rand Pms -> Protocol {constr}
+% op fakeSfin1 : Protocol Prin Prin EncSFin -> Protocol {constr}
+% op fakeSfin2 : Protocol Prin Prin Sid ListOfChoices Choice Rand 
+% Rand Pms -> Protocol {constr}
+% op fakeChello2 : Protocol Prin Prin Rand Sid -> Protocol {constr}
+% op fakeShello2 : Protocol Prin Prin Rand Sid Choice ->
+% Protocol {constr}
+% op fakeCfin21  : Protocol Prin Prin EncCFin2 -> Protocol {constr}
+% op fakeCfin22  : Protocol Prin Prin Sid Choice Rand Rand Pms -> 
+% Protocol {constr}
+% op fakeSfin21  : Protocol Prin Prin EncSFin2 -> Protocol {constr}
+% op fakeSfin22  : Protocol Prin Prin Sid Choice Rand Rand Pms -> 
+% Protocol {constr} 
+% \end{verbatim}
+% \end{small}	
 % Each operator is defined with equations. 
 In the existing specification of the protocol, the state space is denoted by hidden sort. The transition and observation operators with respect to hidden sorts are declared by starting with \verb !bop!. We slightly revise the original specification of the state space denoting visible sort and the transition and observation operators are declared with respect to visible sorts by starting with \verb !op! since behavioral specifications are not supported in CafeInMaude.
 
@@ -1259,11 +1266,12 @@ message really originate2 from the server.
 % and
 % (2) the principal whom p2 is communicating with is p1. 
 
-\section{Revising semantic-based case splitting and one Missing lemma}
-In the existing proof scores of TLS protocol, there are many times case splitting based on semantics are used. 
-% However, this case splitting cannot be handled by CiMPG. Thus, we need to revise the proof scores to get rid of any case splitting based on semantics. 
-For example, the original proof score for the induction case  \verb!shello! of inv1 consists of the following two open-close fragments:
-
+\section{Revising the existing proof scores and one Missing lemma}
+We describe in this section some examples on how to revise the proof scores so as to be handled by CiMPG. The five invariants such as inv12, inv13, inv16, inv17 and inv18 have been proved by case analysis with other invariants, and the remaining ones by (simultaneous) structural induction on reachable states in \cite{1437139}. CiMPG cannot deal with the proofs by case analysis. Thus, it is necessary to prove the five invariants by structural induction. We have written proof scores for those five ones by using structural induction.
+% while referring to some tips on writing proof scores \cite{Ogata2006}. 
+In the existing proof scores of the protocol, semantic-based case splittings are used many times. 
+However, this case splitting cannot be handled by CiMPG. Thus, we need to revise the proof scores to get rid of any case splitting based on semantics. 
+For example, the induction case \verb!shello! of inv1 consists of the following two open-close fragments:
 \begin{small}
 \begin{verbatim}
 open ISTEP .
@@ -1276,7 +1284,6 @@ open ISTEP .
 	eq p' = shello(p,b,r,i,c,m) .
 	red istep1(pms) .
 	close
-	
 	open ISTEP .
 	ops p p' : -> Protocol .  op pms : -> Pms .  op b : -> Prin .
 	op c : -> Choice .        op r : -> Rand .   op i : -> Sid . 
@@ -1287,7 +1294,6 @@ open ISTEP .
 	close
 \end{verbatim}
 \end{small}
-
 \noindent
 where \verb!istep1(pms)! is \verb!inv1(p,pms) implies inv1(p',pms)!.
 The proof is semantically split into two subcases: (1)  \verb!c-shello(p,!\\\verb!b,r,i,c,m) = true!, which corresponds to the first open-close fragment above; 
@@ -1295,15 +1301,14 @@ and (2) \verb!c-shello(p,b,r,i,c,m)! \verb!= false!,
 which corresponds to the second open-close fragment above. 
 For the subcase (1), based on the definition of \verb!c-shello!,  \verb!c-shello(p,b,r,i,c,m) = true! is rewritten into the first five equations in the first open-close fragment. 
 This case splitting is semantically correct, but unfortunately, cannot be handled by CiMPG. 
-% Therefore, we need to modify the proof score. 
+Therefore, we need to modify the proof score. 
 The revised proof score consists of seven subcases as shown in Table.~\ref{fig-cs-inv1}, where $c1$, $c2$, $c3$, $c4$, $c5$, and $c6$ are
  \verb!r \in ur(p)!,
  \verb!i \in ui(p)!,
  \verb!m \in nw(p)!,
  \verb!ch?(m)!,
  \verb!dst(m) = b!, and
- \verb!c \in list(m)!, respectively.
-
+ \verb!c \in list(m)!, respectively. 
 %\begin{itemize}
 %	\item $c1 \triangleq$ \verb!r \in ur(p)!
 %	\item $c2 \triangleq$ \verb!i \in ui(p)!
@@ -1312,7 +1317,6 @@ The revised proof score consists of seven subcases as shown in Table.~\ref{fig-c
 %	\item $c5 \triangleq$ \verb!dst(m) = b!
 %	\item $c6 \triangleq$ \verb!c \in list(m)!
 %\end{itemize}
-
 \noindent
 \begin{table}[]
 	\begin{tabular}{l|l}
@@ -1329,229 +1333,264 @@ The revised proof score consists of seven subcases as shown in Table.~\ref{fig-c
 \label{fig-cs-inv1}
 \end{table}
 
-% \subsection{how to find one missing lemma and the lemma}
-TO REVISE THIS PART
+Let us consider an example of the two equations: \verb!eq a = b .! \verb!eq a = c .!
+% \begin{small}
+% \begin{verbatim}
+% eq a = b .  eq a = c .
+% \end{verbatim}
+% \end{small}
+From the two equations, a, b and c are equal in equational logic point of view, however, \verb!a! rewrites to either \verb!b! or \verb!c! with rewriting. 
+% CafeOBJ may rewrite \verb!a! to \verb!b!, while CafeInMaude may rewrite \verb!a! to \verb!c!. The behaviors of CafeOBJ and CafeInMaude are different if some equations, such as a = b, are used in a module and some equations, such as a = c, are used in an open-close fragment that uses the module. 
+Thus it is impossible to prove that all of a, b and c are equal only by rewriting when the specification (or term rewriting systems) is non-confluent. If we revise the two equations:
+% \begin{small}
+% \begin{verbatim}
+\verb!eq a = b .! \verb!eq b = c .!
+% \end{verbatim}
+% \end{small}
+we can prove that all of a, b and c are equal only by rewriting. CafeOBJ, Maude and CafeInMaude do not use any completion techniques. Even if CafeOBJ and CafeInMaude return true for each open-close fragment of a proof score, CiMPG may not correctly handle this kind of situation. This is because of the different behaviors of CafeOBJ and CafeInMaude. Rewriting is a sound implementation of equational reasoning but not a perfect implementation of equational reasoning. Therefore, we need to take care of this kind of situation when writing proof scores whose results depend on implementation, such as CafeOBJ, CafeInMaude and CiMPG.
 
-To successfully complete the formal verification of TLS protocol, we add one useful lemma in the original specification. The trivial lemma is defined by the following operator and equation as follows:
-\begin{small}
+We consider a concrete example corresponding to the induction case \verb!sfin! in inv7 below,
+% \begin{small}
 \begin{verbatim}
-  op lm1 : Msg Msg Network -> Bool
-  eq lm1(M, M2, NW) = (M = M2 and M \in NW) implies (M2 \in NW) .
+eq pms(a,b,s) = pms(epms(m4)) .    eq a = dst(m2) .
 \end{verbatim}
-\end{small}	
-The equation says that there exists a message \verb!M! in the network and if \verb!M2! message is equivalent to \verb!M!, then \verb!M2! is also in the network. We use the trivial lemma in some invariants (\verb!inv7, 8, 12, 13, 14, 16, 17, 18!) and the formal verification is successfully done with the help of this lemma.
-
-\section{A Way to Use CiMPG for Existing Large Proof Scores}\label{fvtls}
-\subsection{how to handle each proof score one by one with CiMPG}
-\subsection{how to handle each induction case one by one with CiMPG}
-% We 
-The proof scripts are reliable, but they are not easy to develop, especially with non-expert users.
-CiMPA is easy to choose an erroneous order for the case distinctions, generating more goals than required. 
-% You should make sub-sections such that each sub-section is dedicated to one contribution that is a tip of use of CiMPG and CiMPA.
-The five properties inv12, inv13, inv16, inv17 and inv18 have been proved by case analysis with other properties as lemmas, and the remaining ones by (simultaneous) structural induction on reachable states in \cite{1437139}. CiMPG cannot deal with proofs by case analysis. Thus, it is necessary to prove the five properties by structural induction on reachable states. We have written proof scores to do so while referring to some tips on writing proof scores \cite{Ogata2006}.
-
-% Our purpose is to formally verify the properties of the protocol with the use of CiMPG and CiMPA.
-% However, we need to make some modifications to the existing proof scores with CiMPG [cite{twmon} so that the proof scores can be run successfully in CafeInMaude environment and CiMPG can generate the correct proof scripts from proof scores for CiMPA. While we revise the existing proof scores, there are many cases in which we need to conduct the case splittings by introducing equations and/or use other properties as lemma to strengthen the inductive hypothesis many times. Moreover, we revise/write the proof scores for five properties (inv12, inv13, inv16, inv17 and inv18) by induction on the number of transitions applying some tips on writing proof scores in the CafeOBJ method \cite{Ogata2006}.
-
-% The revised proof scores are feed into CafeInMaude and if all proof scores are reduced to \verb!true! then the corresponding properties are proved. If they are not directly reduced to \verb!true!, case splitting or using lemma is required. Even if CafeInMaude returns \verb!true! for each open-close fragment of a proof score, CiMPG may not successfully generate proof scripts from the proof score. In such case, we need to revise the proof score again. If all proof scores are complete, we are ready to use CiMPG to formally verify the properties. In order to use CiMPG, we slightly need to annotate the proof scores. Let us use one example of proof score open-close fragment that is annotated to use CiMPG. The following proof fragment is a proof fragment of one case from inv13
-It is necessary to annotate each open-close fragment of proof
-scores so that proof scores can be handled by CiMPG. Let us take
-one open-close fragment annotated from the proof score of inv13:
+% \end{small}
+the first equation says that the left hand side rewrites the right hand side. The second equation says that \verb!a! rewrites \verb!dst(m2)!. 
+\verb!pms(a,b,s)!, \verb!pms(dst(m2),b,s)!, and \verb!pms(epms(m4))! are semantically equal in equational logic, not by rewriting. 
+Although we declare the second equation, \verb!pms(dst(m2),b,s)! can not be rewritten into \verb!pms(a,b,s)! due to the order of equation. Instead of declaring two equations above, thus, the equation should be: \verb!eq pms(dst(m2),b,s) = pms(epms(m4)) .! There are many cases in which we need to revise the proof scores by changing the order of the equations if necessary.
+Let us take one open-close fragment from the induction case of inv13 as follows:
 \begin{small}
 \begin{verbatim}
 open INV .
-  :id(tls)
   op p : -> Protocol .  ops a b b1 : -> Prin .
   ops r1 r2 : -> Rand . op l : -> ListOfChoices .
   op c : -> Choice .    op i : -> Sid .
   op s : -> Secret .    op k : -> PubKey .
--- arbitrary objects
   ops p1 p2 : -> Prin . op esfin1 : -> EncSFin .
--- assumptions
   eq esfin1 \in cesfin(nw(p)) = true .
   eq esfin1 = esfin(k(b,pms(a,b,s),r1,r2),
   sfin(a,b,i,l,c,r1,r2,pms(a,b,s))) .
   eq a = intruder . eq a = p1 . eq b = intruder .
-  eq b = p2 .   eq b1 = intruder . 
+  eq b = p2 .       eq b1 = intruder . 
   red inv13(p,a,b,b1,r1,r2,l,c,i,s,k) implies
   inv13(fakeSfin1(p,p2,p1,esfin1),a,b,b1,r1,r2,l,c,i,s,k) .
 close
 \end{verbatim}
 \end{small}
+By the time we run the above proof score fragment in CafeInMaude, it returns true, however, CiMPG can not generate correct proof script for this case. Note that CiMPG shows the errors in generated proof scripts, but it can not automatically correct them. We then revise the proof score by removing the last five equations in the above proof passage and CiMPG could generate the correct proof script for this time.
+
+While we were revising the one induction case (sfin) of inv7, we have encountered a situation in which the term cannot be reduced to true because the module lacks information on the messages in the network. Thus, we need to include this information by means of equations in the specification.
+Then we define a trivial lemma as follows; 
+% \begin{small}
+\begin{verbatim}
+op lm1 : Msg Msg Network -> Bool
+eq lm1(M, M2, NW) = (M = M2 and M \in NW) implies (M2 \in NW) .
+\end{verbatim}
+% \end{small}	
+The equation says that there exists a message \verb!M! in the network and if \verb!M2! message is equivalent to \verb!M!, then \verb!M2! is also in the network. We use this lemma in the above case. Moreover, we need to use the lemma in sfin and sfin2 cases of some invariants such as inv8, inv12, inv13, inv14, inv16, inv17 and inv18. The formal verification is successfully completed with the help of this lemma.
+% You should make sub-sections such that each sub-section is dedicated to one contribution that is a tip of use of CiMPG and CiMPA.
+
+% Our purpose is to formally verify the properties of the protocol with the use of CiMPG and CiMPA.
+% However, we need to make some modifications to the existing proof scores with CiMPG [cite{twmon} so that the proof scores can be run successfully in CafeInMaude environment and CiMPG can generate the correct proof scripts from proof scores for CiMPA. While we revise the existing proof scores, there are many cases in which we need to conduct the case splittings by introducing equations and/or use other properties as lemma to strengthen the inductive hypothesis many times. Moreover, we revise/write the proof scores for five properties (inv12, inv13, inv16, inv17 and inv18) by induction on the number of transitions applying some tips on writing proof scores in the CafeOBJ method \cite{Ogata2006}.
+
+% The revised proof scores are feed into CafeInMaude and if all proof scores are reduced to \verb!true! then the corresponding properties are proved. If they are not directly reduced to \verb!true!, case splitting or using lemma is required. Even if CafeInMaude returns \verb!true! for each open-close fragment of a proof score, CiMPG may not successfully generate proof scripts from the proof score. In such case, we need to revise the proof score again. If all proof scores are complete, we are ready to use CiMPG to formally verify the properties. In order to use CiMPG, we slightly need to annotate the proof scores. Let us use one example of proof score open-close fragment that is annotated to use CiMPG. The following proof fragment is a proof fragment of one case from inv13
+% It is necessary to annotate each open-close fragment of proof
+% scores so that proof scores can be handled by CiMPG. Let us take
+% one open-close fragment annotated from the proof score of inv13:
+% \begin{small}
+% \begin{verbatim}
+% open INV .
+%   :id(tls)
+%   op p : -> Protocol .  ops a b b1 : -> Prin .
+%   ops r1 r2 : -> Rand . op l : -> ListOfChoices .
+%   op c : -> Choice .    op i : -> Sid .
+%   op s : -> Secret .    op k : -> PubKey .
+% -- arbitrary objects
+%   ops p1 p2 : -> Prin . op esfin1 : -> EncSFin .
+% -- assumptions
+%   eq esfin1 \in cesfin(nw(p)) = true .
+%   eq esfin1 = esfin(k(b,pms(a,b,s),r1,r2),
+%   sfin(a,b,i,l,c,r1,r2,pms(a,b,s))) .
+%   eq a = intruder . eq a = p1 . eq b = intruder .
+%   eq b = p2 .   eq b1 = intruder . 
+%   red inv13(p,a,b,b1,r1,r2,l,c,i,s,k) implies
+%   inv13(fakeSfin1(p,p2,p1,esfin1),a,b,b1,r1,r2,l,c,i,s,k) .
+% close
+% \end{verbatim}
+% \end{small}
 % where all the constants except for intruder denote arbitrary
 % values of the intended sorts. For example, a, b, b1, p1 and p2 denote arbitrary values of sort Prin. Moreover, we need to add one more open-close fragment to the proof scores, which is as follows:
-where :id(tls) is the annotation. CiMPG treats all open-close fragments annotated by :id(tls) for formal verification of TLS. Each proof score needs to have one special open-close fragment:
-\begin{small}
-\begin{verbatim}
-open INV
-  :proof(tls)
-close
-\end{verbatim}
-\end{small}
+% where :id(tls) is the annotation. CiMPG treats all open-close fragments annotated by :id(tls) for formal verification of TLS. Each proof score needs to have one special open-close fragment:
+% \begin{small}
+% \begin{verbatim}
+% open INV
+%   :proof(tls)
+% close
+% \end{verbatim}
+% \end{small}
 % where \verb!tls! is just an identifier, can be replaced by another preferred one. Feeding the annotated proof scores into CiMPG, CiMPG automatically generates the proof script for CiMPA. Feeding the generated proof script into CiMPA, if CiMPA discharges all goals, confirming that the proof scores are correct. 
-Each proof score is stored in a file. The special open-close
-fragment informs CiMPG that the open-close fragments in the file
-all of which are supposed to be annotated by :proof(tls) are to
-be handled by CiMPG.
+% Each proof score is stored in a file. The special open-close
+% fragment informs CiMPG that the open-close fragments in the file
+% all of which are supposed to be annotated by :proof(tls) are to
+% be handled by CiMPG.
 
-\textbf{TO REVISE THIS PART}
-% This part should be revised.
-
-% 1. Similar sentences are repeated, which is redundant.
-
-% 2. You should write what is pointed out by CiMPG as errors.
-
+% \textbf{TO REVISE THIS PART}
 % 3. Even though CiMPG suggests how to correct them but you can guess how to fix the errors from the information given by CiMPG.
 
 % CiMPG+F may be able to fix the errors automatically or suggest you how to fix the errors.
 
 % 4. If CiMPG did not fix the errors, you should write how you fixed the errors based on the information given by CiMPG.
 
-% I does not enough to shoe the revised open-close fragment.
-Before feeding the generated proof scripts from CiMPG into CiMPA, we need to check whether the generated proof scripts contain the errors since there is a situation that CiMPG may not generate proof scripts correctly when the proof scores are not correct. CiMPG generates a formal proof script when the proof score are correct and complete. We describe some examples on how to revise the proof scores so as to generate the correct proof scripts from proof scores by CiMPG. As an example, by the time we run the above proof score fragment with CiMPG, the generated proof script contains the errors indicating that the proof score is not correct. We then need to carefully take a look at the proof score and revise it accordingly by the indicated errors. Note that CiMPG points out the errors in generated proof scripts, but it does not suggest how to fix them. We remove some unnecessary equations/case splitting in the above proof passage and feed the revised proof passage into CafeInMaude to check whether it returns true or not. The revised one for the above proof fragment is as follows:
-\begin{small}
-\begin{verbatim}
-open INV .
-  :id(tls)
-  op p : -> Protocol .  ops a b b1 : -> Prin .
-  ops r1 r2 : -> Rand . op l : -> ListOfChoices .
-  op c : -> Choice .    op i : -> Sid .
-  op s : -> Secret .    op k : -> PubKey .
--- arbitrary objects
-  ops p1 p2 : -> Prin . op esfin1 : -> EncSFin .
--- assumptions
-  eq esfin1 \in cesfin(nw(p)) = true .
-  eq esfin1 = esfin(k(b,pms(a,b,s),r1,r2),
-  sfin(a,b,i,l,c,r1,r2,pms(a,b,s))) .
-  eq a = intruder .
-red inv13(p,a,b,b1,r1,r2,l,c,i,s,k) implies
-inv13(fakeSfin1(p,p2,p1,esfin1),a,b,b1,r1,r2,l,c,i,s,k) .
-close
-\end{verbatim}
-\end{small}
-The revised annotated proof fragment is fed into CiMPG and CiMPG, unfortunately can not generate the correct proof script for this proof score
-% , there is still an error in the scripts 
-letting us know that the proof score is still not good enough for CiMPG to generate the correct proof script and pointing out that using the equation \verb!a = intruder! for case splitting is not correct. Then we revise the proof score by removing that equation and feed the proof score into CiMPG. This time CiMPG can handle this case and generates the correct proof script. The revised proof score is as follows:
-\begin{small}
-\begin{verbatim}
-open INV .
-  :id(tls)
-  op p : -> Protocol .  ops a b b1 : -> Prin .
-  ops r1 r2 : -> Rand . op l : -> ListOfChoices .
-  op c : -> Choice .    op i : -> Sid .
-  op s : -> Secret .    op k : -> PubKey .
--- arbitrary objects
-  ops p1 p2 : -> Prin . op esfin1 : -> EncSFin .
--- assumptions
-  eq esfin1 \in cesfin(nw(p)) = true .
-  eq esfin1 = esfin(k(b,pms(a,b,s),r1,r2),
-  sfin(a,b,i,l,c,r1,r2,pms(a,b,s))) .
-red inv13(p,a,b,b1,r1,r2,l,c,i,s,k) implies
-inv13(fakeSfin1(p,p2,p1,esfin1),a,b,b1,r1,r2,l,c,i,s,k) .
-close
-\end{verbatim}
-\end{small}
+% It does not enough to show the revised open-close fragment.
+% Before feeding the generated proof scripts from CiMPG into CiMPA, we need to check whether the generated proof scripts contain the errors since there is a situation that CiMPG may not generate proof scripts correctly when the proof scores are not correct. CiMPG generates a formal proof script when the proof score are correct and complete. We describe some examples on how to revise the proof scores so as to generate the correct proof scripts from proof scores by CiMPG. As an example, by the time we run the above proof score fragment with CiMPG, the generated proof script contains the errors indicating that the proof score is not correct. We then need to carefully take a look at the proof score and revise it accordingly by the indicated errors. Note that CiMPG points out the errors in generated proof scripts, but it does not suggest how to fix them. We remove some unnecessary equations/case splitting in the above proof passage and feed the revised proof passage into CafeInMaude to check whether it returns true or not. The revised one for the above proof fragment is as follows:
+% \begin{small}
+% \begin{verbatim}
+% open INV .
+%   :id(tls)
+%   op p : -> Protocol .  ops a b b1 : -> Prin .
+%   ops r1 r2 : -> Rand . op l : -> ListOfChoices .
+%   op c : -> Choice .    op i : -> Sid .
+%   op s : -> Secret .    op k : -> PubKey .
+% -- arbitrary objects
+%   ops p1 p2 : -> Prin . op esfin1 : -> EncSFin .
+% -- assumptions
+%   eq esfin1 \in cesfin(nw(p)) = true .
+%   eq esfin1 = esfin(k(b,pms(a,b,s),r1,r2),
+%   sfin(a,b,i,l,c,r1,r2,pms(a,b,s))) .
+%   eq a = intruder .
+% red inv13(p,a,b,b1,r1,r2,l,c,i,s,k) implies
+% inv13(fakeSfin1(p,p2,p1,esfin1),a,b,b1,r1,r2,l,c,i,s,k) .
+% close
+% \end{verbatim}
+% \end{small}
+% The revised annotated proof fragment is fed into CiMPG and CiMPG, unfortunately can not generate the correct proof script for this proof score
+% % , there is still an error in the scripts 
+% letting us know that the proof score is still not good enough for CiMPG to generate the correct proof script and pointing out that using the equation \verb!a = intruder! for case splitting is not correct. Then we revise the proof score by removing that equation and feed the proof score into CiMPG. This time CiMPG can handle this case and generates the correct proof script. The revised proof score is as follows:
+% \begin{small}
+% \begin{verbatim}
+% open INV .
+%   :id(tls)
+%   op p : -> Protocol .  ops a b b1 : -> Prin .
+%   ops r1 r2 : -> Rand . op l : -> ListOfChoices .
+%   op c : -> Choice .    op i : -> Sid .
+%   op s : -> Secret .    op k : -> PubKey .
+% -- arbitrary objects
+%   ops p1 p2 : -> Prin . op esfin1 : -> EncSFin .
+% -- assumptions
+%   eq esfin1 \in cesfin(nw(p)) = true .
+%   eq esfin1 = esfin(k(b,pms(a,b,s),r1,r2),
+%   sfin(a,b,i,l,c,r1,r2,pms(a,b,s))) .
+% red inv13(p,a,b,b1,r1,r2,l,c,i,s,k) implies
+% inv13(fakeSfin1(p,p2,p1,esfin1),a,b,b1,r1,r2,l,c,i,s,k) .
+% close
+% \end{verbatim}
+% \end{small}
 % CiMPG could generate the correct proof scripts for CiMPA this time.
 % Although writing proof scores is flexible to conduct formal verification, the verification may contain some flaws because proof scores are subject to human errors.
-Human users can overlook some cases during the revision of the proof scores because several case splittings are in general possible for each goal. From this example, we experience that we do not need to introduce the equations unnecessarily even though CafeInMaude returns true for this proof passage. 
-Let us consider the following proof passage corresponding to case sfin2 of inv6:
-\begin{small}
-\begin{verbatim}
-open INV .
-  op p : -> Protocol .  ops a b : -> Prin .
-  ops r1 r2 : -> Rand . op c : -> Choice .
-  op i : -> Sid .       op s : -> Secret .
--- arbitrary objects
-  op p2 : -> Prin . ops m1 m2 m3 : -> Msg .
--- assumptions
-  eq m1 \in nw(p) = true .  eq m2 \in nw(p) = true .
-  eq m3 \in nw(p) = true .  eq ch2?(m1) = true .
-  eq sh2?(m2) = true .      eq cf2?(m3) = true .
-  eq crt(m2) = p2 .         eq src(m2) = p2 .
-  eq src(m1) = dst(m2) .    eq dst(m1) = p2 .
-  eq src(m3) = dst(m2) .    eq dst(m3) = p2 .
-  eq sid(m1) = sid(m2) .
-  eq (ss(p,dst(m2),p2,sid(m2)) = none) = false .
-  eq choice(ss(p,dst(m2),p2,sid(m2))) = choice(m2) .
-  eq ecfin2(m3) = ecfin2(k(dst(m2),pms(ss(p,dst(m2),p2,
-  sid(m2))),rand(m1),rand(m2)),cfin2(dst(m2),p2,sid(m2),
-   choice(m2),rand(m1),rand(m2),pms(ss(p,dst(m2),p2,sid(m2))))) .
-  eq r1 = rand(m1) .    eq a = dst(m2) .    eq i = sid(m2) .
-  eq c = choice(m2) .   eq b = p2 . eq r2 = rand(m2) .
-  eq (pms(ss(p,dst(m2),p2,sid(m2))) = pms(a,b,s)) = false .
-  eq pms(ss(p,dst(m2),p2,sid(m2))) = pms(dst(m2),p2,s) .
-  eq dst(m2) = intruder .
-  red inv6(p,a,b,r1,r2,c,i,s) implies
-  inv6(sfin2(p,p2,m1,m2,m3),a,b,r1,r2,c,i,s) .
-close
-\end{verbatim}
-\end{small}
-The above proof passage corresponds to a (sub-) case obtained by splitting the induction case for \verb!sfin2!. CafeInMaude returns \verb!true! for the proof passage, however CiMPG can not generate the correct proof script for the equation 
-% In each open-close fragment, several equations are added, and then the extended specifications (the original specification + the open-close fragment) often becomes non-confluent. Even so, CafeInMaude returns true and CiMPG can successfully generate correct proof spirits for the open-close fragment. You need to investigate that every non-confluent extended specification cannot be successfully handled by CiMPG or only some cannot. If this is the latter case, you need to investigate what type of non-confluent (what type of equations) cause errors by CiMPG.
-% It is not enough to use a concrete example to explain it.
-\verb!eq pms(ss(p,dst(m2),! \verb!p2, sid(m2))) = pms(a,b,s) .!
-since we have the equation \verb!eq a = dst(m2) .! and \verb!a! rewrites to \verb!dst(m2)!, not vice versa. Hence, the equation should be \verb!eq pms(ss(p,dst(m2),! \verb!p2, sid(m2))) = pms(dst(m2),p2,s) .! Then we revise the proof fragment as follows:
-\begin{small}
-\begin{verbatim}
-open INV .
-  op p : -> Protocol .  ops a b : -> Prin .
-  ops r1 r2 : -> Rand . op c : -> Choice .
-  op i : -> Sid .       op s : -> Secret .
--- arbitrary objects
-  op p2 : -> Prin . ops m1 m2 m3 : -> Msg .
--- assumptions
-  eq m1 \in nw(p) = true .  eq m2 \in nw(p) = true .
-  eq m3 \in nw(p) = true .  eq ch2?(m1) = true .
-  eq sh2?(m2) = true .      eq cf2?(m3) = true .
-  eq crt(m2) = p2 .         eq src(m2) = p2 .
-  eq src(m1) = dst(m2) .    eq dst(m1) = p2 .
-  eq src(m3) = dst(m2) .    eq dst(m3) = p2 .
-  eq sid(m1) = sid(m2) .
-  eq (ss(p,dst(m2),p2,sid(m2)) = none) = false .
-  eq choice(ss(p,dst(m2),p2,sid(m2))) = choice(m2) .
-  eq ecfin2(m3) = ecfin2(k(dst(m2),pms(ss(p,dst(m2),p2,
-  sid(m2))),rand(m1),rand(m2)),cfin2(dst(m2),p2,sid(m2),
-   choice(m2),rand(m1),rand(m2),pms(ss(p,dst(m2),p2,sid(m2))))) .
-  eq r1 = rand(m1) .    eq a = dst(m2) .    eq i = sid(m2) .
-  eq c = choice(m2) .   eq b = p2 . eq r2 = rand(m2) .
-  eq pms(ss(p,dst(m2),p2,sid(m2))) = pms(dst(m2),p2,s) .
-  red inv6(p,a,b,r1,r2,c,i,s) implies
-  inv6(sfin2(p,p2,m1,m2,m3),a,b,r1,r2,c,i,s) .
-close
-\end{verbatim}
-\end{small}
+% Human users can overlook some cases during the revision of the proof scores because several case splittings are in general possible for each goal. From this example, we experience that we do not need to introduce the equations unnecessarily even though CafeInMaude returns true for this proof passage. 
+% Let us consider the following proof passage corresponding to case sfin2 of inv6:
+% \begin{small}
+% \begin{verbatim}
+% open INV .
+%   op p : -> Protocol .  ops a b : -> Prin .
+%   ops r1 r2 : -> Rand . op c : -> Choice .
+%   op i : -> Sid .       op s : -> Secret .
+% -- arbitrary objects
+%   op p2 : -> Prin . ops m1 m2 m3 : -> Msg .
+% -- assumptions
+%   eq m1 \in nw(p) = true .  eq m2 \in nw(p) = true .
+%   eq m3 \in nw(p) = true .  eq ch2?(m1) = true .
+%   eq sh2?(m2) = true .      eq cf2?(m3) = true .
+%   eq crt(m2) = p2 .         eq src(m2) = p2 .
+%   eq src(m1) = dst(m2) .    eq dst(m1) = p2 .
+%   eq src(m3) = dst(m2) .    eq dst(m3) = p2 .
+%   eq sid(m1) = sid(m2) .
+%   eq (ss(p,dst(m2),p2,sid(m2)) = none) = false .
+%   eq choice(ss(p,dst(m2),p2,sid(m2))) = choice(m2) .
+%   eq ecfin2(m3) = ecfin2(k(dst(m2),pms(ss(p,dst(m2),p2,
+%   sid(m2))),rand(m1),rand(m2)),cfin2(dst(m2),p2,sid(m2),
+%   choice(m2),rand(m1),rand(m2),pms(ss(p,dst(m2),p2,sid(m2))))) .
+%   eq r1 = rand(m1) .    eq a = dst(m2) .    eq i = sid(m2) .
+%   eq c = choice(m2) .   eq b = p2 . eq r2 = rand(m2) .
+%   eq (pms(ss(p,dst(m2),p2,sid(m2))) = pms(a,b,s)) = false .
+%   eq pms(ss(p,dst(m2),p2,sid(m2))) = pms(dst(m2),p2,s) .
+%   eq dst(m2) = intruder .
+%   red inv6(p,a,b,r1,r2,c,i,s) implies
+%   inv6(sfin2(p,p2,m1,m2,m3),a,b,r1,r2,c,i,s) .
+% close
+% \end{verbatim}
+% \end{small}
+% The above proof passage corresponds to a (sub-) case obtained by splitting the induction case for \verb!sfin2!. CafeInMaude returns \verb!true! for the proof passage, however CiMPG can not generate the correct proof script for the equation 
+% % In each open-close fragment, several equations are added, and then the extended specifications (the original specification + the open-close fragment) often becomes non-confluent. Even so, CafeInMaude returns true and CiMPG can successfully generate correct proof spirits for the open-close fragment. You need to investigate that every non-confluent extended specification cannot be successfully handled by CiMPG or only some cannot. If this is the latter case, you need to investigate what type of non-confluent (what type of equations) cause errors by CiMPG.
+% % It is not enough to use a concrete example to explain it.
+% \verb!eq pms(ss(p,dst(m2),! \verb!p2, sid(m2))) = pms(a,b,s) .!
+% since we have the equation \verb!eq a = dst(m2) .! and \verb!a! rewrites to \verb!dst(m2)!, not vice versa. Hence, the equation should be \verb!eq pms(ss(p,dst(m2),! \verb!p2, sid(m2))) = pms(dst(m2),p2,s) .! Then we revise the proof fragment as follows:
+% \begin{small}
+% \begin{verbatim}
+% open INV .
+%   op p : -> Protocol .  ops a b : -> Prin .
+%   ops r1 r2 : -> Rand . op c : -> Choice .
+%   op i : -> Sid .       op s : -> Secret .
+% -- arbitrary objects
+%   op p2 : -> Prin . ops m1 m2 m3 : -> Msg .
+% -- assumptions
+%   eq m1 \in nw(p) = true .  eq m2 \in nw(p) = true .
+%   eq m3 \in nw(p) = true .  eq ch2?(m1) = true .
+%   eq sh2?(m2) = true .      eq cf2?(m3) = true .
+%   eq crt(m2) = p2 .         eq src(m2) = p2 .
+%   eq src(m1) = dst(m2) .    eq dst(m1) = p2 .
+%   eq src(m3) = dst(m2) .    eq dst(m3) = p2 .
+%   eq sid(m1) = sid(m2) .
+%   eq (ss(p,dst(m2),p2,sid(m2)) = none) = false .
+%   eq choice(ss(p,dst(m2),p2,sid(m2))) = choice(m2) .
+%   eq ecfin2(m3) = ecfin2(k(dst(m2),pms(ss(p,dst(m2),p2,
+%   sid(m2))),rand(m1),rand(m2)),cfin2(dst(m2),p2,sid(m2),
+%   choice(m2),rand(m1),rand(m2),pms(ss(p,dst(m2),p2,sid(m2))))) .
+%   eq r1 = rand(m1) .    eq a = dst(m2) .    eq i = sid(m2) .
+%   eq c = choice(m2) .   eq b = p2 . eq r2 = rand(m2) .
+%   eq pms(ss(p,dst(m2),p2,sid(m2))) = pms(dst(m2),p2,s) .
+%   red inv6(p,a,b,r1,r2,c,i,s) implies
+%   inv6(sfin2(p,p2,m1,m2,m3),a,b,r1,r2,c,i,s) .
+% close
+% \end{verbatim}
+% \end{small}
 
-Let us consider an another concrete example of the following two equations:
-\begin{small}
-\begin{verbatim}
-eq a = b .  eq a = c .
-\end{verbatim}
-\end{small}
-From the two equations, a, b and c are equal in equational logic point of view, however, \verb!a! rewrites to either \verb!b! or \verb!c! with rewriting.
-CafeOBJ may rewrite \verb!a! to \verb!b!, while CafeInMaude may rewrite \verb!a! to \verb!c!. The behaviors of CafeOBJ and CafeInMaude are different if some
-equations, such as a = b, are used in a module and some equations, such as a = c, are used in an open-close fragment that uses the module. Thus it is impossible to prove that all of a, b and c are equal only by rewriting when the specification (or term rewriting systems) is non-confluent.
-If we revise the two equations as follows:
-\begin{small}
-\begin{verbatim}
-eq a = b .  eq b = c .
-\end{verbatim}
-\end{small}
-we can prove that all of a, b and c are equal only by rewriting. CafeOBJ, Maude and CafeInMaude do not use any completion techniques. Even if CafeOBJ and CafeInMaude return true for each open-close fragment of a proof
-score, CiMPG may not correctly handle this kind of situation. This is because of the different behaviors of CafeOBJ and CafeInMaude. Rewriting is a sound implementation of equational reasoning but not a perfect implementation of equational reasoning. Therefore, we need to take care of this kind of situation when writing proof scores whose results depend on implementation, such as CafeOBJ, CafeInMaude and CiMPG.
+% Let us consider an another concrete example of the following two equations:
+% \begin{small}
+% \begin{verbatim}
+% eq a = b .  eq a = c .
+% \end{verbatim}
+% \end{small}
+% From the two equations, a, b and c are equal in equational logic point of view, however, \verb!a! rewrites to either \verb!b! or \verb!c! with rewriting.
+% CafeOBJ may rewrite \verb!a! to \verb!b!, while CafeInMaude may rewrite \verb!a! to \verb!c!. The behaviors of CafeOBJ and CafeInMaude are different if some
+% equations, such as a = b, are used in a module and some equations, such as a = c, are used in an open-close fragment that uses the module. Thus it is impossible to prove that all of a, b and c are equal only by rewriting when the specification (or term rewriting systems) is non-confluent.
+% If we revise the two equations as follows:
+% \begin{small}
+% \begin{verbatim}
+% eq a = b .  eq b = c .
+% \end{verbatim}
+% \end{small}
+% we can prove that all of a, b and c are equal only by rewriting. CafeOBJ, Maude and CafeInMaude do not use any completion techniques. Even if CafeOBJ and CafeInMaude return true for each open-close fragment of a proof
+% score, CiMPG may not correctly handle this kind of situation. This is because of the different behaviors of CafeOBJ and CafeInMaude. Rewriting is a sound implementation of equational reasoning but not a perfect implementation of equational reasoning. Therefore, we need to take care of this kind of situation when writing proof scores whose results depend on implementation, such as CafeOBJ, CafeInMaude and CiMPG.
 
-In this section, we describe the cases that we encountered during revising proof scores and how to revise them based on CiMPG generated proof scripts. Taking a look at the following two equations corresponding to the induction case \verb!sfin! in \verb!7! below,
-\begin{small}
-\begin{verbatim}
-eq pms(a,b,s) = pms(epms(m4)) . eq a = dst(m2) .
-\end{verbatim}
-\end{small}
-the first equation says that the left hand side rewrites the right hand side. The second equation says that \verb!a! rewrites \verb!dst(m2)!. When we declare the second equation, it does not rewrite \verb!a! into \verb!dst(m2)! in \verb!eq pms(a,b,s)!. Instead, the equation should be: \verb!eq pms(dst(m2),b,s) = pms(epms(m4)) .! There are many cases in which we need to revise the proof scores by changing the order of the equations if necessary.
+In this section, we have described how to revise the existing proof scores with some example cases and one useful lemma. Some lessons learned from revising proof scores are (1) in order to utilize CiMPG, we need to get rid of semantic-based case splittings, (2) the order of the declaration of the equation matters in term rewriting, (3) the result of the reduction depends on the implementation of the system, (4) even if CafeOBJ and CafeInMaude return true for the proof score, CiMPG may not correctly handle some kinds of situation. We will present in the next section how to use CiMPG for existing large proof scores.
 
-The formal verification can be conducted by manually writing proof  scripts with CiMPA. However, writing proof scripts manually is not a good idea for this protocol because the size of the proof scores is large and it is subject to human errors. On the other hand, CiMPG takes time to generate the proof script when the size of the proof score is large. In this case study, we tackle each property with CiMPG one by one since the size of the proof score of some properties are quit complex and large. By conducting one invariant by one, it is easier to check the errors in the generated proof scripts and makes it understandable/guessable the cause of errors and then we can revise the proof scores in appropriate way. 
+\section{A Way to Use CiMPG for Existing Large Proof Scores}\label{fvtls}
+\subsection{How to handle each proof score one by one with CiMPG}
+% Taking a look at the following two equations corresponding to the induction case \verb!sfin! in \verb!inv7! below,
+% \begin{small}
+% \begin{verbatim}
+% eq pms(a,b,s) = pms(epms(m4)) . eq a = dst(m2) .
+% \end{verbatim}
+% \end{small}
+% the first equation says that the left hand side rewrites the right hand side. The second equation says that \verb!a! rewrites \verb!dst(m2)!. When we declare the second equation, it does not rewrite \verb!a! into \verb!dst(m2)! in \verb!eq pms(a,b,s)!. Instead, the equation should be: \verb!eq pms(dst(m2),b,s) = pms(epms(m4)) .! There are many cases in which we need to revise the proof scores by changing the order of the equations if necessary.
+
+The formal verification can be conducted by writing manual proof scripts with CiMPA. The proof scripts are reliable, but they are not easy to develop, especially with non-expert users. Writing proof scripts manually is not a good idea for this protocol because the size of the proof scores is large and CiMPA is easy to choose an erroneous order for the case distinctions, generating more goals than required. On the other hand, CiMPG takes time to generate the proof script when the size of the proof score is large. In this case study, we tackle each invariant with CiMPG one by one since the size of the proof score of some invariants are quit complex and large. By conducting one invariant by one, it is easier to check the errors in the generated proof scripts and makes it understandable/guessable the cause of errors and then we can revise the proof scores in appropriate way. 
 
 We use three devices (two MacBook Air that carry 1.6 GHz Intel Core i5 processor, 16 GB memory and one MacBook Pro that carries 2.3 GHz Quad-Core Intel Core i7 processor, 32 GB memory) to conduct this case study running the programs in parallel so as to complete the formal verification faster. CiMPG takes generally 8 to 9 hours to generate the proof scripts for each invariant in both devices, however it takes 52 hours and 17 minutes for running all inductive cases in one file for inv17 using MacBook Pro. Since the size of the proof scores of inv17 is quite large (it has 297 open–close proof fragments involving more than 8000 lines of code). We come up with an idea to divide the proof scores into smaller  open-close fragments when the proof scores is too big to be tackled by CiMPG so that CiMPG can generate the proof scripts from scores in a reasonable amount of time.
 
-The proof scores of inv17 is divided into each induction case with the base case and feed into CiMPG using the same environment. Then, we measure the time taken for generating proof script for each induction case one by one and for all induction cases at the same time as shown in the table \ref{tab:tb3}. CiMPG takes 16 hours, 10 minutes and 58 seconds in total for all induction cases in inv17. The result obviously shows that CiMPG reduces the running time compared to running all induction cases in one time. Therefore, this is a good idea to divide the proof scores into smaller cases and running into CiMPG, however, we need to create 27 files to run each induction case separately.\\
+\subsection{How to handle each induction case one by one with CiMPG}
+The proof scores of inv17 is divided into each induction case with the base case and feed into CiMPG using the same environment. Then, we measure the time taken for generating proof script for each induction case one by one and for all induction cases at the same time as shown in the table \ref{tab:tb3}. CiMPG takes 16 hours, 10 minutes and 58 seconds in total for all induction cases in inv17. The result obviously shows that CiMPG reduces the running time compared to running all induction cases in one time. Therefore, this is a good idea to divide the proof scores into smaller cases and running into CiMPG, however, we need to create 27 files to run each induction case separately. The table \ref{tab:tb3} shows ....
 \newline
 \begin{table}[]
 \caption{Runtime for each inductive case one by one Vs Runtime for all inductive cases at the same time for inv17}
@@ -1610,10 +1649,6 @@ The proof scores of inv17 is divided into each induction case with the base case
 \end{tabularx}
 % \caption{Runtime for all inductive cases of inv17 in one file}
 \end{table}
-
-% Please add the time taken for tackling the while of inv17 so as to easily compare both time taken.
-% You may have two tables in Table 3. If so, each table is give its own caption. The caption of Table 3 should be revised.
-
 
 \section{Related Work}\label{relatedwork}
 From a CafeOBJ specification and an invariant property,
