@@ -183,7 +183,7 @@ TLS 1.0 has been formally verified with CafeInMade Proof Generator (CiMPG) and P
 
 % Main text
 \section{Introduction}\label{intro}
-Internet security is extremely crucial nowadays because many kinds of credential information, such as credit card numbers and social security numbers, are transmitted over the Internet. To make such transmission secure, many security protocols have been designed and developed so far. One of the most widely used ones is Transport Layer Security (TLS) \cite{dierk} that is the successor of Secure Sockets Layer (SSL) \cite{*1}. 
+Internet security is extremely crucial nowadays because many kinds of credential information, such as credit card numbers and social security numbers, are transmitted over the Internet. To make such transmission secure, many security protocols have been designed and developed so far. One of the most widely used ones is Transport Layer Security (TLS) \cite{dierk} that is the successor of Secure Sockets Layer (SSL)~\cite{*1}. 
 % here
 
 TLS consists of multiple sub-protocols one of which is the handshake protocol. The handshake protocol is an authentication protocol, allowing a server and a client to authenticate each other and to securely exchange some security parameters. We suppose that each of servers and clients has been securely given a public-private key pair in this paper. As other authentication protocols, several formal verification case studies \cite{article, 10.1145/3133956.3134063, 10.1145/967900.968063} have been conducted so far. Ogata and Futatsugi \cite{ogata05} have formally verified that TLS 1.0 handshake protocol enjoys some desired properties by writing proof scores \cite{OgataF03fmoods} in CafeOJB \cite{DiaconescuF98amast} and executing them with CafeOBJ. 
@@ -226,12 +226,14 @@ After that, formal verification with CiMPA and CiMPG are presented.
 %
 %\subsection{IFF}
 IFF (Identify-Friend-or-Foe) \cite{iff2001} is a simple protocol, verifying that a principal is a member of a group. The protocol consists of two message exchanges as follows:
-	
-	${\rm Check} \ \  p \rightarrow q : r$
-	
-	${\rm Reply}  \ \ \ q \rightarrow p : \varepsilon_k(r,q)$
-	
-	\noindent
+
+\smallskip
+\noindent
+${\rm Check} \ \  p \rightarrow q : r$\\
+${\rm Reply}  \ \ \ q \rightarrow p : \varepsilon_k(r,q)$
+
+\smallskip
+\noindent
 We suppose that each principal, such as $p$ and $q$, belongs to only one group. A symmetric key is given to each group, whose members share the same key, and keys are different from group to group. If a principal $p$ wants to check if a principal $q$ is a member of the $p$'s group, $p$ generates a fresh random number $r$ and sends it to $q$ via a $\rm Check$ message. 
 Upon receiving the $\rm Check$ message, $q$ sends back to $p$ a $\rm Reply$ message, whose content is $r$ and the identity of $q$ encrypted by the symmetric key $k$ of the $q$'s group. On receipt of the $\rm Reply$ message, $p$ tries to decrypt the ciphertext with the symmetric key of the $p$'s group. If the decryption succeeds and the plaintext consists of $r$ and $q$, $p$ then concludes that $q$ is a member of the $p$'s group. 
 	%The protocol is supposed to have the property that if $p$ receives a valid $\rm Reply$ message from $q$, $q$ is always a member of the $p$'s group. The property is called the IFF property in this paper.
@@ -423,6 +425,11 @@ Feeding the generated proof script into CiMPA, CiMPA discharges all goals, confi
 \section{TLS handshake protocol and its specification in CafeOBJ}
 \label{tls}
 
+This section briefly describes the TLS handshake protocol being formally verified and its formal specification in CafeOBJ.
+Although they are mostly borrowed from the paper~\cite{ogata05},
+we choose to present them in this section because
+they are necessary to comprehend the remaining parts of the present paper.
+
 \subsection{TLS handshake protocol}
 
 %\begin{figure}[]
@@ -472,7 +479,7 @@ Feeding the generated proof script into CiMPA, CiMPA discharges all goals, confi
 \end{figure}
 
 The handshake protocol that Ogata and Futatsugi conducted proof scores formal verification in \cite{ogata05} is a slighly abstract version of the original TLS handshake protocol.
-Because comprehending the protocol being formally verified is necessary to understand the rest of the present paper, this section describes an overview about the protocol (mostly borrows from \cite{ogata05}).
+%Because comprehending the protocol being formally verified is necessary to understand the rest of the present paper, this section describes an overview about the protocol (mostly borrows from \cite{ogata05}).
 Figure~\ref{fig-tls} shows message exchanges between a client and a server in the handshake protocol. 
 Let $A$ and $B$ denote a client and a server, respectively. 
 Let $K_B$ denote the public key of $B$ and $\varepsilon_K$ denote the encryption function, where $K$ is the encryption key.
@@ -555,26 +562,26 @@ The 10 kinds of messages are defined with operators as data constructors for whi
 For each data constructor \verb!x!, the predicate \verb!x!? is defined to check if a given message is \verb!x! message (where \verb!x = ch!, \verb!sh!, \verb!ct!, \verb!kx!, \verb!cf!, \verb!sf!, \verb!ch2,! \verb!sh2!, \verb!sf2!, \verb!cf2!).
 The other sorts and the corresponding data
 constructors that constitute the messages are declared as follows:
-\begin{itemize}
-  \item There are an arbitrary number of principals including two special principals; one is the \verb!intruder! and the other the certificate authority denoted by \verb!ca! for which sort Prin is declared. We suppose that \verb!intruder! does not equal \verb!ca!. 
-  \item \verb!Rand! denotes random numbers generated by principals and
-\verb!ListOfChoices! denotes lists of cipher suites. Operator \verb|_\in_| is the membership predicate of lists.
-  \item \verb!Choice! denotes cipher suites, \verb!Sid! denotes session IDs and \verb!PubKey! denotes public keys. The principal $a$’s public key is denoted by \verb!k!($a$).
-\item \verb!Sig! denotes digital signatures of pairs of a principal and a public key. The digital signature of the pair of principal $b$ and public key $k$ signed by $ca$ is denoted by \verb!sig!($ca$, $b$, $k$).
-\item \verb!Cert! denotes certificates of public keys. Given principal $a$, public key $k$ and signature $g$, the certificate that $k$ is $a$’s, which is certified by $g$, is denoted by \verb!cert!($a$, $k$, $g$).
-\item \verb!Secret! denotes secret values that make pre-master secret globally unique and unguessable and \verb!Pms! denotes premaster secrets. Given two principals $a,b$ and a secret value $s$, a pre-master secret generated by client $a$ for server $b$ is denoted by \verb!pms!($a$, $b$, $s$).
-\item \verb!Key! denotes hashes used as symmetric keys to encrypt Finished messages. Given principal $a$, pre-master secret $pms$ and two random numbers $r1,r2$, the hash of those quantities is denoted by \verb!k!($a$, $pms$, $r1, r2$).
-\item \verb!CFinish! denotes ClientFinish’s. Given two principals $a, b$, session ID $i$, list $l$ of cipher suites, cipher suite $c$, two random numbers $r1, r2$ and pre-master secret $s$, the corresponding ClientFinish is denoted by \verb!cfin!($a, b$, $i$, $l$, $c$, $r1, r2$, $s$).
-\item \verb!SFinish! denotes ServerFinish’s. Given two principals $a, b$, session ID $i$, list $l$ of cipher suites, cipher suite $c$, two random numbers $r1, r2$ and pre-master secret $s$, the corresponding ServerFinish is denoted by \verb!sfin!($a, b$, $i$, $l$, $c$, $r1, r2$, $s$).
-\item \verb!CFinish2! denotes ClientFinish2’s. Given two principals $a, b$, session ID $i$, cipher suite $c$, two random numbers $r1, r2$ and pre-master secret $s$, the corresponding ClientFinish is denoted by \verb!cfin2!($a, b$, $i$, $c$, $r1, r2$, $s$).
-\item \verb!SFinish2! denotes ServerFinish2’s. Given two principals $a, b$, session ID $i$, cipher suite $c$, two random numbers $r1, r2$ and pre-master secret $s$, the corresponding ServerFinish is denoted by \verb!sfin2!($a, b$, $i$, $c$, $r1, r2$, $s$).
-\item \verb!EncPms! denotes pre-master secrets encrypted by public keys. Pre-master secret $pms$ encrypted by public key $k$ is denoted by \verb!epms!($k$, $pms$).
-\item \verb!EncCFin! denotes ClientFinish’s encrypted by symmetric keys. ClientFinish $f$ encrypted by symmetric key $k$ denoted by \verb!ecfin!($k$, $f$).
-\item \verb!EncSFin! denotes ServerFinish’s encrypted by symmetric keys. ServerFinish $f$ encrypted by symmetric key $k$ denoted by \verb!esfin!($k$, $f$).
-\item \verb!EncCFin2! denotes ClientFinish2’s encrypted by symmetric keys. ClientFinish2 $f$ encrypted by symmetric key $k$ denoted by \verb!ecfin2!($k$, $f$).
-\item \verb!EncSFin2! denotes ServerFinish2’s encrypted by symmetric keys. ServerFinish2 $f$ encrypted by symmetric key $k$ denoted by \verb!esfin2!($k$, $f$).
-\item \verb!Session! denotes a quadruple of a cipher suite, two random numbers and a pre-master secret. A quadruple of cipher suite $c$, two random numbers $r1, r2$ and pre-master secret $pms$ is denoted by \verb!st!($c$, $r1, r2$, $pms$).
-\end{itemize}
+%\begin{itemize}
+%  \item There are an arbitrary number of principals including two special principals; one is the \verb!intruder! and the other the certificate authority denoted by \verb!ca! for which sort Prin is declared. We suppose that \verb!intruder! does not equal \verb!ca!. 
+%  \item \verb!Rand! denotes random numbers generated by principals and
+%\verb!ListOfChoices! denotes lists of cipher suites. Operator \verb|_\in_| is the membership predicate of lists.
+%  \item \verb!Choice! denotes cipher suites, \verb!Sid! denotes session IDs and \verb!PubKey! denotes public keys. The principal $a$’s public key is denoted by \verb!k!($a$).
+%\item \verb!Sig! denotes digital signatures of pairs of a principal and a public key. The digital signature of the pair of principal $b$ and public key $k$ signed by $ca$ is denoted by \verb!sig!($ca$, $b$, $k$).
+%\item \verb!Cert! denotes certificates of public keys. Given principal $a$, public key $k$ and signature $g$, the certificate that $k$ is $a$’s, which is certified by $g$, is denoted by \verb!cert!($a$, $k$, $g$).
+%\item \verb!Secret! denotes secret values that make pre-master secret globally unique and unguessable and \verb!Pms! denotes premaster secrets. Given two principals $a,b$ and a secret value $s$, a pre-master secret generated by client $a$ for server $b$ is denoted by \verb!pms!($a$, $b$, $s$).
+%\item \verb!Key! denotes hashes used as symmetric keys to encrypt Finished messages. Given principal $a$, pre-master secret $pms$ and two random numbers $r1,r2$, the hash of those quantities is denoted by \verb!k!($a$, $pms$, $r1, r2$).
+%\item \verb!CFinish! denotes ClientFinish’s. Given two principals $a, b$, session ID $i$, list $l$ of cipher suites, cipher suite $c$, two random numbers $r1, r2$ and pre-master secret $s$, the corresponding ClientFinish is denoted by \verb!cfin!($a, b$, $i$, $l$, $c$, $r1, r2$, $s$).
+%\item \verb!SFinish! denotes ServerFinish’s. Given two principals $a, b$, session ID $i$, list $l$ of cipher suites, cipher suite $c$, two random numbers $r1, r2$ and pre-master secret $s$, the corresponding ServerFinish is denoted by \verb!sfin!($a, b$, $i$, $l$, $c$, $r1, r2$, $s$).
+%\item \verb!CFinish2! denotes ClientFinish2’s. Given two principals $a, b$, session ID $i$, cipher suite $c$, two random numbers $r1, r2$ and pre-master secret $s$, the corresponding ClientFinish is denoted by \verb!cfin2!($a, b$, $i$, $c$, $r1, r2$, $s$).
+%\item \verb!SFinish2! denotes ServerFinish2’s. Given two principals $a, b$, session ID $i$, cipher suite $c$, two random numbers $r1, r2$ and pre-master secret $s$, the corresponding ServerFinish is denoted by \verb!sfin2!($a, b$, $i$, $c$, $r1, r2$, $s$).
+%\item \verb!EncPms! denotes pre-master secrets encrypted by public keys. Pre-master secret $pms$ encrypted by public key $k$ is denoted by \verb!epms!($k$, $pms$).
+%\item \verb!EncCFin! denotes ClientFinish’s encrypted by symmetric keys. ClientFinish $f$ encrypted by symmetric key $k$ denoted by \verb!ecfin!($k$, $f$).
+%\item \verb!EncSFin! denotes ServerFinish’s encrypted by symmetric keys. ServerFinish $f$ encrypted by symmetric key $k$ denoted by \verb!esfin!($k$, $f$).
+%\item \verb!EncCFin2! denotes ClientFinish2’s encrypted by symmetric keys. ClientFinish2 $f$ encrypted by symmetric key $k$ denoted by \verb!ecfin2!($k$, $f$).
+%\item \verb!EncSFin2! denotes ServerFinish2’s encrypted by symmetric keys. ServerFinish2 $f$ encrypted by symmetric key $k$ denoted by \verb!esfin2!($k$, $f$).
+%\item \verb!Session! denotes a quadruple of a cipher suite, two random numbers and a pre-master secret. A quadruple of cipher suite $c$, two random numbers $r1, r2$ and pre-master secret $pms$ is denoted by \verb!st!($c$, $r1, r2$, $pms$).
+%\end{itemize}
 
 The projection operators are defined to return the arguments of the data constructors. The projection operators for a message such as \verb!crt!, \verb!src! and \verb!dst! return the first, second and third arguments of the message, respectively. 
 % The first, second and  third  arguments  of  each  message are  the  actual creator,  the  seeming  sender  and  the  receiver  of the  corresponding message. 
@@ -830,9 +837,10 @@ message really originate2 from the server.
 	\label{fig-cs-inv1}
 \end{table}
 
-We describe in this section some examples on how to revise the existing proof scores so that CiMPG can handle them. The five invariants such as inv12, inv13, inv16, inv17 and inv18 have been proved by case analysis with other invariants, and the remaining ones by (simultaneous) structural induction on reachable states in \cite{ogata05}. CiMPG cannot deal with the proofs by case analysis. Thus, it is necessary to prove the five invariants by structural induction. We have written proof scores for those five ones by using structural induction.
+
 % while referring to some tips on writing proof scores \cite{Ogata2006}. 
-In the existing proof scores of the protocol, semantic-based case splittings are used several times. 
+In the existing proof scores of the protocol, semantic-based case splittings are used many times.
+We choose to present here  
 However, this case splitting cannot be handled by CiMPG. Thus, we need to revise the proof scores to get rid of any case splitting based on semantics. 
 For example, the induction case \verb!shello! of inv1 consists of the following two open-close fragments:
 
@@ -888,21 +896,19 @@ $c6 \triangleq$ \verb!c \in list(m)!
 
 \medskip
 
-As an example, the proof associated with the sub-case (2.1) in the table is as follows:
+As an example, the proof fragment associated with the sub-case (2.1) in the table is as follows:
 
  \begin{small}
 	\begin{verbatim}
-		open ISTEP .
-		ops p p' : -> Protocol .  op pms : -> Pms .  op b : -> Prin .
-		op c : -> Choice .        op r : -> Rand .   op i : -> Sid . 
-		op nw10 : -> Network .    op m : -> Msg .           
-		eq r \in ur(p) = false .  eq i \in ui(p) = true .
-		red istep1(pms) .
-		close
+open ISTEP .
+ops p p' : -> Protocol .  op pms : -> Pms .  op b : -> Prin .
+op c : -> Choice .        op r : -> Rand .   op i : -> Sid . 
+op nw10 : -> Network .    op m : -> Msg .           
+eq r \in ur(p) = false .  eq i \in ui(p) = true .
+red istep1(pms) .
+close
 	\end{verbatim}
 \end{small}
-
-
 
 Let us consider an example of the two equations: \verb!eq a = b .! \verb!eq a = c .!
 % \begin{small}
@@ -1285,7 +1291,9 @@ The above file is loaded by \verb!load ../examples/CCiMPG/TLS-old/!
 % \label{tab:tb3}
 \end{table}
 
+\subsection{Some other tips}
 
+We describe in this section some examples on how to revise the existing proof scores so that CiMPG can handle them. The five invariants such as inv12, inv13, inv16, inv17 and inv18 have been proved by case analysis with other invariants, and the remaining ones by (simultaneous) structural induction on reachable states in \cite{ogata05}. CiMPG cannot deal with the proofs by case analysis. Thus, it is necessary to prove the five invariants by structural induction. We have written proof scores for those five ones by using structural induction.
 
 \section{Related Work}\label{relatedwork}
 From a CafeOBJ specification and an invariant property,
